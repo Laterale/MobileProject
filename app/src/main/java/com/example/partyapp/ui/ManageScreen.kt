@@ -42,7 +42,6 @@ import com.example.partyapp.viewModel.UserAddEventViewModel
 import com.example.partyapp.viewModel.UserCreateEventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageScreen(
     onEventClicked: ()->Unit,
@@ -52,90 +51,109 @@ fun ManageScreen(
             .fillMaxSize()
             .padding(30.dp, 20.dp, 30.dp, 0.dp)
     ) {
-        Text(
-            text = "Your events",
-            style = TextStyle(
-                fontSize = 20.sp,
-                fontFamily = FontFamily(Font(R.font.roboto)),
-                color = Color.hsl(0f, 0f, 1f, 0.70f),
-                shadow = Shadow(Color.DarkGray, offset = Offset(0f, 5f), blurRadius = 10f)),
+        yourEvents()
+        Divider(color = Color.White)
+        addedEvents(onEventClicked)
+    }
+}
+
+@Composable
+fun showTemplateThumbnails() {
+    var i = 0
+    while (i != 10) {
+        IconButton(
+            onClick = { /*TODO*/ },
             modifier = Modifier
                 .padding(5.dp, 0.dp)
-        )
+                .width(80.dp)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(15.dp)),
+            colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
+
+        ) {}
+        i += 1
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun showTemplateEvents(onEventClicked: () -> Unit) {
+    var i = 0
+    while(i != 10){
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .padding(0.dp, 20.dp)
-                .horizontalScroll(ScrollState(0))
+            modifier = Modifier.padding(0.dp, 0.dp,0.dp, 20.dp)
         ) {
-            IconButton(
-                onClick = { /*TODO*/ },
+            OutlinedCard(
                 modifier = Modifier
-                    .padding(5.dp, 0.dp)
-                    .width(80.dp)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(15.dp)),
-                colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
-
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Create new event",
-                    tint = Color.White,
-                    modifier = Modifier.size(40.dp)
-                )
-
-            }
-            var i = 0
-            while (i != 10) {
-                IconButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .padding(5.dp, 0.dp)
-                        .width(80.dp)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(15.dp)),
-                    colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
-
-                ) {}
-                i += 1
-            }
+                    .fillMaxWidth()
+                    .height(80.dp),
+                colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+                border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+                onClick = { onEventClicked() }  //evento generico, da collegare al viewmodel
+            ) {}
+            i += 1
         }
-        Divider(
-            color = Color.White
-        )
-        Text(
-            text = "Added events",
-            style = TextStyle(
-                fontSize = 20.sp,
-                fontFamily = FontFamily(Font(R.font.roboto)),
-                color = Color.hsl(0f, 0f, 1f, 0.70f),
-                shadow = Shadow(Color.DarkGray, offset = Offset(0f, 5f), blurRadius = 10f)),
+    }
+}
+
+@Composable
+fun yourEvents() {
+    Text(
+        text = "Your events",
+        style = TextStyle(
+            fontSize = 20.sp,
+            fontFamily = FontFamily(Font(R.font.roboto)),
+            color = Color.hsl(0f, 0f, 1f, 0.70f),
+            shadow = Shadow(Color.DarkGray, offset = Offset(0f, 5f), blurRadius = 10f)),
+        modifier = Modifier
+            .padding(5.dp, 0.dp)
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .padding(0.dp, 20.dp)
+            .horizontalScroll(ScrollState(0))
+    ) {
+        IconButton(
+            onClick = { /*TODO*/ },
             modifier = Modifier
-                .padding(5.dp, 15.dp, 5.dp, 15.dp)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(ScrollState(0))
+                .padding(5.dp, 0.dp)
+                .width(80.dp)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(15.dp)),
+            colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
+
         ) {
-            var i = 0
-            while(i != 10){
-                Row(
-                    modifier = Modifier.padding(0.dp, 0.dp,0.dp, 20.dp)
-                ) {
-                    OutlinedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(80.dp),
-                        colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-                        border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
-                        onClick = { onEventClicked() }  //evento generico, da collegare al viewmodel
-                    ) {}
-                    i += 1
-                }
-            }
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Create new event",
+                tint = Color.White,
+                modifier = Modifier.size(40.dp)
+            )
+
         }
+        showTemplateThumbnails()
+    }
+}
+
+@Composable
+fun addedEvents(onEventClicked: () -> Unit) {
+    Text(
+        text = "Added events",
+        style = TextStyle(
+            fontSize = 20.sp,
+            fontFamily = FontFamily(Font(R.font.roboto)),
+            color = Color.hsl(0f, 0f, 1f, 0.70f),
+            shadow = Shadow(Color.DarkGray, offset = Offset(0f, 5f), blurRadius = 10f)),
+        modifier = Modifier
+            .padding(5.dp, 15.dp, 5.dp, 15.dp)
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(ScrollState(0))
+    ) {
+        showTemplateEvents(onEventClicked)
     }
 }
