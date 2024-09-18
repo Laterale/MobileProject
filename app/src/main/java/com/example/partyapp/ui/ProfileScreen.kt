@@ -1,5 +1,6 @@
 package com.example.partyapp.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.data.entity.User
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
@@ -45,7 +47,10 @@ import com.example.partyapp.viewModel.UserAddEventViewModel
 import com.example.partyapp.viewModel.UserCreateEventViewModel
 import com.example.partyapp.viewModel.UserScansEventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.coroutines.flow.first
 
+
+var user: User? = null;
 
 @Composable
 fun ProfileScreen(
@@ -55,10 +60,11 @@ fun ProfileScreen(
     settingsViewModel: SettingsViewModel,
     session: String,
 ) {
-    /*val context = LocalContext.current
+    setCurrentUser(userViewModel, session)
+    /*
+    val context = LocalContext.current
     val users by userViewModel.users.collectAsState(initial = listOf())
     val currentTheme = settingsViewModel.theme.collectAsState(initial = "Light").value
-
     if(users.isNotEmpty() || userViewModel.loggedUser != null) {
         val loggedUser = if (userViewModel.loggedUser == null)
             users.find { it.username == session }!! else userViewModel.loggedUser!!*/
@@ -81,7 +87,7 @@ fun ProfileScreen(
                 )
             }
             userProfilePic()
-            Text(text = "Username", style = Typography.labelMedium)
+            Text(text = user?.username ?: "Username", style = Typography.labelMedium)
             Text(text = "City", style = Typography.labelSmall)
             Text(text = "Age", style = Typography.labelSmall)
             xpBar()
@@ -90,6 +96,20 @@ fun ProfileScreen(
             )
         }
     /*}*/
+}
+
+@Composable
+fun setCurrentUser(userViewModel: UserViewModel, session: String) {
+    val users by userViewModel.users.collectAsState(initial = listOf())
+    if (user == null && users.isNotEmpty()) {
+        if (userViewModel.loggedUser != null) user = userViewModel.loggedUser
+        else if (session != "") user = users.find { it.username == session }
+        else user = users.first()
+    }
+
+    Log.println(Log.WARN, "USERS_DB", users.size.toString())
+    Log.println(Log.WARN, "USERS_SESSION", session)
+    Log.println(Log.WARN, "USERS_LOGGED", userViewModel.loggedUser.toString())
 }
 
 @Composable
