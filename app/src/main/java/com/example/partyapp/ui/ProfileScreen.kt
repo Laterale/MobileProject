@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
@@ -79,81 +80,58 @@ fun ProfileScreen(
                     tint = Color.White
                 )
             }
-            Box(
-                modifier = Modifier.size(160.dp,150.dp)
-            ) {
-                AsyncImage(                            //profile picture
-                    model = "null",
-                    contentDescription = "Profile image",
-                    modifier = Modifier
-                        .size(130.dp)
-                        .clip(CircleShape)
-                        .background(Color.Black)
-                        .align(Alignment.Center)
-                )
-                SmallFloatingActionButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.align(Alignment.TopEnd),
-                    containerColor = Color.hsl(0f, 0f, 1f, 0.90f),
-                    shape = RoundedCornerShape(40)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AddAPhoto,
-                        contentDescription = "Edit profile",
-                        tint = Color.Black,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-            Text(
-                text = "Username",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 28.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFFFFFFFF),
-                    textAlign = TextAlign.Center,
-                    shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                ),
-            )
-            Text(
-                text = "City",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 28.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0x80FFFFFF),
-                    textAlign = TextAlign.Center,
-                    shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                )
-            )
-            Text(
-                text = "Age",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 28.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0x80FFFFFF),
-                    textAlign = TextAlign.Center,
-                    shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                )
-            )
-            Row(
-                modifier = Modifier.padding(0.dp,15.dp,0.dp,30.dp)
-            ) {
-                LinearProgressIndicator(
-                    progress = 0.5f,
-                    color = Color.White,
-                    trackColor = Color.DarkGray,
-                    modifier = Modifier.size(200.dp, 2.5.dp)
-                )
-            }
+            userProfilePic()
+            Text(text = "Username", style = Typography.labelMedium)
+            Text(text = "City", style = Typography.labelSmall)
+            Text(text = "Age", style = Typography.labelSmall)
+            xpBar()
             Divider(
                 color = Color.White
             )
         }
     /*}*/
+}
+
+@Composable
+fun xpBar() {
+    Row(
+        modifier = Modifier.padding(0.dp,15.dp,0.dp,30.dp)
+    ) {
+        LinearProgressIndicator(
+            progress = 0.5f,
+            color = Color.White,
+            trackColor = Color.DarkGray,
+            modifier = Modifier.size(200.dp, 2.5.dp)
+        )
+    }
+}
+
+@Composable
+fun userProfilePic() {
+    Box(
+        modifier = Modifier.size(160.dp,150.dp)
+    ) {
+        AsyncImage(                            //profile picture
+            model = "null",
+            contentDescription = "Profile image",
+            modifier = Modifier
+                .size(130.dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+                .align(Alignment.Center)
+        )
+        SmallFloatingActionButton(
+            onClick = { /*TODO*/ },
+            modifier = Modifier.align(Alignment.TopEnd),
+            containerColor = Color.hsl(0f, 0f, 1f, 0.90f),
+            shape = RoundedCornerShape(40)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.AddAPhoto,
+                contentDescription = "Edit profile",
+                tint = Color.Black,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
 }
