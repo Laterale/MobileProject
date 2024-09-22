@@ -242,7 +242,9 @@ private fun NavigationGraph(
 
     NavHost(
         navController = navController,
-        startDestination =  if(session == "default") AppScreen.Loading.name else if(session == "") AppScreen.Explore.name else AppScreen.Explore.name, //cambia primo explore in Login
+        startDestination =  if(session == "default") AppScreen.Loading.name
+            else if(session == "") AppScreen.Login.name
+            else AppScreen.Explore.name, //cambia primo explore in Login
         route = ROOT_ROUTE,
         modifier = modifier.padding(innerPadding)
     ) {
