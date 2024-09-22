@@ -1,6 +1,5 @@
 package com.example.partyapp.ui
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -14,7 +13,6 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,11 +36,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.partyapp.R
-import com.example.partyapp.ui.theme.*
+import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.viewModel.UserViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onSuccessfulLogin: () -> Unit?,
@@ -60,100 +57,9 @@ fun LoginScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var username by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-        val passwordFocusRequester = FocusRequester()
-        val focusManager = LocalFocusManager.current
-
-        Icon(
-            painter = painterResource(id = R.drawable.logo_icon),
-            contentDescription = "Logo",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(80.dp)
-        )
-        Text(
-            text = stringResource(id = R.string.app_name),
-            style = TextStyle(fontSize = 40.sp, fontFamily = FontFamily.Cursive),
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        val inputType1 = InputType.Name
-        val inputType2 = InputType.Password
-        TextField(
-            value = username,
-            onValueChange = { username = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(15)),
-            leadingIcon = { Icon(imageVector = inputType1.icon, null) },
-            label = { Text(text = inputType1.label) },
-            shape = MaterialTheme.shapes.small,
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            ),
-            singleLine = true,
-            keyboardOptions = inputType1.keyboardOptions,
-            visualTransformation = inputType1.visualTransformation,
-            keyboardActions = KeyboardActions(onNext = {
-                passwordFocusRequester.requestFocus()
-            })
-        )
-
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(passwordFocusRequester)
-                .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(15)),
-            leadingIcon = { Icon(imageVector = inputType2.icon, null) },
-            label = { Text(text = inputType2.label) },
-            shape = MaterialTheme.shapes.small,
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            ),
-            singleLine = true,
-            keyboardOptions = inputType2.keyboardOptions,
-            visualTransformation = inputType2.visualTransformation,
-            keyboardActions = KeyboardActions(onDone = {
-                focusManager.clearFocus()
-            })
-        )
-
-        Button(
-            onClick = {
-                /*val loggedUser = users.find { it.username == username && it.password == password }
-                if(loggedUser != null) {
-                    Log.d("LOGIN_TAG " + "LoginScreen.kt","successful Login ")
-                    userViewModel.startSession(loggedUser)
-                    userViewModel.selectUser(loggedUser)
-                    onSuccessfulLogin()
-                }
-                else {
-                    //TODO
-                }*/
-            },
-            shape = RoundedCornerShape(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Text(text = "LOGIN", Modifier.padding(vertical = 8.dp))
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Don't have an account?")
-            TextButton(onClick = { onRegisterButtonClicked() }) {
-                Text(text = "REGISTER")
-            }
-        }
+        logo(Color.White)
+        loginForm(onSuccessfulLogin, userViewModel)
+        elseRegister(onRegisterButtonClicked)
     }
 }
 
@@ -179,4 +85,108 @@ sealed class InputType(
         ),
         visualTransformation = PasswordVisualTransformation()
     )
+}
+
+@Composable
+fun logo(color: Color) {
+    Icon(
+        painter = painterResource(id = R.drawable.logo_icon),
+        contentDescription = "Logo",
+        tint = color,
+        modifier = Modifier.size(80.dp)
+    )
+    Text(
+        text = stringResource(id = R.string.app_name),
+        style = TextStyle(fontSize = 40.sp, fontFamily = FontFamily.Cursive),
+        color = color
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun loginForm(
+    onSuccessfulLogin: () -> Unit?,
+    userViewModel: UserViewModel?
+) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    val passwordFocusRequester = FocusRequester()
+    val focusManager = LocalFocusManager.current
+    val inputType1 = InputType.Name
+    val inputType2 = InputType.Password
+    val inputColors = TextFieldDefaults.textFieldColors(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledIndicatorColor = Color.Transparent
+    )
+    TextField(
+        value = username,
+        onValueChange = { username = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(15)),
+        leadingIcon = { Icon(imageVector = inputType1.icon, null) },
+        label = { Text(text = inputType1.label) },
+        shape = MaterialTheme.shapes.small,
+        colors = inputColors,
+        singleLine = true,
+        keyboardOptions = inputType1.keyboardOptions,
+        visualTransformation = inputType1.visualTransformation,
+        keyboardActions = KeyboardActions(onNext = {
+            passwordFocusRequester.requestFocus()
+        })
+    )
+
+    TextField(
+        value = password,
+        onValueChange = { password = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(passwordFocusRequester)
+            .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(15)),
+        leadingIcon = { Icon(imageVector = inputType2.icon, null) },
+        label = { Text(text = inputType2.label) },
+        shape = MaterialTheme.shapes.small,
+        colors = inputColors,
+        singleLine = true,
+        keyboardOptions = inputType2.keyboardOptions,
+        visualTransformation = inputType2.visualTransformation,
+        keyboardActions = KeyboardActions(onDone = {
+            focusManager.clearFocus()
+        })
+    )
+
+    Button(
+        onClick = {
+            /*val loggedUser = users.find { it.username == username && it.password == password }
+            if(loggedUser != null) {
+                Log.d("LOGIN_TAG " + "LoginScreen.kt","successful Login ")
+                userViewModel.startSession(loggedUser)
+                userViewModel.selectUser(loggedUser)
+                onSuccessfulLogin()
+            }
+            else {
+                //TODO
+            }*/
+        },
+        shape = RoundedCornerShape(50.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Text(text = "LOGIN", Modifier.padding(vertical = 8.dp), color = Indigo)
+    }
+}
+
+@Composable
+fun elseRegister(onRegisterButtonClicked: () -> Unit?) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Don't have an account?", color = Color.Gray)
+        TextButton(onClick = { onRegisterButtonClicked() }) {
+            Text(text = "REGISTER")
+        }
+    }
 }
