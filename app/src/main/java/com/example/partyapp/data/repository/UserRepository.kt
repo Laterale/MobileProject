@@ -47,7 +47,7 @@ class UserRepository(private val userDAO: UserDAO, private val context: Context)
     }
 
     @WorkerThread
-    fun checkLoginCredentials(username: String, password:String): Flow<User?> {
+    fun checkLoginCredentials(username: String, password:String): User? {
         return userDAO.checkLoginCredentials(username, password)
     }
     @WorkerThread

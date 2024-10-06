@@ -40,4 +40,10 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        userViewModel.clearSession()
+
+        super.onDestroy()
+    }
 }

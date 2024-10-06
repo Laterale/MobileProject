@@ -322,7 +322,12 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Settings.name){
             SettingsScreen(
-
+                navigateToLogin = {
+                    navController.navigate(AppScreen.Login.name) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                },
+                userViewModel
             )
         }
         composable(route = AppScreen.Event.name){

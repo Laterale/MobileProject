@@ -40,8 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.example.partyapp.R
+import com.example.partyapp.data.entity.User
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -167,16 +169,22 @@ fun loginForm(
 
     Button(
         onClick = {
-            val loggedUser = users.find { it.username == username && it.password == password }
-            if(loggedUser != null) {
-                Log.d("LOGIN_TAG " + "LoginScreen.kt","successful Login ")
-                userViewModel.startSession(loggedUser)
-                userViewModel.selectUser(loggedUser)
-                onSuccessfulLogin()
+            val toast = Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT)
+            var flag: User? = null
+            userViewModel.viewModelScope.launch(Dispatchers.IO) {
+                flag = userViewModel.checkLoginCredentials(username, password)
+            }.invokeOnCompletion {
+                if(flag != null) {
+                    Log.d("LOGIN_TAG " + "LoginScreen.kt","successful Login ")
+                    userViewModel.startSession(flag!!)
+                    userViewModel.selectUser(flag!!)
+                    userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
+                }
+                else {
+                    toast.show()
+                }
             }
-            else {
-                Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
-            }
+            //val loggedUser = users.find { it.username == username && it.password == password }
         },
         shape = RoundedCornerShape(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
