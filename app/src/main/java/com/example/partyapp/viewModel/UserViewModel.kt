@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,8 +38,12 @@ class UserViewModel @Inject constructor(
         repository.getUserFromUsername(username)
     }
 
-    fun checkLoginCredentials(username: String, password:String) = viewModelScope.launch {
-        repository.checkLoginCredentials(username, password)
+    fun checkLoginCredentials(username: String, password:String): Flow<User?> {
+        return repository.checkLoginCredentials(username, password)
+//         viewModelScope.launch {
+//             return@launch repository.checkLoginCredentials(username, password)
+//
+//        }
     }
 
     fun changeUsernameFromId(userId: Int, newUsername: String) = viewModelScope.launch {

@@ -1,5 +1,7 @@
 package com.example.partyapp.ui
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -13,6 +15,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +38,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import com.example.partyapp.R
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -105,9 +110,12 @@ fun logo(color: Color) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun loginForm(
-    onSuccessfulLogin: () -> Unit?,
-    userViewModel: UserViewModel?
+    onSuccessfulLogin: () -> Unit,
+    userViewModel: UserViewModel
 ) {
+    val users by userViewModel.users.collectAsState(initial = listOf())
+    val context = LocalContext.current
+
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val passwordFocusRequester = FocusRequester()
@@ -159,7 +167,7 @@ fun loginForm(
 
     Button(
         onClick = {
-            /*val loggedUser = users.find { it.username == username && it.password == password }
+            val loggedUser = users.find { it.username == username && it.password == password }
             if(loggedUser != null) {
                 Log.d("LOGIN_TAG " + "LoginScreen.kt","successful Login ")
                 userViewModel.startSession(loggedUser)
@@ -167,8 +175,8 @@ fun loginForm(
                 onSuccessfulLogin()
             }
             else {
-                //TODO
-            }*/
+                Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
+            }
         },
         shape = RoundedCornerShape(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
