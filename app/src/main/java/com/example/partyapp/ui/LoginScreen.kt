@@ -42,9 +42,9 @@ import com.example.partyapp.viewModel.UserViewModel
 
 @Composable
 fun LoginScreen(
-    onSuccessfulLogin: () -> Unit?,
-    onRegisterButtonClicked: () -> Unit?,
-    userViewModel: UserViewModel?
+    onSuccessfulLogin: () -> Unit,
+    onRegisterButtonClicked: () -> Unit,
+    userViewModel: UserViewModel
 ) {
     val context = LocalContext.current
     //val users by userViewModel.users.collectAsState(initial = listOf())
