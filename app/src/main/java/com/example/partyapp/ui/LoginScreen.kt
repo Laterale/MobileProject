@@ -28,19 +28,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
-import com.example.partyapp.R
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.ui.components.partyAppLogo
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +59,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        logo(Color.White)
+        partyAppLogo(Color.White)
         loginForm(onSuccessfulLogin, userViewModel)
         elseRegister(onRegisterButtonClicked)
     }
@@ -91,21 +86,6 @@ sealed class InputType(
             keyboardType = KeyboardType.Password
         ),
         visualTransformation = PasswordVisualTransformation()
-    )
-}
-
-@Composable
-fun logo(color: Color) {
-    Icon(
-        painter = painterResource(id = R.drawable.logo_icon),
-        contentDescription = "Logo",
-        tint = color,
-        modifier = Modifier.size(80.dp)
-    )
-    Text(
-        text = stringResource(id = R.string.app_name),
-        style = TextStyle(fontSize = 40.sp, fontFamily = FontFamily.Cursive),
-        color = color
     )
 }
 
