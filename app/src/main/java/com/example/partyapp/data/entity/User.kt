@@ -15,5 +15,6 @@ data class User (
     val password : String,
     val email : String,
     var pfp : String,
-    val exp : Long
+    val exp : Long,
+    val age : Int
 )

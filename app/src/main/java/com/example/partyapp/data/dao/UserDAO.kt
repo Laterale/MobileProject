@@ -16,7 +16,7 @@ interface UserDAO{
     fun getUsers(): Flow<List<User>>
 
     @Query("SELECT * FROM user WHERE username=:username AND password=:password")
-    fun checkLoginCredentials(username: String,password:String) : Flow<User?>
+    fun checkLoginCredentials(username: String,password:String) : User?
 
     @Query("SELECT * FROM user WHERE username=:username")
     fun getUserFromUsername(username: String) : User

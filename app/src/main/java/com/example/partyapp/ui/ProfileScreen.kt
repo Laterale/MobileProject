@@ -1,5 +1,6 @@
 package com.example.partyapp.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.data.entity.User
+import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
@@ -44,7 +47,10 @@ import com.example.partyapp.viewModel.UserAddEventViewModel
 import com.example.partyapp.viewModel.UserCreateEventViewModel
 import com.example.partyapp.viewModel.UserScansEventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.coroutines.flow.first
 
+
+var user: User? = null;
 
 @Composable
 fun ProfileScreen(
@@ -54,10 +60,11 @@ fun ProfileScreen(
     settingsViewModel: SettingsViewModel,
     session: String,
 ) {
-    /*val context = LocalContext.current
+    setCurrentUser(userViewModel, session)
+    /*
+    val context = LocalContext.current
     val users by userViewModel.users.collectAsState(initial = listOf())
     val currentTheme = settingsViewModel.theme.collectAsState(initial = "Light").value
-
     if(users.isNotEmpty() || userViewModel.loggedUser != null) {
         val loggedUser = if (userViewModel.loggedUser == null)
             users.find { it.username == session }!! else userViewModel.loggedUser!!*/
@@ -79,81 +86,72 @@ fun ProfileScreen(
                     tint = Color.White
                 )
             }
-            Box(
-                modifier = Modifier.size(160.dp,150.dp)
-            ) {
-                AsyncImage(                            //profile picture
-                    model = "null",
-                    contentDescription = "Profile image",
-                    modifier = Modifier
-                        .size(130.dp)
-                        .clip(CircleShape)
-                        .background(Color.Black)
-                        .align(Alignment.Center)
-                )
-                SmallFloatingActionButton(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.align(Alignment.TopEnd),
-                    containerColor = Color.hsl(0f, 0f, 1f, 0.90f),
-                    shape = RoundedCornerShape(40)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AddAPhoto,
-                        contentDescription = "Edit profile",
-                        tint = Color.Black,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-            Text(
-                text = "Username",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 28.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFFFFFFFF),
-                    textAlign = TextAlign.Center,
-                    shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                ),
-            )
-            Text(
-                text = "City",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 28.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0x80FFFFFF),
-                    textAlign = TextAlign.Center,
-                    shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                )
-            )
-            Text(
-                text = "Age",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 28.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(400),
-                    color = Color(0x80FFFFFF),
-                    textAlign = TextAlign.Center,
-                    shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                )
-            )
-            Row(
-                modifier = Modifier.padding(0.dp,15.dp,0.dp,30.dp)
-            ) {
-                LinearProgressIndicator(
-                    progress = 0.5f,
-                    color = Color.White,
-                    trackColor = Color.DarkGray,
-                    modifier = Modifier.size(200.dp, 2.5.dp)
-                )
-            }
+            userProfilePic()
+            Text(text = user?.username ?: "Username", style = Typography.labelMedium)
+            Text(text = "City", style = Typography.labelSmall)
+            Text(text = "Age", style = Typography.labelSmall)
+            xpBar()
             Divider(
                 color = Color.White
             )
         }
     /*}*/
+}
+
+@Composable
+fun setCurrentUser(userViewModel: UserViewModel, session: String) {
+    val users by userViewModel.users.collectAsState(initial = listOf())
+    if (user == null && users.isNotEmpty()) {
+        if (userViewModel.loggedUser != null) user = userViewModel.loggedUser
+        else if (session != "") user = users.find { it.username == session }
+        else user = users.first()
+    }
+
+    Log.println(Log.WARN, "USERS_DB", users.size.toString())
+    Log.println(Log.WARN, "USERS_SESSION", session)
+    Log.println(Log.WARN, "USERS_LOGGED", userViewModel.loggedUser.toString())
+}
+
+@Composable
+fun xpBar() {
+    Row(
+        modifier = Modifier.padding(0.dp,15.dp,0.dp,30.dp)
+    ) {
+        LinearProgressIndicator(
+            progress = 0.5f,
+            color = Color.White,
+            trackColor = Color.DarkGray,
+            modifier = Modifier.size(200.dp, 2.5.dp)
+        )
+    }
+}
+
+@Composable
+fun userProfilePic() {
+    Box(
+        modifier = Modifier.size(160.dp,150.dp)
+    ) {
+        AsyncImage(                            //profile picture
+            model = "null",
+            contentDescription = "Profile image",
+            modifier = Modifier
+                .size(130.dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+                .align(Alignment.Center)
+        )
+        SmallFloatingActionButton(
+            onClick = { /*TODO*/ },
+            modifier = Modifier.align(Alignment.TopEnd),
+            containerColor = Color.hsl(0f, 0f, 1f, 0.90f),
+            shape = RoundedCornerShape(40)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.AddAPhoto,
+                contentDescription = "Edit profile",
+                tint = Color.Black,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
 }

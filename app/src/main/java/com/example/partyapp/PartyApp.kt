@@ -28,6 +28,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -235,9 +236,18 @@ private fun NavigationGraph(
     val userScansEventViewModel = hiltViewModel<UserScansEventViewModel>()
     val userCreateEventViewModel = hiltViewModel<UserCreateEventViewModel>()
 
+    val users = userViewModel.users.collectAsState(initial = listOf())
+    if (users != null && users.value.isNotEmpty()) {
+
+    }
+
+    // TODO: review start destination logic
     NavHost(
         navController = navController,
-        startDestination = if(homeTabIndex == 0) AppScreen.Explore.name else AppScreen.Manage.name,
+        startDestination =  if(session == "default") AppScreen.Loading.name
+            else if(session == "") AppScreen.Login.name
+            else AppScreen.Explore.name,
+        // startDestination = if(homeTabIndex == 0) AppScreen.Explore.name else AppScreen.Manage.name,
         route = ROOT_ROUTE,
         modifier = modifier.padding(innerPadding)
     ) {
@@ -298,14 +308,23 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Login.name){
             LoginScreen(
-                onSuccessfulLogin = { /*TODO*/ },
-                onRegisterButtonClicked = { /*TODO*/ },
-                userViewModel = null
+                onSuccessfulLogin = {
+                    navController.navigate(AppScreen.Explore.name) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                },
+                onRegisterButtonClicked = { navController.navigate(AppScreen.Register.name) },
+                userViewModel = userViewModel
             )
         }
         composable(route = AppScreen.Settings.name){
             SettingsScreen(
-
+                navigateToLogin = {
+                    navController.navigate(AppScreen.Login.name) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                },
+                userViewModel
             )
         }
         composable(route = AppScreen.Event.name){
