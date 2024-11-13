@@ -1,7 +1,6 @@
 package com.example.partyapp
 
 import android.app.Application
-import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -87,11 +86,10 @@ sealed class AppScreen(val name: String){
 }
 
 const val ROOT_ROUTE = "root"
-const val EVENT_ROUTE = "event"
+var homeTabIndex = 0
 val homeScreens = listOf(AppScreen.Explore.name, AppScreen.Manage.name)
 val bottomBarScreens = listOf(AppScreen.Profile.name, AppScreen.Explore.name, AppScreen.Map.name)
-val tabScreens = listOf(AppScreen.Explore.name, AppScreen.Manage.name)
-val noBottomBarScreens = listOf(AppScreen.Loading.name, AppScreen.Register.name, AppScreen.Login.name, AppScreen.Event.name, AppScreen.Settings.name)
+val noBottomBarScreens = listOf(AppScreen.Loading.name, AppScreen.Register.name, AppScreen.Login.name, AppScreen.Settings.name)
 val colors = arrayOf(
     0.1f to Color(0xffDD9191),
     0.5f to Color(0xff46389D),
@@ -134,11 +132,9 @@ fun BottomAppBar(
                 }
                 isSelected = currentScreen == item || item == "Explore" && currentScreen in homeScreens
                 NavigationBarItem(
-                    onClick = { navController.navigate(item){
-                        if (item != "Explore") navController.graph.startDestinationRoute?.let { popUpTo(it){ inclusive = false } }
-                        else popUpTo(navController.graph.id){ inclusive = true }
-
-                    }
+                    onClick = {
+                        if(item == "Explore") navController.navigate(if (homeTabIndex == 0) item else AppScreen.Manage.name) { navController.graph.startDestinationRoute?.let { popUpTo(it){ inclusive = true } } }
+                        else navController.navigate(item) { navController.graph.startDestinationRoute?.let { popUpTo(it){ inclusive = false } } }
                               },
                     icon = {
                         if(isSelected) Icon(
@@ -163,19 +159,18 @@ fun BottomAppBar(
 fun HomeTab(
     navController: NavController
 ){
-    var selectedTabIndex by remember { mutableStateOf(0) }
     TabRow(
-        selectedTabIndex = selectedTabIndex,
+        selectedTabIndex = homeTabIndex,
         containerColor = Color.Transparent,
         divider = {null}
     ) {
-        tabScreens.forEachIndexed { index, item ->
+        homeScreens.forEachIndexed { index, item ->
             Tab(
-                selected = index == selectedTabIndex,
+                selected = index == homeTabIndex,
                 selectedContentColor = Color.White,
                 unselectedContentColor = Color.White,
                 onClick = {
-                    selectedTabIndex = index
+                    homeTabIndex = index
                     navController.navigate(item){
                         navController.popBackStack()
                     }
@@ -187,7 +182,7 @@ fun HomeTab(
                             fontFamily = FontFamily(Font(R.font.roboto)),
                             color = Color(0xFFFFFFFF),
                             shadow =
-                                if (index == selectedTabIndex) Shadow(Color.DarkGray, offset = Offset(0f, 5f), blurRadius = 8f)
+                                if (index == homeTabIndex) Shadow(Color.DarkGray, offset = Offset(0f, 5f), blurRadius = 8f)
                                 else Shadow(Color.Transparent, offset = Offset(0f, 5f), blurRadius = 8f)
                         )
                     ) }
@@ -207,8 +202,8 @@ fun NavigationApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
     val currentScreen = backStackEntry?.destination?.route ?: AppScreen.Loading.name
-
     val snackbarHostState = remember { SnackbarHostState() }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -217,7 +212,7 @@ fun NavigationApp(
         Scaffold(
             containerColor = Color.Transparent,
             snackbarHost = { SnackbarHost(snackbarHostState) },
-            topBar = {if (currentScreen in tabScreens) HomeTab(navController = navController)},
+            topBar = {if (currentScreen in homeScreens) HomeTab(navController = navController)},
             bottomBar = {if(currentScreen !in noBottomBarScreens)BottomAppBar(navController = navController, currentScreen = currentScreen)}
         ) { innerPadding ->
             NavigationGraph(navController, innerPadding, session= session)
@@ -246,11 +241,13 @@ private fun NavigationGraph(
 
     }
 
+    // TODO: review start destination logic
     NavHost(
         navController = navController,
         startDestination =  if(session == "default") AppScreen.Loading.name
             else if(session == "") AppScreen.Login.name
-            else AppScreen.Explore.name, //cambia primo explore in Login
+            else AppScreen.Explore.name,
+        // startDestination = if(homeTabIndex == 0) AppScreen.Explore.name else AppScreen.Manage.name,
         route = ROOT_ROUTE,
         modifier = modifier.padding(innerPadding)
     ) {
