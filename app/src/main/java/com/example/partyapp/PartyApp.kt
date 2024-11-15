@@ -162,7 +162,7 @@ fun HomeTab(
     TabRow(
         selectedTabIndex = homeTabIndex,
         containerColor = Color.Transparent,
-        divider = {null}
+        divider = {}
     ) {
         homeScreens.forEachIndexed { index, item ->
             Tab(
@@ -246,7 +246,7 @@ private fun NavigationGraph(
         navController = navController,
         startDestination =  if(session == "default") AppScreen.Loading.name
             else if(session == "") AppScreen.Login.name
-            else AppScreen.Explore.name,
+            else (if (homeTabIndex == 0) AppScreen.Explore.name else AppScreen.Manage.name),
         // startDestination = if(homeTabIndex == 0) AppScreen.Explore.name else AppScreen.Manage.name,
         route = ROOT_ROUTE,
         modifier = modifier.padding(innerPadding)
@@ -297,7 +297,7 @@ private fun NavigationGraph(
                     }
                 },
                 navigateToHome = {
-                    navController.navigate(AppScreen.Explore.name){
+                    navController.navigate(if(homeTabIndex == 0) AppScreen.Explore.name else AppScreen.Manage.name){
                         popUpTo(navController.graph.id){
                             inclusive = true
                         }
