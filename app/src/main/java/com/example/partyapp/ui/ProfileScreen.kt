@@ -20,10 +20,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -41,6 +43,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.ui.components.PartyDialog
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
@@ -141,7 +144,6 @@ fun UserProfilePic() {
                     .data(data = photoUri)
                     .build()
             )
-
             Image(
                 painter = painter,
                 contentDescription = "Profile image",
@@ -168,11 +170,13 @@ fun UserProfilePic() {
 
 @Composable
 fun AddImageBtn(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>, modifier: Modifier) {
+    var showDialog: Boolean by remember { mutableStateOf(false) }
     SmallFloatingActionButton(
         onClick = {
-            launcher.launch(PickVisualMediaRequest(
-                mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-            ))
+            showDialog = true
+//            launcher.launch(PickVisualMediaRequest(
+//                mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+//            ))
         },
         modifier = modifier,
         containerColor = Color.hsl(0f, 0f, 1f, 0.90f),
@@ -185,4 +189,28 @@ fun AddImageBtn(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, 
             modifier = Modifier.size(20.dp)
         )
     }
+    if (showDialog) {
+        ShowChooseImageDialog(
+            onDismissRequest = { showDialog = false }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowChooseImageDialog(
+    onDismissRequest: () -> Unit
+) {
+    PartyDialog("Choose new profile picture", {
+        Surface(
+            onClick = onDismissRequest,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            color = Color.Transparent
+        ) { Text("Take a picture", color = Color.White) }
+        Surface(
+            onClick = onDismissRequest,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+            color = Color.Transparent
+        ) { Text("Choose from gallery", color = Color.White) }
+    }, onDismissRequest)
 }
