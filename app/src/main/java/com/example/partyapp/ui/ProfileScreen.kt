@@ -1,5 +1,6 @@
 package com.example.partyapp.ui
 
+import android.Manifest
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
@@ -171,6 +172,21 @@ fun UserProfilePic() {
         }
     )
 
+    val launcherP = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission Accepted: Do something
+            Log.d("ExampleScreen","PERMISSION GRANTED")
+
+            tempPhotoUri = getTempImageUri(context)
+//            tempPhotoUri = context.createTempPictureUri()
+            cameraLauncher.launch(tempPhotoUri)
+        } else {
+            // Permission Denied: Do something
+            Log.d("ExampleScreen","PERMISSION DENIED")
+        }
+    }
 
     Box(
         modifier = Modifier.size(160.dp,150.dp)
@@ -210,8 +226,9 @@ fun UserProfilePic() {
                 ))
             },
             onTakePic = {
-                tempPhotoUri = getTempImageUri(context)
-                cameraLauncher.launch(tempPhotoUri)
+                launcherP.launch(Manifest.permission.CAMERA)
+//                tempPhotoUri = getTempImageUri(context)
+//                cameraLauncher.launch(tempPhotoUri)
             },
             modifier = Modifier.align(Alignment.TopEnd)
         )
@@ -258,12 +275,18 @@ fun ShowChooseImageDialog(
 ) {
     PartyDialog("Choose new profile picture", {
         Surface(
-            onClick = onTakePic,
+            onClick = {
+                onTakePic.invoke()
+                onDismissRequest.invoke()
+            },
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
             color = Color.Transparent
         ) { Text("Take a picture", color = Color.White) }
         Surface(
-            onClick = onPickImage,
+            onClick = {
+                onPickImage.invoke()
+                onDismissRequest.invoke()
+            },
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
             color = Color.Transparent
         ) { Text("Choose from gallery", color = Color.White) }
