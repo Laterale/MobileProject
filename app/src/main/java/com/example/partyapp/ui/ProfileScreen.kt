@@ -92,7 +92,7 @@ fun ProfileScreen(
                     tint = Color.White
                 )
             }
-            UserProfilePic()
+            UserProfilePic(userViewModel)
             Text(text = user?.username ?: "Username", style = Typography.labelMedium)
             Text(text = "City", style = Typography.labelSmall)
             Text(text = "Age", style = Typography.labelSmall)
@@ -140,22 +140,31 @@ fun getTempImageUri(context: Context): Uri {
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", image)
 }
 
+fun changeProfilePic(userViewModel: UserViewModel, newPhoto: Uri) {
+    val userId: Int = user?.id!!
+    userViewModel.changePfpFromId(userId, newPhoto.toString())
+}
+
 @Composable
-fun UserProfilePic() {
+fun UserProfilePic(userViewModel: UserViewModel) {
     val context = LocalContext.current
-    var photoUri: Uri? by remember { mutableStateOf(value = Uri.EMPTY) }
-    var tempPhotoUri by remember { mutableStateOf(value = Uri.EMPTY) }
+    var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
+    var tempPhotoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        photoUri = uri
+        if (uri != null) {
+            photoUri = uri
+            changeProfilePic(userViewModel, uri)
+        }
     }
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
             photoUri = tempPhotoUri
+            changeProfilePic(userViewModel, tempPhotoUri)
         }
     }
     val cameraPermissionRequest = rememberLauncherForActivityResult(
