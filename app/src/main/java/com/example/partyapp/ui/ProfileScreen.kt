@@ -1,8 +1,9 @@
 package com.example.partyapp.ui
 
+import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,14 +40,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.example.partyapp.BuildConfig
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.ui.components.PartyDialog
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 var user: User? = null
@@ -125,13 +131,46 @@ fun XpBar() {
     }
 }
 
+fun Context.createTempPictureUri(
+    provider: String = "${BuildConfig.APPLICATION_ID}.provider",
+    fileName: String = "picture_${System.currentTimeMillis()}",
+    fileExtension: String = ".png"
+): Uri {
+    val tempFile = File.createTempFile(
+        fileName, fileExtension, cacheDir
+    ).apply {
+        createNewFile()
+    }
+    return FileProvider.getUriForFile(applicationContext, provider, tempFile)
+}
+
+fun getTempImageUri(context: Context): Uri {
+    val timeStamp = SimpleDateFormat("yyyMMdd_HHmmss").format(Date())
+    val imageFileName = "IMG_" + timeStamp + "_"
+    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    val image: File = File.createTempFile(imageFileName, ".jpg", storageDir)
+    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", image)
+    // return image.toUri()
+}
+
+
 @Composable
 fun UserProfilePic() {
+    val context = LocalContext.current
     var photoUri: Uri? by remember { mutableStateOf(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         Log.d("PHOTO_URI", uri.toString())
         photoUri = uri
     }
+
+    var tempPhotoUri by remember { mutableStateOf(value = Uri.EMPTY) }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) photoUri = tempPhotoUri
+        }
+    )
+
 
     Box(
         modifier = Modifier.size(160.dp,150.dp)
@@ -164,19 +203,31 @@ fun UserProfilePic() {
                     .align(Alignment.Center)
             )
         }
-        AddImageBtn(launcher = launcher, modifier = Modifier.align(Alignment.TopEnd))
+        AddImageBtn(
+            onPickImage = {
+                launcher.launch(PickVisualMediaRequest(
+                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                ))
+            },
+            onTakePic = {
+                tempPhotoUri = getTempImageUri(context)
+                cameraLauncher.launch(tempPhotoUri)
+            },
+            modifier = Modifier.align(Alignment.TopEnd)
+        )
     }
 }
 
 @Composable
-fun AddImageBtn(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>, modifier: Modifier) {
+fun AddImageBtn(
+    onPickImage: () -> Unit,
+    onTakePic: () -> Unit,
+    modifier: Modifier
+) {
     var showDialog: Boolean by remember { mutableStateOf(false) }
     SmallFloatingActionButton(
         onClick = {
             showDialog = true
-//            launcher.launch(PickVisualMediaRequest(
-//                mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-//            ))
         },
         modifier = modifier,
         containerColor = Color.hsl(0f, 0f, 1f, 0.90f),
@@ -191,6 +242,8 @@ fun AddImageBtn(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, 
     }
     if (showDialog) {
         ShowChooseImageDialog(
+            onPickImage = onPickImage,
+            onTakePic = onTakePic,
             onDismissRequest = { showDialog = false }
         )
     }
@@ -199,16 +252,18 @@ fun AddImageBtn(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowChooseImageDialog(
+    onPickImage: () -> Unit,
+    onTakePic: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     PartyDialog("Choose new profile picture", {
         Surface(
-            onClick = onDismissRequest,
+            onClick = onTakePic,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
             color = Color.Transparent
         ) { Text("Take a picture", color = Color.White) }
         Surface(
-            onClick = onDismissRequest,
+            onClick = onPickImage,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
             color = Color.Transparent
         ) { Text("Choose from gallery", color = Color.White) }
