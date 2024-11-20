@@ -60,8 +60,8 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         partyAppLogo(Color.White)
-        loginForm(onSuccessfulLogin, userViewModel)
-        elseRegister(onRegisterButtonClicked)
+        LoginForm(onSuccessfulLogin, userViewModel)
+        ElseRegister(onRegisterButtonClicked)
     }
 }
 
@@ -91,7 +91,7 @@ sealed class InputType(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun loginForm(
+fun LoginForm(
     onSuccessfulLogin: () -> Unit,
     userViewModel: UserViewModel
 ) {
@@ -155,7 +155,7 @@ fun loginForm(
                 flag = userViewModel.checkLoginCredentials(username, password)
             }.invokeOnCompletion {
                 if(flag != null) {
-                    Log.d("LOGIN_TAG " + "LoginScreen.kt","successful Login ")
+                    Log.d("LOGIN_TAG " + "LoginScreen.kt","Successful Login ")
                     userViewModel.startSession(flag!!)
                     userViewModel.selectUser(flag!!)
                     userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
@@ -176,7 +176,7 @@ fun loginForm(
 }
 
 @Composable
-fun elseRegister(onRegisterButtonClicked: () -> Unit?) {
+fun ElseRegister(onRegisterButtonClicked: () -> Unit?) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
