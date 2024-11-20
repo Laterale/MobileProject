@@ -132,104 +132,61 @@ fun XpBar() {
     }
 }
 
-fun Context.createTempPictureUri(
-    provider: String = "${BuildConfig.APPLICATION_ID}.provider",
-    fileName: String = "picture_${System.currentTimeMillis()}",
-    fileExtension: String = ".png"
-): Uri {
-    val tempFile = File.createTempFile(
-        fileName, fileExtension, cacheDir
-    ).apply {
-        createNewFile()
-    }
-    return FileProvider.getUriForFile(applicationContext, provider, tempFile)
-}
-
 fun getTempImageUri(context: Context): Uri {
     val timeStamp = SimpleDateFormat("yyyMMdd_HHmmss").format(Date())
     val imageFileName = "IMG_" + timeStamp + "_"
     val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     val image: File = File.createTempFile(imageFileName, ".jpg", storageDir)
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", image)
-    // return image.toUri()
 }
-
 
 @Composable
 fun UserProfilePic() {
     val context = LocalContext.current
-    var photoUri: Uri? by remember { mutableStateOf(null) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        Log.d("PHOTO_URI", uri.toString())
+    var photoUri: Uri? by remember { mutableStateOf(value = Uri.EMPTY) }
+    var tempPhotoUri by remember { mutableStateOf(value = Uri.EMPTY) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
         photoUri = uri
     }
-
-    var tempPhotoUri by remember { mutableStateOf(value = Uri.EMPTY) }
     val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture(),
-        onResult = { success ->
-            if (success) photoUri = tempPhotoUri
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            photoUri = tempPhotoUri
         }
-    )
-
-    val launcherP = rememberLauncherForActivityResult(
+    }
+    val cameraPermissionRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission Accepted: Do something
-            Log.d("ExampleScreen","PERMISSION GRANTED")
-
             tempPhotoUri = getTempImageUri(context)
-//            tempPhotoUri = context.createTempPictureUri()
             cameraLauncher.launch(tempPhotoUri)
-        } else {
-            // Permission Denied: Do something
-            Log.d("ExampleScreen","PERMISSION DENIED")
         }
+        // else Permission Denied
     }
 
     Box(
         modifier = Modifier.size(160.dp,150.dp)
     ) {
-        if (photoUri != null) {
-            //Use Coil to display the selected image
-            val painter = rememberAsyncImagePainter(
-                ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(data = photoUri)
-                    .build()
-            )
-            Image(
-                painter = painter,
-                contentDescription = "Profile image",
-                modifier = Modifier
-                    .size(130.dp)
-                    .clip(CircleShape)
-                    .background(Color.Black)
-                    .align(Alignment.Center)
-            )
-        } else {
-            AsyncImage(                            //profile picture
-                model = "null",
-                contentDescription = "Profile image",
-                modifier = Modifier
-                    .size(130.dp)
-                    .clip(CircleShape)
-                    .background(Color.Black)
-                    .align(Alignment.Center)
-            )
-        }
+        AsyncImage(                            //profile picture
+            model = photoUri,
+            contentDescription = "Profile image",
+            modifier = Modifier
+                .size(130.dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+                .align(Alignment.Center)
+        )
         AddImageBtn(
             onPickImage = {
-                launcher.launch(PickVisualMediaRequest(
+                imagePickerLauncher.launch(PickVisualMediaRequest(
                     mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
                 ))
             },
-            onTakePic = {
-                launcherP.launch(Manifest.permission.CAMERA)
-//                tempPhotoUri = getTempImageUri(context)
-//                cameraLauncher.launch(tempPhotoUri)
-            },
+            onTakePic = { cameraPermissionRequest.launch(Manifest.permission.CAMERA) },
             modifier = Modifier.align(Alignment.TopEnd)
         )
     }
@@ -243,9 +200,7 @@ fun AddImageBtn(
 ) {
     var showDialog: Boolean by remember { mutableStateOf(false) }
     SmallFloatingActionButton(
-        onClick = {
-            showDialog = true
-        },
+        onClick = { showDialog = true },
         modifier = modifier,
         containerColor = Color.hsl(0f, 0f, 1f, 0.90f),
         shape = RoundedCornerShape(40)
