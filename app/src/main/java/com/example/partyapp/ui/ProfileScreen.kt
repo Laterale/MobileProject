@@ -2,9 +2,12 @@ package com.example.partyapp.ui
 
 import android.Manifest
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.partyapp.BuildConfig
 import com.example.partyapp.data.entity.User
@@ -140,9 +144,32 @@ fun getTempImageUri(context: Context): Uri {
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", image)
 }
 
+// Helper function to save the image to internal storage
+fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val file = File(context.filesDir, "profile_pic_${System.currentTimeMillis()}.jpg")
+        inputStream.use { input ->
+            file.outputStream().use { output ->
+                input?.copyTo(output)
+            }
+        }
+        file.absolutePath // Return the saved file path
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
 fun changeProfilePic(userViewModel: UserViewModel, newPhoto: Uri) {
     val userId: Int = user?.id!!
-    userViewModel.changePfpFromId(userId, newPhoto.toString())
+    userViewModel.changePfpFromId(userId, newPhoto.path.toString())
+}
+
+fun changeProfilePicStr(userViewModel: UserViewModel, newPhoto: String) {
+    val userId: Int = user?.id!!
+    user!!.pfp = newPhoto
+    userViewModel.changePfpFromId(userId, newPhoto)
 }
 
 @Composable
@@ -156,7 +183,10 @@ fun UserProfilePic(userViewModel: UserViewModel) {
     ) { uri ->
         if (uri != null) {
             photoUri = uri
-            changeProfilePic(userViewModel, uri)
+            val savedPath = saveImageToInternalStorage(context, uri)
+            if (savedPath != null) {
+                changeProfilePicStr(userViewModel, savedPath) // Save the file path
+            }
         }
     }
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -164,7 +194,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
     ) { success ->
         if (success) {
             photoUri = tempPhotoUri
-            changeProfilePic(userViewModel, tempPhotoUri)
+            changeProfilePic(userViewModel, photoUri)
         }
     }
     val cameraPermissionRequest = rememberLauncherForActivityResult(
@@ -174,21 +204,39 @@ fun UserProfilePic(userViewModel: UserViewModel) {
             tempPhotoUri = getTempImageUri(context)
             cameraLauncher.launch(tempPhotoUri)
         }
-        // else Permission Denied
+        else {
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
     }
 
     Box(
         modifier = Modifier.size(160.dp,150.dp)
     ) {
-        AsyncImage(                            //profile picture
-            model = photoUri,
-            contentDescription = "Profile image",
-            modifier = Modifier
-                .size(130.dp)
-                .clip(CircleShape)
-                .background(Color.Black)
-                .align(Alignment.Center)
-        )
+        if (photoUri == Uri.EMPTY && user == null) {
+            Text("Uri empty, user null")
+
+        } else if (photoUri == Uri.EMPTY) {
+            Text(text = "No uri but USER")
+            AsyncImage(                            //profile picture
+                model = user?.pfp.toString(),
+                contentDescription = "Profile image",
+                modifier = Modifier
+                    .size(130.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black)
+                    .align(Alignment.Center)
+            )
+        } else {
+            AsyncImage(                            //profile picture
+                model = photoUri,
+                contentDescription = "Profile image",
+                modifier = Modifier
+                    .size(130.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black)
+                    .align(Alignment.Center)
+            )
+        }
         AddImageBtn(
             onPickImage = {
                 imagePickerLauncher.launch(PickVisualMediaRequest(
