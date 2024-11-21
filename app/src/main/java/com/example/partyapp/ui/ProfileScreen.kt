@@ -3,8 +3,6 @@ package com.example.partyapp.ui
 import android.Manifest
 import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -14,7 +12,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,13 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
 import com.example.partyapp.BuildConfig
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.ui.components.PartyDialog
@@ -61,6 +56,7 @@ import com.example.partyapp.viewModel.UserViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 
 var user: User? = null
@@ -140,7 +136,7 @@ fun XpBar() {
 }
 
 fun getTempImageUri(context: Context): Uri {
-    val timeStamp = SimpleDateFormat("yyyMMdd_HHmmss").format(Date())
+    val timeStamp = SimpleDateFormat("yyyMMdd_HHmmss", Locale.getDefault()).format(Date())
     val imageFileName = "IMG_$timeStamp" + "_"
     val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     val image: File = File.createTempFile(imageFileName, ".jpg", storageDir)
@@ -177,12 +173,6 @@ fun addPhotoToGallery(context: Context, file: File) {
     if (uri == null) {
         Log.e("GalleryUpdate", "Failed to add photo to gallery")
     }
-}
-
-
-fun changeProfilePic(userViewModel: UserViewModel, newPhoto: Uri) {
-    val userId: Int = user?.id!!
-    userViewModel.changePfpFromId(userId, newPhoto.path.toString())
 }
 
 fun changeProfilePicStr(userViewModel: UserViewModel, newPhoto: String) {
@@ -233,30 +223,19 @@ fun UserProfilePic(userViewModel: UserViewModel) {
     Box(
         modifier = Modifier.size(160.dp,150.dp)
     ) {
-        if (photoUri == Uri.EMPTY && user == null) {
-            Text("Uri empty, user null")
-
-        } else if (photoUri == Uri.EMPTY) {
-            AsyncImage(                            //profile picture
-                model = user?.pfp.toString(),
-                contentDescription = "Profile image",
-                modifier = Modifier
-                    .size(130.dp)
-                    .clip(CircleShape)
-                    .background(Color.Black)
-                    .align(Alignment.Center)
-            )
-        } else {
-            AsyncImage(                            //profile picture
-                model = photoUri,
-                contentDescription = "Profile image",
-                modifier = Modifier
-                    .size(130.dp)
-                    .clip(CircleShape)
-                    .background(Color.Black)
-                    .align(Alignment.Center)
-            )
+        if (photoUri == Uri.EMPTY && user != null) {
+            photoUri = Uri.parse(user?.pfp)
         }
+        AsyncImage(
+            model = photoUri,
+            contentDescription = "Profile image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(130.dp)
+                .clip(CircleShape)
+                .background(Color.Black)
+                .align(Alignment.Center)
+        )
         AddImageBtn(
             onPickImage = {
                 imagePickerLauncher.launch(PickVisualMediaRequest(
