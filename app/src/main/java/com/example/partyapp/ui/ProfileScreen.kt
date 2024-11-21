@@ -49,6 +49,7 @@ import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.example.partyapp.BuildConfig
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.ui.components.PartyDialog
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
@@ -135,45 +136,6 @@ fun XpBar() {
     }
 }
 
-fun getTempImageUri(context: Context): Uri {
-    val timeStamp = SimpleDateFormat("yyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val imageFileName = "IMG_$timeStamp" + "_"
-    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    val image: File = File.createTempFile(imageFileName, ".jpg", storageDir)
-    return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", image)
-}
-
-// Helper function to save the image to internal storage
-fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
-    return try {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.filesDir, "profile_pic_${System.currentTimeMillis()}.jpg")
-        inputStream.use { input ->
-            file.outputStream().use { output ->
-                input?.copyTo(output)
-            }
-        }
-        file.absolutePath // Return the saved file path
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-fun addPhotoToGallery(context: Context, file: File) {
-    val values = ContentValues().apply {
-        put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
-        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-        put(MediaStore.Images.Media.DATA, file.absolutePath) // Deprecated after API 28
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-        }
-    }
-    val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-    if (uri == null) {
-        Log.e("GalleryUpdate", "Failed to add photo to gallery")
-    }
-}
 
 fun changeProfilePicStr(userViewModel: UserViewModel, newPhoto: String) {
     val userId: Int = user?.id!!
@@ -184,6 +146,7 @@ fun changeProfilePicStr(userViewModel: UserViewModel, newPhoto: String) {
 @Composable
 fun UserProfilePic(userViewModel: UserViewModel) {
     val context = LocalContext.current
+    val imgChooser = ImageChooserService()
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     var tempPhotoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
 
@@ -192,7 +155,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
     ) { uri ->
         if (uri != null) {
             photoUri = uri
-            val savedPath = saveImageToInternalStorage(context, uri)
+            val savedPath = imgChooser.saveImageToInternalStorage(context, uri)
             if (savedPath != null) {
                 changeProfilePicStr(userViewModel, savedPath) // Save the file path
             }
@@ -204,7 +167,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
         if (success) {
             photoUri = tempPhotoUri
             val file = File(tempPhotoUri.path ?: return@rememberLauncherForActivityResult)
-            addPhotoToGallery(context, file) // Notify gallery
+            imgChooser.addPhotoToGallery(context, file) // Notify gallery
             changeProfilePicStr(userViewModel, photoUri.toString())
         }
     }
@@ -212,7 +175,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            tempPhotoUri = getTempImageUri(context)
+            tempPhotoUri = imgChooser.getTempImageUri(context)
             cameraLauncher.launch(tempPhotoUri)
         }
         else {
