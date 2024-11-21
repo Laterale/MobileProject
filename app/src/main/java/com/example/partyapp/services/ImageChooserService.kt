@@ -1,5 +1,6 @@
 package com.example.partyapp.services
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -7,6 +8,9 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
@@ -25,9 +29,27 @@ import java.util.Locale
 
 class ImageChooserService {
 
+    @Composable
+    fun ChooseImage(
+        imagePickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
+        cameraPermissionRequest: ManagedActivityResultLauncher<String, Boolean>,
+        onDismissRequest: () -> Unit
+    ) {
+        this.ShowChooseImageDialog(
+            title = "Choose new profile picture",
+            onPickImage = {
+                imagePickerLauncher.launch(PickVisualMediaRequest(
+                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                ))
+            },
+            onTakePic = { cameraPermissionRequest.launch(Manifest.permission.CAMERA) },
+            onDismissRequest = onDismissRequest
+        )
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun ShowChooseImageDialog(
+    private fun ShowChooseImageDialog(
         title: String,
         onPickImage: () -> Unit,
         onTakePic: () -> Unit,

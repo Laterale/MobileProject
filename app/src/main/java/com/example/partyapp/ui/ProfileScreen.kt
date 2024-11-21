@@ -1,11 +1,8 @@
 package com.example.partyapp.ui
 
-import android.Manifest
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -103,10 +100,6 @@ fun SetCurrentUser(userViewModel: UserViewModel, session: String) {
         else if (session != "") users.find { it.username == session }
         else users.first()
     }
-
-    Log.println(Log.WARN, "USERS_DB", users.size.toString())
-    Log.println(Log.WARN, "USERS_SESSION", session)
-    Log.println(Log.WARN, "USERS_LOGGED", userViewModel.loggedUser.toString())
 }
 
 @Composable
@@ -123,50 +116,13 @@ fun XpBar() {
     }
 }
 
-fun changeProfilePic(userViewModel: UserViewModel, newPhoto: String) {
-    val userId: Int = user?.id!!
-    user!!.pfp = newPhoto
-    userViewModel.changePfpFromId(userId, newPhoto)
-}
-
 @Composable
 fun UserProfilePic(userViewModel: UserViewModel) {
-    val context = LocalContext.current
-    val imgChooser = ImageChooserService()
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
-    var tempPhotoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
-
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            photoUri = uri
-            val savedPath = imgChooser.saveImageToInternalStorage(context, uri)
-            if (savedPath != null) {
-                changeProfilePic(userViewModel, savedPath) // Save the file path
-            }
-        }
-    }
-    val cameraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            photoUri = tempPhotoUri
-            val file = File(tempPhotoUri.path ?: return@rememberLauncherForActivityResult)
-            imgChooser.addPhotoToGallery(context, file) // Notify gallery
-            changeProfilePic(userViewModel, photoUri.toString())
-        }
-    }
-    val cameraPermissionRequest = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            tempPhotoUri = imgChooser.getTempImageUri(context)
-            cameraLauncher.launch(tempPhotoUri)
-        }
-        else {
-            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
-        }
+    val setImg: (Uri, String) -> Unit = { uri, path ->
+        photoUri = uri
+        user!!.pfp = path
+        userViewModel.changePfpFromId(user?.id!!, path)
     }
 
     Box(
@@ -186,12 +142,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
                 .align(Alignment.Center)
         )
         AddImageBtn(
-            onPickImage = {
-                imagePickerLauncher.launch(PickVisualMediaRequest(
-                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-                ))
-            },
-            onTakePic = { cameraPermissionRequest.launch(Manifest.permission.CAMERA) },
+            onImageChosen = setImg,
             modifier = Modifier.align(Alignment.TopEnd)
         )
     }
@@ -199,12 +150,45 @@ fun UserProfilePic(userViewModel: UserViewModel) {
 
 @Composable
 fun AddImageBtn(
-    onPickImage: () -> Unit,
-    onTakePic: () -> Unit,
+    onImageChosen: (Uri, String) -> Unit,
     modifier: Modifier
 ) {
-    var showDialog: Boolean by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val imgChooser = ImageChooserService()
+    var showDialog: Boolean by remember { mutableStateOf(false) }
+    var tempPhotoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val savedPath = imgChooser.saveImageToInternalStorage(context, uri)
+            if (savedPath != null) {
+                onImageChosen(uri, savedPath)
+            }
+        }
+    }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            val file = File(tempPhotoUri.path ?: return@rememberLauncherForActivityResult)
+            imgChooser.addPhotoToGallery(context, file) // Notify gallery
+            onImageChosen(tempPhotoUri, tempPhotoUri.toString())
+        }
+    }
+    val cameraPermissionRequest = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            tempPhotoUri = imgChooser.getTempImageUri(context)
+            cameraLauncher.launch(tempPhotoUri)
+        }
+        else {
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     SmallFloatingActionButton(
         onClick = { showDialog = true },
         modifier = modifier,
@@ -219,10 +203,9 @@ fun AddImageBtn(
         )
     }
     if (showDialog) {
-        imgChooser.ShowChooseImageDialog(
-            title = "Choose new profile picture",
-            onPickImage = onPickImage,
-            onTakePic = onTakePic,
+        imgChooser.ChooseImage(
+            imagePickerLauncher = imagePickerLauncher,
+            cameraPermissionRequest = cameraPermissionRequest,
             onDismissRequest = { showDialog = false }
         )
     }
