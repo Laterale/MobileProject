@@ -1,11 +1,14 @@
 package com.example.partyapp.ui
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -138,7 +141,7 @@ fun XpBar() {
 
 fun getTempImageUri(context: Context): Uri {
     val timeStamp = SimpleDateFormat("yyyMMdd_HHmmss").format(Date())
-    val imageFileName = "IMG_" + timeStamp + "_"
+    val imageFileName = "IMG_$timeStamp" + "_"
     val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     val image: File = File.createTempFile(imageFileName, ".jpg", storageDir)
     return FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", image)
@@ -160,6 +163,22 @@ fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
         null
     }
 }
+
+fun addPhotoToGallery(context: Context, file: File) {
+    val values = ContentValues().apply {
+        put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
+        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.DATA, file.absolutePath) // Deprecated after API 28
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+        }
+    }
+    val uri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+    if (uri == null) {
+        Log.e("GalleryUpdate", "Failed to add photo to gallery")
+    }
+}
+
 
 fun changeProfilePic(userViewModel: UserViewModel, newPhoto: Uri) {
     val userId: Int = user?.id!!
@@ -194,7 +213,9 @@ fun UserProfilePic(userViewModel: UserViewModel) {
     ) { success ->
         if (success) {
             photoUri = tempPhotoUri
-            changeProfilePic(userViewModel, photoUri)
+            val file = File(tempPhotoUri.path ?: return@rememberLauncherForActivityResult)
+            addPhotoToGallery(context, file) // Notify gallery
+            changeProfilePicStr(userViewModel, photoUri.toString())
         }
     }
     val cameraPermissionRequest = rememberLauncherForActivityResult(
@@ -216,7 +237,6 @@ fun UserProfilePic(userViewModel: UserViewModel) {
             Text("Uri empty, user null")
 
         } else if (photoUri == Uri.EMPTY) {
-            Text(text = "No uri but USER")
             AsyncImage(                            //profile picture
                 model = user?.pfp.toString(),
                 contentDescription = "Profile image",
