@@ -7,8 +7,17 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.example.partyapp.BuildConfig
+import com.example.partyapp.ui.components.PartyDialog
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -16,6 +25,33 @@ import java.util.Locale
 
 class ImageChooserService {
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun ShowChooseImageDialog(
+        title: String,
+        onPickImage: () -> Unit,
+        onTakePic: () -> Unit,
+        onDismissRequest: () -> Unit
+    ) {
+        PartyDialog(title, {
+            Surface(
+                onClick = {
+                    onTakePic.invoke()
+                    onDismissRequest.invoke()
+                },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                color = Color.Transparent
+            ) { Text("Take a picture", color = Color.White) }
+            Surface(
+                onClick = {
+                    onPickImage.invoke()
+                    onDismissRequest.invoke()
+                },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                color = Color.Transparent
+            ) { Text("Choose from gallery", color = Color.White) }
+        }, onDismissRequest)
+    }
 
     fun getTempImageUri(context: Context): Uri {
         val timeStamp = SimpleDateFormat("yyyMMdd_HHmmss", Locale.getDefault()).format(Date())

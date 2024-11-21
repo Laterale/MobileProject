@@ -1,12 +1,7 @@
 package com.example.partyapp.ui
 
 import android.Manifest
-import android.content.ContentValues
-import android.content.Context
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,12 +20,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,19 +38,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
-import com.example.partyapp.BuildConfig
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.ImageChooserService
-import com.example.partyapp.ui.components.PartyDialog
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 
 var user: User? = null
@@ -136,8 +123,7 @@ fun XpBar() {
     }
 }
 
-
-fun changeProfilePicStr(userViewModel: UserViewModel, newPhoto: String) {
+fun changeProfilePic(userViewModel: UserViewModel, newPhoto: String) {
     val userId: Int = user?.id!!
     user!!.pfp = newPhoto
     userViewModel.changePfpFromId(userId, newPhoto)
@@ -157,7 +143,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
             photoUri = uri
             val savedPath = imgChooser.saveImageToInternalStorage(context, uri)
             if (savedPath != null) {
-                changeProfilePicStr(userViewModel, savedPath) // Save the file path
+                changeProfilePic(userViewModel, savedPath) // Save the file path
             }
         }
     }
@@ -168,7 +154,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
             photoUri = tempPhotoUri
             val file = File(tempPhotoUri.path ?: return@rememberLauncherForActivityResult)
             imgChooser.addPhotoToGallery(context, file) // Notify gallery
-            changeProfilePicStr(userViewModel, photoUri.toString())
+            changeProfilePic(userViewModel, photoUri.toString())
         }
     }
     val cameraPermissionRequest = rememberLauncherForActivityResult(
@@ -218,6 +204,7 @@ fun AddImageBtn(
     modifier: Modifier
 ) {
     var showDialog: Boolean by remember { mutableStateOf(false) }
+    val imgChooser = ImageChooserService()
     SmallFloatingActionButton(
         onClick = { showDialog = true },
         modifier = modifier,
@@ -232,7 +219,8 @@ fun AddImageBtn(
         )
     }
     if (showDialog) {
-        ShowChooseImageDialog(
+        imgChooser.ShowChooseImageDialog(
+            title = "Choose new profile picture",
             onPickImage = onPickImage,
             onTakePic = onTakePic,
             onDismissRequest = { showDialog = false }
@@ -240,29 +228,4 @@ fun AddImageBtn(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ShowChooseImageDialog(
-    onPickImage: () -> Unit,
-    onTakePic: () -> Unit,
-    onDismissRequest: () -> Unit
-) {
-    PartyDialog("Choose new profile picture", {
-        Surface(
-            onClick = {
-                onTakePic.invoke()
-                onDismissRequest.invoke()
-            },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-            color = Color.Transparent
-        ) { Text("Take a picture", color = Color.White) }
-        Surface(
-            onClick = {
-                onPickImage.invoke()
-                onDismissRequest.invoke()
-            },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-            color = Color.Transparent
-        ) { Text("Choose from gallery", color = Color.White) }
-    }, onDismissRequest)
-}
+
