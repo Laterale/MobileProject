@@ -185,7 +185,7 @@ fun CityNameDisplay() {
         )
         Spacer(modifier = Modifier.size(5.dp))
         Text(
-            text = if (cityName != null) cityName.toString() else "Unable to determine location",
+            text = if (cityName != null) cityName.toString() else "No location",
             style = Typography.labelSmall
         )
     }
