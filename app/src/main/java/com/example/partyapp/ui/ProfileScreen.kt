@@ -1,10 +1,13 @@
 package com.example.partyapp.ui
 
+import LocationHelper
+import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -12,6 +15,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.LocationOff
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -20,8 +25,12 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,7 +58,7 @@ import com.example.partyapp.viewModel.UserScansEventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.coroutines.flow.first
 
-
+val labelGray: Color = Color(0x80FFFFFF)
 var user: User? = null;
 
 @Composable
@@ -88,7 +97,7 @@ fun ProfileScreen(
             }
             userProfilePic()
             Text(text = user?.username ?: "Username", style = Typography.labelMedium)
-            Text(text = "City", style = Typography.labelSmall)
+            CityNameDisplay()
             Text(text = "Age", style = Typography.labelSmall)
             xpBar()
             Divider(
@@ -106,10 +115,6 @@ fun setCurrentUser(userViewModel: UserViewModel, session: String) {
         else if (session != "") user = users.find { it.username == session }
         else user = users.first()
     }
-
-    Log.println(Log.WARN, "USERS_DB", users.size.toString())
-    Log.println(Log.WARN, "USERS_SESSION", session)
-    Log.println(Log.WARN, "USERS_LOGGED", userViewModel.loggedUser.toString())
 }
 
 @Composable
@@ -153,5 +158,29 @@ fun userProfilePic() {
                 modifier = Modifier.size(20.dp)
             )
         }
+    }
+}
+
+@Composable
+fun CityNameDisplay() {
+    val context = LocalContext.current
+    val helper = LocationHelper(context)
+    var cityName: String?  by remember { mutableStateOf(null) }
+    helper.getCurrentLocation { loc ->
+        cityName = helper.getCityName(context, loc!!.latitude, loc!!.longitude)
+    }
+
+    Row {
+        Icon(
+            imageVector = if (cityName != null) Icons.Filled.LocationOn else Icons.Filled.LocationOff,
+            contentDescription = if (cityName != null) "Location marker enabled" else "Location marker disabled",
+            tint = labelGray,
+            modifier = Modifier.size(20.dp).align(Alignment.CenterVertically)
+        )
+        Spacer(modifier = Modifier.size(5.dp))
+        Text(
+            text = if (cityName != null) cityName.toString() else "Unable to determine location",
+            style = Typography.labelSmall
+        )
     }
 }
