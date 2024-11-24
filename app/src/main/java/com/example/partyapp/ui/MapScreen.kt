@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.example.partyapp.services.PermissionsHelper
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -28,7 +29,7 @@ fun MapScreen() {
     val context = LocalContext.current
     var location: Location? by remember { mutableStateOf(null) }
 
-    RequestLocationPermission {
+    PermissionsHelper(context).RequestLocationPermission {
         LocationHelper(context).getCurrentLocation { loc ->
             location = loc
         }
@@ -57,28 +58,5 @@ fun ShowMapCenteredOn(location: LatLng) {
             title = "You",
             snippet = "You are here."
         )
-    }
-}
-
-@Composable
-fun RequestLocationPermission(onPermissionGranted: () -> Unit) {
-    var hasPermission by remember { mutableStateOf(false) } // Track permission state
-    var permissionRequested by remember { mutableStateOf(false) }
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            hasPermission = isGranted
-            if (isGranted) {
-                onPermissionGranted()
-            }
-        }
-    )
-    // Trigger permission request only once
-    LaunchedEffect(permissionRequested) {
-        if (!permissionRequested) {
-            permissionRequested = true
-            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
     }
 }

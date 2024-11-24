@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
@@ -166,8 +167,11 @@ fun CityNameDisplay() {
     val context = LocalContext.current
     val helper = LocationHelper(context)
     var cityName: String?  by remember { mutableStateOf(null) }
-    helper.getCurrentLocation { loc ->
-        cityName = helper.getCityName(context, loc!!.latitude, loc!!.longitude)
+
+    PermissionsHelper(context).RequestLocationPermission {
+        helper.getCurrentLocation { loc ->
+            cityName = helper.getCityName(context, loc!!.latitude, loc!!.longitude)
+        }
     }
 
     Row {
@@ -175,7 +179,9 @@ fun CityNameDisplay() {
             imageVector = if (cityName != null) Icons.Filled.LocationOn else Icons.Filled.LocationOff,
             contentDescription = if (cityName != null) "Location marker enabled" else "Location marker disabled",
             tint = labelGray,
-            modifier = Modifier.size(20.dp).align(Alignment.CenterVertically)
+            modifier = Modifier
+                .size(20.dp)
+                .align(Alignment.CenterVertically)
         )
         Spacer(modifier = Modifier.size(5.dp))
         Text(
