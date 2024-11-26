@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.partyapp.data.entity.User
-import com.example.partyapp.ui.components.partyAppLogo
+import com.example.partyapp.ui.components.PartyAppLogo
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +59,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        partyAppLogo(Color.White)
+        PartyAppLogo(Color.White)
         LoginForm(onSuccessfulLogin, userViewModel)
         ElseRegister(onRegisterButtonClicked)
     }

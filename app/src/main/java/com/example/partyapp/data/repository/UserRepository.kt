@@ -55,6 +55,10 @@ class UserRepository(private val userDAO: UserDAO, private val context: Context)
         return userDAO.getUserFromUsername(username)
     }
     @WorkerThread
+    fun getUserFromId(id: Int): User {
+        return userDAO.getUserFromId(id)
+    }
+    @WorkerThread
     suspend fun changeUsernameFromId(userId: Int, newUsername: String){
         userDAO.changeUsernameFromId(userId, newUsername)
     }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "0c28522cd59ea5be6b89914876332843",
+    "identityHash": "3fb4a2a66fb08133bbfb21d2c7bfd010",
     "entities": [
       {
         "tableName": "user",
@@ -85,7 +85,7 @@
       },
       {
         "tableName": "event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `image` TEXT NOT NULL, `starting_time` TEXT NOT NULL, `ending_time` TEXT NOT NULL, `description` TEXT NOT NULL, `slots` INTEGER NOT NULL, `participants` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `state` TEXT NOT NULL, `city` TEXT NOT NULL, `street` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `image` TEXT NOT NULL, `starting_time` TEXT NOT NULL, `ending_time` TEXT NOT NULL, `description` TEXT NOT NULL, `day` INTEGER NOT NULL, `participants` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `state` TEXT NOT NULL, `city` TEXT NOT NULL, `street` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "eventId",
@@ -124,8 +124,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "slots",
-            "columnName": "slots",
+            "fieldPath": "day",
+            "columnName": "day",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -329,7 +329,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0c28522cd59ea5be6b89914876332843')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3fb4a2a66fb08133bbfb21d2c7bfd010')"
     ]
   }
 }

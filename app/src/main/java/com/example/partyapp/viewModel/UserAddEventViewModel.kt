@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.partyapp.data.relation.UserAddEventCrossRef
 import com.example.partyapp.data.repository.UserAddEventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
@@ -14,8 +15,8 @@ class UserAddEventViewModel @Inject constructor(
 
     val allParticipants = repository.getAllParticipants
 
-    fun getParticipantsFromEventId(eventId: Int) = viewModelScope.launch {
-        repository.getParticipantsFromEventId(eventId)
+    fun getParticipantsFromEventId(eventId: Int): Flow<List<UserAddEventCrossRef>> {
+        return repository.getParticipantsFromEventId(eventId)
     }
 
     fun addParticipant(userAddEventCrossRef: UserAddEventCrossRef) = viewModelScope.launch {

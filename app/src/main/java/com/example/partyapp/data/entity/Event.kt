@@ -6,6 +6,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Ignore
 import com.example.partyapp.data.LocationDetails
+import java.time.DayOfWeek
+import java.util.Calendar
+import java.util.Date
 
 @Entity(tableName = "event")
 data class Event(
@@ -18,6 +21,6 @@ data class Event(
     @ColumnInfo(name = "starting_time") val starts : String,
     @ColumnInfo(name = "ending_time") val ends : String,
     val description: String,
-    val slots : Long,
+    val day : Int,
     val participants: Long,
 )

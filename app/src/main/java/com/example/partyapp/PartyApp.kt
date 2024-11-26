@@ -329,7 +329,14 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Event.name){
             EventScreen(
-
+                session = session,
+                eventViewModel = eventViewModel,
+                userViewModel = userViewModel,
+                userCreateEventViewModel = userCreateEventViewModel,
+                userAddEventViewModel = userAddEventViewModel,
+                onPfpClicked = {},
+                onAddEventClicked = {},
+                eventId = 0
             )
         }
     }
