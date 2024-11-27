@@ -228,7 +228,11 @@ fun CityNameDisplay() {
 
     PermissionsHelper(context).RequestLocationPermission {
         helper.getCurrentLocation { loc ->
-            cityName = helper.getCityName(context, loc!!.latitude, loc!!.longitude)
+            if (loc != null) {
+                cityName = helper.getCityName(context, loc!!.latitude, loc!!.longitude)
+            } else {
+                cityName = null
+            }
         }
     }
 
