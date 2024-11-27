@@ -40,12 +40,11 @@ import androidx.room.Room
 import com.example.partyapp.R
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
-import com.example.partyapp.viewModel.UserAddEventViewModel
-import com.example.partyapp.viewModel.UserCreateEventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 
 @Composable
 fun ManageScreen(
+    eventViewModel: EventViewModel,
     onEventClicked: ()->Unit,
 ){
     Column(
@@ -53,14 +52,14 @@ fun ManageScreen(
             .fillMaxSize()
             .padding(30.dp, 20.dp, 30.dp, 0.dp)
     ) {
-        yourEvents()
+        YourEvents()
         Divider(color = Color.White)
-        addedEvents(onEventClicked)
+        AddedEvents(onEventClicked)
     }
 }
 
 @Composable
-fun showTemplateThumbnails() {
+fun ShowTemplateThumbnails() {
     var i = 0
     while (i != 10) {
         IconButton(
@@ -79,7 +78,7 @@ fun showTemplateThumbnails() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun showTemplateEvents(onEventClicked: () -> Unit) {
+fun ShowTemplateEvents(onEventClicked: () -> Unit) {
     var i = 0
     while(i != 10){
         Row(
@@ -91,7 +90,9 @@ fun showTemplateEvents(onEventClicked: () -> Unit) {
                     .height(80.dp),
                 colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
                 border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
-                onClick = { onEventClicked() }  //evento generico, da collegare al viewmodel
+                onClick = {
+                    onEventClicked()
+                }  //evento generico, da collegare al viewmodel
             ) {}
             i += 1
         }
@@ -99,7 +100,7 @@ fun showTemplateEvents(onEventClicked: () -> Unit) {
 }
 
 @Composable
-fun yourEvents() {
+fun YourEvents() {
     Text(
         text = "Your events",
         style = TextStyle(
@@ -135,12 +136,12 @@ fun yourEvents() {
             )
 
         }
-        showTemplateThumbnails()
+        ShowTemplateThumbnails()
     }
 }
 
 @Composable
-fun addedEvents(onEventClicked: () -> Unit) {
+fun AddedEvents(onEventClicked: () -> Unit) {
     Text(
         text = "Added events",
         style = TextStyle(
@@ -156,6 +157,6 @@ fun addedEvents(onEventClicked: () -> Unit) {
             .fillMaxSize()
             .verticalScroll(ScrollState(0))
     ) {
-        showTemplateEvents(onEventClicked)
+        ShowTemplateEvents(onEventClicked)
     }
 }

@@ -13,7 +13,7 @@ class UserCreateEventRepository (private val userCreateEventDAO: UserCreateEvent
     }
 
     @WorkerThread
-    fun getCreatorByEventId(eventId: Int): Flow<List<UserCreateEventCrossRef>> {
+    fun getCreatorByEventId(eventId: Int): Flow<UserCreateEventCrossRef> {
         return userCreateEventDAO.getCreatorByEventId(eventId)
     }
 

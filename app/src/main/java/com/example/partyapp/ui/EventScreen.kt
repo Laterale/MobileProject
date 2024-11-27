@@ -43,8 +43,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.viewModel.EventViewModel
-import com.example.partyapp.viewModel.UserAddEventViewModel
-import com.example.partyapp.viewModel.UserCreateEventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import okhttp3.internal.wait
 
@@ -54,8 +52,6 @@ fun EventScreen(
     eventId: Int,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    userAddEventViewModel: UserAddEventViewModel,
-    userCreateEventViewModel: UserCreateEventViewModel,
     onPfpClicked: ()->Unit,
     onAddEventClicked: ()->Unit
 ){
