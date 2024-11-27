@@ -51,7 +51,7 @@ class UserRepository(private val userDAO: UserDAO, private val context: Context)
         return userDAO.checkLoginCredentials(username, password)
     }
     @WorkerThread
-    fun getUserFromUsername(username: String): User {
+    fun getUserFromUsername(username: String): User? {
         return userDAO.getUserFromUsername(username)
     }
     @WorkerThread

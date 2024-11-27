@@ -34,9 +34,7 @@ class UserViewModel @Inject constructor(
 
     val users = repository.users
 
-    fun getUserFromUsername(username:String) = viewModelScope.launch {
-        repository.getUserFromUsername(username)
-    }
+    fun getUserFromUsername(username:String) = repository.getUserFromUsername(username)
 
     fun checkLoginCredentials(username: String, password:String) = repository.checkLoginCredentials(username, password)
 
