@@ -34,7 +34,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.TextFieldType
@@ -135,22 +134,20 @@ fun LoginForm(
 
     Button(
         onClick = {
-            val toast = Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT)
-            var flag: User? = null
+            var userFound: User? = null
             userViewModel.viewModelScope.launch(Dispatchers.IO) {
-                flag = userViewModel.checkLoginCredentials(username, password)
+                userFound = userViewModel.checkLoginCredentials(username, password)
             }.invokeOnCompletion {
-                if(flag != null) {
+                if(userFound != null) {
                     Log.d("LOGIN_TAG " + "LoginScreen.kt","Successful Login ")
-                    userViewModel.startSession(flag!!)
-                    userViewModel.selectUser(flag!!)
+                    userViewModel.startSession(userFound!!)
+                    userViewModel.selectUser(userFound!!)
                     userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
                 }
                 else {
-                    toast.show()
+                    Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
                 }
             }
-            //val loggedUser = users.find { it.username == username && it.password == password }
         },
         shape = RoundedCornerShape(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
@@ -247,18 +244,21 @@ fun RegistrationForm(
                 username = username, email = email, password = password,
                 exp = 0, age = age ?: -1, pfp = ""
             )
-            userViewModel.insertNewUser(user)
             var userFound: User? = null
             userViewModel.viewModelScope.launch(Dispatchers.IO) {
                 userFound = userViewModel.getUserFromUsername(username)
-            }.invokeOnCompletion {
-                if (userFound != null) {
-                    Toast.makeText(context, "Username already taken", Toast.LENGTH_SHORT).show()
-                } else {
+                if (userFound == null) {
                     userViewModel.insertNewUser(user)
+                }
+            }.invokeOnCompletion {
+                if (userFound == null) {
                     userViewModel.startSession(user)
                     userViewModel.selectUser(user)
                     userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
+                } else {
+                    userViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(context, "Username already taken", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         },
