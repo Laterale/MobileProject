@@ -22,4 +22,9 @@ class EventRepository (private val eventDAO: EventDAO){
     suspend fun updateParticipants(newNum: Int, eventId: Int){
         eventDAO.updateParticipants(newNum, eventId)
     }
+
+    @WorkerThread
+    suspend fun insertNewEvent(event: Event){
+        eventDAO.insertNewEvent(event)
+    }
 }
