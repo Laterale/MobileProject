@@ -13,7 +13,7 @@ interface UserCreateEventDAO{
     suspend fun insertEvent(vararg userCreateEventCrossRef: UserCreateEventCrossRef)
 
     @Query("SELECT * FROM UserCreateEventCrossRef WHERE eventId=:eventId")
-    fun getCreatorByEventId(eventId: Int): Flow<List<UserCreateEventCrossRef>>
+    fun getCreatorByEventId(eventId: Int): Flow<UserCreateEventCrossRef>
 
     @Query("SELECT * FROM UserCreateEventCrossRef WHERE id=:userId")
     fun getEventsByCreatorId(userId: Int): Flow<List<UserCreateEventCrossRef>>

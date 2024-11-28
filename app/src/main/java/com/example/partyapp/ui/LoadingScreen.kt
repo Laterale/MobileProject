@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.example.partyapp.ui.components.partyAppLogo
+import com.example.partyapp.ui.components.PartyAppLogo
 
 
 @Composable
@@ -29,7 +29,7 @@ fun LoadingScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            partyAppLogo(color = Color.White)
+            PartyAppLogo(color = Color.White)
         }
     }
 }

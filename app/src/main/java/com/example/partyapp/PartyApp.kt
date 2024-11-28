@@ -62,9 +62,6 @@ import com.example.partyapp.ui.SettingsScreen
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
-import com.example.partyapp.viewModel.UserAddEventViewModel
-import com.example.partyapp.viewModel.UserCreateEventViewModel
-import com.example.partyapp.viewModel.UserScansEventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 
 
@@ -232,9 +229,6 @@ private fun NavigationGraph(
     val userViewModel = hiltViewModel<UserViewModel>()
     val locationViewModel = hiltViewModel<LocationViewModel>()
     val eventViewModel = hiltViewModel<EventViewModel>()
-    val userAddEventViewModel = hiltViewModel<UserAddEventViewModel>()
-    val userScansEventViewModel = hiltViewModel<UserScansEventViewModel>()
-    val userCreateEventViewModel = hiltViewModel<UserCreateEventViewModel>()
 
     val users = userViewModel.users.collectAsState(initial = listOf())
     if (users != null && users.value.isNotEmpty()) {
@@ -253,6 +247,7 @@ private fun NavigationGraph(
     ) {
         composable(route = AppScreen.Manage.name) {
             ManageScreen(
+                eventViewModel = eventViewModel,
                 onEventClicked = {
                     navController.navigate(AppScreen.Event.name)
                 },
@@ -265,7 +260,6 @@ private fun NavigationGraph(
                 },
                 eventViewModel = eventViewModel,
                 locationViewModel = locationViewModel,
-                userCreateEventViewModel = userCreateEventViewModel,
                 session = session
             )
         }
@@ -329,7 +323,12 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Event.name){
             EventScreen(
-
+                session = session,
+                eventViewModel = eventViewModel,
+                userViewModel = userViewModel,
+                onPfpClicked = {},
+                onAddEventClicked = {},
+                eventId = 0
             )
         }
     }

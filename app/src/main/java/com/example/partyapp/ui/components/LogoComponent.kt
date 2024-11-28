@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.example.partyapp.R
 
 @Composable
-fun partyAppLogo(color: Color) {
+fun PartyAppLogo(color: Color) {
     Icon(
         painter = painterResource(id = R.drawable.logo_icon),
         contentDescription = "Logo",

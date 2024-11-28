@@ -3,7 +3,6 @@ package com.example.partyapp.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,7 +17,6 @@ import androidx.compose.material.icons.filled.AreaChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
@@ -33,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
-import com.example.partyapp.viewModel.UserCreateEventViewModel
 
 
 @Composable
@@ -41,12 +38,8 @@ fun ExploreScreen(
     onEventClicked: ()->Unit,
     eventViewModel: EventViewModel,
     locationViewModel: LocationViewModel,
-    userCreateEventViewModel: UserCreateEventViewModel,
     session: String
 ){
-
-    val events = eventViewModel.allEvents.collectAsState(initial = listOf())
-
     Column(
         Modifier
             .fillMaxSize()
@@ -89,7 +82,8 @@ fun ExploreScreen(
                 .verticalScroll(ScrollState(0)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            for(e in events.value){
+            val events = eventViewModel.allEvents.collectAsState(initial = listOf()).value
+            for(event in events){
                 Row(
                     modifier = Modifier.padding(0.dp, 20.dp,0.dp, 0.dp).height(80.dp)
                 ) {
@@ -107,8 +101,8 @@ fun ExploreScreen(
                                     .weight(0.25f)
                             ) {
                                 AsyncImage(
-                                    model = "null",
-                                    contentDescription = "Event image",
+                                    model = null,
+                                    contentDescription = "Creator pfp",
                                     modifier = Modifier
                                         .padding(10.dp,9.dp)
                                         .clip(CircleShape)
@@ -120,12 +114,12 @@ fun ExploreScreen(
                                     .weight(0.45f)
                             ) {
                                 Text(
-                                    text = "Festa",
+                                    text = event.name,
                                     modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp),
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Organizzatore",
+                                    text = "eventCreator.username",
                                     color = Color.White,
                                     modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 15.dp)
                                 )
@@ -136,12 +130,11 @@ fun ExploreScreen(
                                     .weight(0.30f)
                             ) {
                                 AsyncImage(
-                                    model = "null",
-                                    contentDescription = "Event image",
+                                    model = event.image,
+                                    contentDescription = "event image",
                                     modifier = Modifier
                                         .padding(1.dp)
                                         .clip(RoundedCornerShape(0.dp, 11.dp, 11.dp, 0.dp))
-                                        .background(Color.Black)
                                 )
                             }
                         }

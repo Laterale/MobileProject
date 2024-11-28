@@ -51,8 +51,12 @@ class UserRepository(private val userDAO: UserDAO, private val context: Context)
         return userDAO.checkLoginCredentials(username, password)
     }
     @WorkerThread
-    fun getUserFromUsername(username: String): User? {
+    fun getUserFromUsername(username: String): Flow<User> {
         return userDAO.getUserFromUsername(username)
+    }
+    @WorkerThread
+    fun getUserFromId(id: Int): Flow<User> {
+        return userDAO.getUserFromId(id)
     }
     @WorkerThread
     suspend fun changeUsernameFromId(userId: Int, newUsername: String){

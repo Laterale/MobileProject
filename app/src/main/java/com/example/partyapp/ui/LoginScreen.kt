@@ -37,7 +37,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.TextFieldType
-import com.example.partyapp.ui.components.partyAppLogo
+import com.example.partyapp.ui.components.PartyAppLogo
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.viewModel.UserViewModel
@@ -61,7 +61,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        partyAppLogo(Color.White)
+        PartyAppLogo(Color.White)
         if (isLogin) {
             LoginForm(onSuccessfulLogin, userViewModel)
             SwitchMode(true, onSwitch = { isLogin = !isLogin })

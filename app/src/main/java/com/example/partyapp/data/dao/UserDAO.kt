@@ -19,7 +19,10 @@ interface UserDAO{
     fun checkLoginCredentials(username: String,password:String) : User?
 
     @Query("SELECT * FROM user WHERE username=:username")
-    fun getUserFromUsername(username: String) : User
+    fun getUserFromUsername(username: String) : Flow<User>
+
+    @Query("SELECT * FROM user WHERE id=:id")
+    fun getUserFromId(id: Int) : Flow<User>
 
     @Query("UPDATE user SET username=:newUsername WHERE id=:userId")
     suspend fun changeUsernameFromId(userId: Int, newUsername: String)

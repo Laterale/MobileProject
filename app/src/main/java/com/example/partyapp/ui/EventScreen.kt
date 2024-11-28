@@ -42,11 +42,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.viewModel.EventViewModel
+import com.example.partyapp.viewModel.UserViewModel
+import okhttp3.internal.wait
 
 @Composable
-@Preview
 fun EventScreen(
-
+    session: String,
+    eventId: Int,
+    eventViewModel: EventViewModel,
+    userViewModel: UserViewModel,
+    onPfpClicked: ()->Unit,
+    onAddEventClicked: ()->Unit
 ){
     Column(
         modifier = Modifier
@@ -56,7 +63,7 @@ fun EventScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
-            model = "null",
+            model = "",
             contentDescription = "Event image",
             modifier = Modifier
                 .weight(0.25f)
@@ -94,7 +101,7 @@ fun EventScreen(
                 horizontalArrangement = Arrangement.End
             ){
                 Text(
-                    text = "by Organizzatore",
+                    text = "by organizerName",
                     style = TextStyle(
                         fontSize = 14.sp,
                         lineHeight = 28.sp,
@@ -115,13 +122,12 @@ fun EventScreen(
                     .align(Alignment.Bottom)
             ) {
                 AsyncImage(
-                    model = "null",
-                    contentDescription = "Profile Image",
+                    model = "",
+                    contentDescription = "Creator pfp",
                     modifier = Modifier
                         .size(35.dp, 35.dp)
                         .clip(CircleShape)
                         .background(Color.Black)
-
                 )
             }
 
@@ -131,7 +137,7 @@ fun EventScreen(
             modifier = Modifier.padding(0.dp, 2.dp)
         )
         Column(
-            modifier = Modifier.weight(0.17f)
+            modifier = Modifier.weight(0.15f)
         ) {
             Row(
                 modifier = Modifier
