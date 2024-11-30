@@ -42,6 +42,10 @@ import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEmpty
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 
@@ -246,9 +250,26 @@ fun RegistrationForm(
             )
             var userFound: User? = null
             userViewModel.viewModelScope.launch(Dispatchers.IO) {
-                userFound = userViewModel.getUserFromUsername(username)
-                if (userFound == null) {
-                    userViewModel.insertNewUser(user)
+                try {
+                    userFound = userViewModel.getUserFromUsername(username)
+                        .onEmpty {
+                            Log.d("FETCH_USER", "No user found with username: $username")
+                        }.firstOrNull() // Collects the first value or returns null if empty
+
+                    if (userFound == null) {
+                        Log.d("FETCH_USER", "Inserting new user")
+                        userViewModel.insertNewUser(user)
+                    } else {
+                        Log.d("FETCH_USER", "User already exists: $userFound")
+                        userViewModel.viewModelScope.launch(Dispatchers.Main) {
+                            Toast.makeText(context, "Username already taken", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("FETCH_USER", "Error fetching user: ${e.message}", e)
+                    userViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(context, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }.invokeOnCompletion {
                 if (userFound == null) {
