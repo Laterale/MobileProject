@@ -56,8 +56,9 @@ class UserViewModel @Inject constructor(
         repository.updateExpFromId(userId, newExp)
     }
 
-    fun insertNewUser(user: User) = viewModelScope.launch {
-        repository.insertNewUser(user)
-    }
+    suspend fun insertNewUser(user: User) = repository.insertNewUser(user)
+    //viewModelScope.launch {
+    //    repository.insertNewUser(user)
+    //}
 }
 

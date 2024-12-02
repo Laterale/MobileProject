@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -167,56 +168,23 @@ fun RegistrationForm(
     userViewModel: UserViewModel
 ) {
     val context = LocalContext.current
-    var name by remember { mutableStateOf("") }
-    var surname by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var username: String by remember { mutableStateOf("") }
+    var password: String by remember { mutableStateOf("") }
+    var email: String by remember { mutableStateOf("") }
     var age: Int? by remember { mutableStateOf(null) }
 
-    val passwordFocusRequester = FocusRequester()
     val emailFocusRequester = FocusRequester()
     val ageFocusRequester = FocusRequester()
-    val surnameFocusRequester = FocusRequester()
-    val usernameFocusRequester = FocusRequester()
+    val passwordFocusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
 
-    PartyTextField(
-        value = name, onValueChange = { name = it },
-        placeholder = "Name",
-        keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {surnameFocusRequester.requestFocus()}),
-        modifier = Modifier.fillMaxWidth()
-    )
-    PartyTextField(
-        value = surname, onValueChange = { surname = it },
-        placeholder = "Surname",
-        keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {ageFocusRequester.requestFocus()}),
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(surnameFocusRequester)
-    )
-    PartyTextField(
-        value = if (age != null) age.toString() else "",
-        onValueChange = { age = if (it == "") null else (it).toInt() },
-        textType = TextFieldType.NUMBER,
-        placeholder = "Age",
-        keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {usernameFocusRequester.requestFocus()}),
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(ageFocusRequester)
-    )
     PartyTextField(
         value = username, onValueChange = { username = it },
         placeholder = "Username",
         leadingIcon = { Icon(imageVector = Icons.Default.Person, "Username", tint = Color.White) },
         keyboardImeAction = ImeAction.Next,
         keyboardActions = KeyboardActions(onNext = {emailFocusRequester.requestFocus()}),
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(usernameFocusRequester)
+        modifier = Modifier.fillMaxWidth()
     )
     PartyTextField(
         textType = TextFieldType.EMAIL,
@@ -224,10 +192,22 @@ fun RegistrationForm(
         placeholder = "Email",
         leadingIcon = { Icon(imageVector = Icons.Default.Email, "Email", tint = Color.White) },
         keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
+        keyboardActions = KeyboardActions(onNext = {ageFocusRequester.requestFocus()}),
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(emailFocusRequester)
+    )
+    PartyTextField(
+        value = if (age != null) age.toString() else "",
+        onValueChange = { age = if (it == "") null else (it).toInt() },
+        textType = TextFieldType.NUMBER,
+        placeholder = "Age",
+        leadingIcon = { Icon(imageVector = Icons.Default.Cake, "Birthday", tint = Color.White) },
+        keyboardImeAction = ImeAction.Next,
+        keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(ageFocusRequester)
     )
     PartyTextField(
         textType = TextFieldType.PASSWORD,
@@ -244,8 +224,7 @@ fun RegistrationForm(
     Button(
         onClick = {
             val user = User(
-                name = name, surname = surname,
-                username = username, email = email, password = password,
+                username = username.trim(), email = email.trim(), password = password.trim(),
                 exp = 0, age = age ?: -1, pfp = ""
             )
             var userFound: User? = null
@@ -257,8 +236,10 @@ fun RegistrationForm(
                         }.firstOrNull() // Collects the first value or returns null if empty
 
                     if (userFound == null) {
+                        userViewModel.viewModelScope.launch(Dispatchers.Main) {
+                            userViewModel.insertNewUser(user)
+                        }
                         Log.d("FETCH_USER", "Inserting new user")
-                        userViewModel.insertNewUser(user)
                     } else {
                         Log.d("FETCH_USER", "User already exists: $userFound")
                         userViewModel.viewModelScope.launch(Dispatchers.Main) {
