@@ -15,6 +15,7 @@ data class Event(
     @PrimaryKey(autoGenerate = true)
     val eventId : Int = 0,
 
+    @Embedded val creator: User,
     val name : String,
     val image : String,
     @Embedded val location: LocationDetails,
@@ -22,5 +23,6 @@ data class Event(
     @ColumnInfo(name = "ending_time") val ends : String,
     val description: String,
     val day : Int,
-    val participants: Long,
+    val participants: Long
+
 )

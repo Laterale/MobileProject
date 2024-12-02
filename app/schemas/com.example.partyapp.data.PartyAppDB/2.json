@@ -2,28 +2,16 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "3fb4a2a66fb08133bbfb21d2c7bfd010",
+    "identityHash": "8ae4ac0e9adf42026239e30a4abc4147",
     "entities": [
       {
         "tableName": "user",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `surname` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `pfp` TEXT NOT NULL, `exp` INTEGER NOT NULL, `age` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `pfp` TEXT NOT NULL, `exp` INTEGER NOT NULL, `age` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "surname",
-            "columnName": "surname",
-            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -85,7 +73,7 @@
       },
       {
         "tableName": "event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `image` TEXT NOT NULL, `starting_time` TEXT NOT NULL, `ending_time` TEXT NOT NULL, `description` TEXT NOT NULL, `day` INTEGER NOT NULL, `participants` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `state` TEXT NOT NULL, `city` TEXT NOT NULL, `street` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `image` TEXT NOT NULL, `starting_time` TEXT NOT NULL, `ending_time` TEXT NOT NULL, `description` TEXT NOT NULL, `day` INTEGER NOT NULL, `participants` INTEGER NOT NULL, `id` INTEGER NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `pfp` TEXT NOT NULL, `exp` INTEGER NOT NULL, `age` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `state` TEXT NOT NULL, `city` TEXT NOT NULL, `street` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "eventId",
@@ -136,6 +124,48 @@
             "notNull": true
           },
           {
+            "fieldPath": "creator.id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creator.username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creator.password",
+            "columnName": "password",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creator.email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creator.pfp",
+            "columnName": "pfp",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creator.exp",
+            "columnName": "exp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creator.age",
+            "columnName": "age",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "location.latitude",
             "columnName": "latitude",
             "affinity": "REAL",
@@ -177,56 +207,6 @@
       },
       {
         "tableName": "UserAddEventCrossRef",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `eventId` INTEGER NOT NULL, PRIMARY KEY(`id`, `eventId`), FOREIGN KEY(`id`) REFERENCES `user`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`eventId`) REFERENCES `event`(`eventId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "eventId",
-            "columnName": "eventId",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id",
-            "eventId"
-          ]
-        },
-        "indices": [],
-        "foreignKeys": [
-          {
-            "table": "user",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          },
-          {
-            "table": "event",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "eventId"
-            ],
-            "referencedColumns": [
-              "eventId"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "UserCreateEventCrossRef",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `eventId` INTEGER NOT NULL, PRIMARY KEY(`id`, `eventId`), FOREIGN KEY(`id`) REFERENCES `user`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`eventId`) REFERENCES `event`(`eventId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
@@ -329,7 +309,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3fb4a2a66fb08133bbfb21d2c7bfd010')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8ae4ac0e9adf42026239e30a4abc4147')"
     ]
   }
 }

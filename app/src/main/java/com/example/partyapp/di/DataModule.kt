@@ -30,10 +30,6 @@ object DataModule {
         UserAddEventRepository((context.applicationContext as PartyApp).database.userAddEventDAO())
     @Singleton
     @Provides
-    fun provideUserCreateEventRepository(@ApplicationContext context: Context) =
-        UserCreateEventRepository((context.applicationContext as PartyApp).database.userCreateEventDAO())
-    @Singleton
-    @Provides
     fun provideUserScansEventRepository(@ApplicationContext context: Context) =
         UserScansEventRepository((context.applicationContext as PartyApp).database.userScansEventDAO())
 }

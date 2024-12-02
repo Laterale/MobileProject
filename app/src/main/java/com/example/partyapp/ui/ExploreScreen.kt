@@ -82,7 +82,7 @@ fun ExploreScreen(
                 .verticalScroll(ScrollState(0)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val events = eventViewModel.allEvents.collectAsState(initial = listOf()).value
+            val events = eventViewModel.events.collectAsState(initial = listOf()).value
             for(event in events){
                 Row(
                     modifier = Modifier.padding(0.dp, 20.dp,0.dp, 0.dp).height(80.dp)

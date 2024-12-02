@@ -1,9 +1,12 @@
 package com.example.partyapp.data.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.example.partyapp.data.entity.Event
+import com.example.partyapp.data.entity.User
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,4 +24,6 @@ interface EventDAO {
     @Query("UPDATE event SET participants=:newPref WHERE eventId=:eventId")
     suspend fun updateParticipants(newPref: Int, eventId: Int)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertNewEvent(vararg event: Event)
 }

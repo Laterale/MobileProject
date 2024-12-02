@@ -7,16 +7,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.partyapp.data.dao.EventDAO
 import com.example.partyapp.data.dao.UserAddEventDAO
-import com.example.partyapp.data.dao.UserCreateEventDAO
 import com.example.partyapp.data.dao.UserDAO
 import com.example.partyapp.data.dao.UserScansEventDAO
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserAddEventCrossRef
-import com.example.partyapp.data.relation.UserCreateEventCrossRef
 import com.example.partyapp.data.relation.UserScansEventCrossRef
 
-@Database(entities = [User::class, Event::class, UserAddEventCrossRef::class, UserCreateEventCrossRef::class, UserScansEventCrossRef::class],
+@Database(entities = [User::class, Event::class, UserAddEventCrossRef::class,UserScansEventCrossRef::class],
     version = 2,
     exportSchema = true)
 abstract class PartyAppDB : RoomDatabase(){
@@ -24,7 +22,6 @@ abstract class PartyAppDB : RoomDatabase(){
     abstract fun eventDAO(): EventDAO
     abstract fun userDAO(): UserDAO
     abstract fun userAddEventDAO(): UserAddEventDAO
-    abstract fun userCreateEventDAO(): UserCreateEventDAO
     abstract fun userScansEventDAO(): UserScansEventDAO
 
     companion object{
