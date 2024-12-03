@@ -92,7 +92,6 @@ fun ProfileScreen(
             UserProfilePic(userViewModel)
             Text(text = user?.username ?: "Username", style = Typography.labelMedium)
             CityNameDisplay()
-            Text(text = "Age", style = Typography.labelSmall)
             XpBar()
             Divider(
                 color = Color.White
