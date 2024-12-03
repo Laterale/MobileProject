@@ -14,5 +14,4 @@ data class User (
     val email : String,
     var pfp : String,
     val exp : Long,
-    val age : Int
 )

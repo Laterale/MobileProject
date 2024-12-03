@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "8ae4ac0e9adf42026239e30a4abc4147",
+    "identityHash": "3304ba32db6fd10459dca0d49593b785",
     "entities": [
       {
         "tableName": "user",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `pfp` TEXT NOT NULL, `exp` INTEGER NOT NULL, `age` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `pfp` TEXT NOT NULL, `exp` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -43,12 +43,6 @@
             "columnName": "exp",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "age",
-            "columnName": "age",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -73,7 +67,7 @@
       },
       {
         "tableName": "event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `image` TEXT NOT NULL, `starting_time` TEXT NOT NULL, `ending_time` TEXT NOT NULL, `description` TEXT NOT NULL, `day` INTEGER NOT NULL, `participants` INTEGER NOT NULL, `id` INTEGER NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `pfp` TEXT NOT NULL, `exp` INTEGER NOT NULL, `age` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `state` TEXT NOT NULL, `city` TEXT NOT NULL, `street` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `image` TEXT NOT NULL, `starting_time` TEXT NOT NULL, `ending_time` TEXT NOT NULL, `description` TEXT NOT NULL, `day` INTEGER NOT NULL, `participants` INTEGER NOT NULL, `id` INTEGER NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `email` TEXT NOT NULL, `pfp` TEXT NOT NULL, `exp` INTEGER NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `state` TEXT NOT NULL, `city` TEXT NOT NULL, `street` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "eventId",
@@ -156,12 +150,6 @@
           {
             "fieldPath": "creator.exp",
             "columnName": "exp",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "creator.age",
-            "columnName": "age",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -309,7 +297,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8ae4ac0e9adf42026239e30a4abc4147')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3304ba32db6fd10459dca0d49593b785')"
     ]
   }
 }

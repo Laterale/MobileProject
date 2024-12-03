@@ -171,7 +171,6 @@ fun RegistrationForm(
     var username: String by remember { mutableStateOf("") }
     var password: String by remember { mutableStateOf("") }
     var email: String by remember { mutableStateOf("") }
-    var age: Int? by remember { mutableStateOf(null) }
 
     val emailFocusRequester = FocusRequester()
     val ageFocusRequester = FocusRequester()
@@ -198,18 +197,6 @@ fun RegistrationForm(
             .focusRequester(emailFocusRequester)
     )
     PartyTextField(
-        value = if (age != null) age.toString() else "",
-        onValueChange = { age = if (it == "") null else (it).toInt() },
-        textType = TextFieldType.NUMBER,
-        placeholder = "Age",
-        leadingIcon = { Icon(imageVector = Icons.Default.Cake, "Birthday", tint = Color.White) },
-        keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
-        modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(ageFocusRequester)
-    )
-    PartyTextField(
         textType = TextFieldType.PASSWORD,
         value = password, onValueChange = { password = it },
         leadingIcon = { Icon(imageVector = Icons.Default.Lock, "Password", tint = Color.White) },
@@ -225,7 +212,7 @@ fun RegistrationForm(
         onClick = {
             val user = User(
                 username = username.trim(), email = email.trim(), password = password.trim(),
-                exp = 0, age = age ?: -1, pfp = ""
+                exp = 0, pfp = ""
             )
             var userFound: User? = null
             userViewModel.viewModelScope.launch(Dispatchers.IO) {
