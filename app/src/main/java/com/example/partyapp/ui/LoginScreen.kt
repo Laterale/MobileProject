@@ -2,8 +2,6 @@ package com.example.partyapp.ui
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +9,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -35,21 +36,27 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.ui.components.PartyTextField
+import com.example.partyapp.ui.components.TextFieldType
 import com.example.partyapp.ui.components.PartyAppLogo
 import com.example.partyapp.ui.theme.Indigo
+import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEmpty
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun LoginScreen(
-    onSuccessfulLogin: () -> Unit,
+    onSuccessfulLogin: () -> Unit, // redirects to home
     onRegisterButtonClicked: () -> Unit,
     userViewModel: UserViewModel
 ) {
-    val context = LocalContext.current
-    //val users by userViewModel.users.collectAsState(initial = listOf())
+    var isLogin: Boolean by remember { mutableStateOf(value = true) }
     val scroll = rememberScrollState(0)
     Column(
         modifier = Modifier
@@ -60,8 +67,13 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PartyAppLogo(Color.White)
-        LoginForm(onSuccessfulLogin, userViewModel)
-        ElseRegister(onRegisterButtonClicked)
+        if (isLogin) {
+            LoginForm(onSuccessfulLogin, userViewModel)
+            SwitchMode(true, onSwitch = { isLogin = !isLogin })
+        } else {
+            RegistrationForm(onSuccessfulLogin, userViewModel)
+            SwitchMode(false, onSwitch = { isLogin = !isLogin })
+        }
     }
 }
 
@@ -100,89 +112,182 @@ fun LoginForm(
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
     val passwordFocusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
-    val inputType1 = InputType.Name
-    val inputType2 = InputType.Password
-    val inputColors = TextFieldDefaults.textFieldColors(
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        focusedIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent,
-        disabledIndicatorColor = Color.Transparent
-    )
-    TextField(
-        value = username,
-        onValueChange = { username = it },
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(15)),
-        leadingIcon = { Icon(imageVector = inputType1.icon, null) },
-        label = { Text(text = inputType1.label) },
-        shape = MaterialTheme.shapes.small,
-        colors = inputColors,
-        singleLine = true,
-        keyboardOptions = inputType1.keyboardOptions,
-        visualTransformation = inputType1.visualTransformation,
-        keyboardActions = KeyboardActions(onNext = {
-            passwordFocusRequester.requestFocus()
-        })
+
+    PartyTextField(
+        value = username, onValueChange = { username = it },
+        placeholder = "Username",
+        leadingIcon = { Icon(imageVector = Icons.Default.Person, "User icon", tint = Color.White) },
+        keyboardImeAction = ImeAction.Next,
+        keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
+        modifier = Modifier.fillMaxWidth()
     )
 
-    TextField(
-        value = password,
-        onValueChange = { password = it },
+    PartyTextField(
+        value = password, onValueChange = { password = it },
+        textType = TextFieldType.PASSWORD,
+        leadingIcon = { Icon(imageVector = Icons.Default.Lock, "Locket icon", tint = Color.White) },
+        placeholder = "Password",
+        keyboardImeAction = ImeAction.Done,
+        keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()}),
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(passwordFocusRequester)
-            .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(15)),
-        leadingIcon = { Icon(imageVector = inputType2.icon, null) },
-        label = { Text(text = inputType2.label) },
-        shape = MaterialTheme.shapes.small,
-        colors = inputColors,
-        singleLine = true,
-        keyboardOptions = inputType2.keyboardOptions,
-        visualTransformation = inputType2.visualTransformation,
-        keyboardActions = KeyboardActions(onDone = {
-            focusManager.clearFocus()
-        })
     )
 
     Button(
         onClick = {
-            val toast = Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT)
-            var flag: User? = null
+            var userFound: User? = null
             userViewModel.viewModelScope.launch(Dispatchers.IO) {
-                flag = userViewModel.checkLoginCredentials(username, password)
+                userFound = userViewModel.checkLoginCredentials(username, password)
             }.invokeOnCompletion {
-                if(flag != null) {
+                if(userFound != null) {
                     Log.d("LOGIN_TAG " + "LoginScreen.kt","Successful Login ")
-                    userViewModel.startSession(flag!!)
-                    userViewModel.selectUser(flag!!)
+                    userViewModel.startSession(userFound!!)
+                    userViewModel.selectUser(userFound!!)
                     userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
                 }
                 else {
-                    toast.show()
+                    Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
                 }
             }
-            //val loggedUser = users.find { it.username == username && it.password == password }
         },
         shape = RoundedCornerShape(50.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = "LOGIN", Modifier.padding(vertical = 8.dp), color = Indigo)
     }
 }
 
 @Composable
-fun ElseRegister(onRegisterButtonClicked: () -> Unit?) {
+fun RegistrationForm(
+    onSuccessfulLogin: () -> Unit,
+    userViewModel: UserViewModel
+) {
+    val context = LocalContext.current
+    var username: String by remember { mutableStateOf("") }
+    var password: String by remember { mutableStateOf("") }
+    var email: String by remember { mutableStateOf("") }
+    var age: Int? by remember { mutableStateOf(null) }
+
+    val emailFocusRequester = FocusRequester()
+    val ageFocusRequester = FocusRequester()
+    val passwordFocusRequester = FocusRequester()
+    val focusManager = LocalFocusManager.current
+
+    PartyTextField(
+        value = username, onValueChange = { username = it },
+        placeholder = "Username",
+        leadingIcon = { Icon(imageVector = Icons.Default.Person, "Username", tint = Color.White) },
+        keyboardImeAction = ImeAction.Next,
+        keyboardActions = KeyboardActions(onNext = {emailFocusRequester.requestFocus()}),
+        modifier = Modifier.fillMaxWidth()
+    )
+    PartyTextField(
+        textType = TextFieldType.EMAIL,
+        value = email, onValueChange = { email = it },
+        placeholder = "Email",
+        leadingIcon = { Icon(imageVector = Icons.Default.Email, "Email", tint = Color.White) },
+        keyboardImeAction = ImeAction.Next,
+        keyboardActions = KeyboardActions(onNext = {ageFocusRequester.requestFocus()}),
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(emailFocusRequester)
+    )
+    PartyTextField(
+        value = if (age != null) age.toString() else "",
+        onValueChange = { age = if (it == "") null else (it).toInt() },
+        textType = TextFieldType.NUMBER,
+        placeholder = "Age",
+        leadingIcon = { Icon(imageVector = Icons.Default.Cake, "Birthday", tint = Color.White) },
+        keyboardImeAction = ImeAction.Next,
+        keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(ageFocusRequester)
+    )
+    PartyTextField(
+        textType = TextFieldType.PASSWORD,
+        value = password, onValueChange = { password = it },
+        leadingIcon = { Icon(imageVector = Icons.Default.Lock, "Password", tint = Color.White) },
+        placeholder = "Password",
+        keyboardImeAction = ImeAction.Done,
+        keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()}),
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRequester(passwordFocusRequester)
+    )
+
+    Button(
+        onClick = {
+            val user = User(
+                username = username.trim(), email = email.trim(), password = password.trim(),
+                exp = 0, age = age ?: -1, pfp = ""
+            )
+            var userFound: User? = null
+            userViewModel.viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    userFound = userViewModel.getUserFromUsername(username)
+                        .onEmpty {
+                            Log.d("FETCH_USER", "No user found with username: $username")
+                        }.firstOrNull() // Collects the first value or returns null if empty
+
+                    if (userFound == null) {
+                        userViewModel.viewModelScope.launch(Dispatchers.Main) {
+                            userViewModel.insertNewUser(user)
+                        }
+                        Log.d("FETCH_USER", "Inserting new user")
+                    } else {
+                        Log.d("FETCH_USER", "User already exists: $userFound")
+                        userViewModel.viewModelScope.launch(Dispatchers.Main) {
+                            Toast.makeText(context, "Username already taken", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("FETCH_USER", "Error fetching user: ${e.message}", e)
+                    userViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(context, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.invokeOnCompletion {
+                if (userFound == null) {
+                    userViewModel.startSession(user)
+                    userViewModel.selectUser(user)
+                    userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
+                } else {
+                    userViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(context, "Username already taken", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        },
+        shape = RoundedCornerShape(50.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = "REGISTER", Modifier.padding(vertical = 8.dp), color = Indigo)
+    }
+}
+
+@Composable
+fun SwitchMode(
+    isLogin: Boolean,
+    onSwitch: () -> Unit
+) {
+    val variableText = if (isLogin) "Don't" else "Already"
+    val switchText = if (isLogin) "REGISTER" else "LOGIN"
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("Don't have an account?", color = Color.Gray)
-        TextButton(onClick = { onRegisterButtonClicked() }) {
-            Text(text = "REGISTER")
+        Text(
+            text = "$variableText have an account?",
+            color = Color.Gray
+        )
+        TextButton(onClick = onSwitch) {
+            Text(text = switchText, color = Salmon, fontWeight = FontWeight.Bold)
         }
     }
 }

@@ -36,9 +36,7 @@ class UserViewModel @Inject constructor(
 
     val users = repository.users
 
-    fun getUserFromUsername(username:String) = viewModelScope.launch {
-        repository.getUserFromUsername(username)
-    }
+    fun getUserFromUsername(username:String) = repository.getUserFromUsername(username)
 
     fun getUserFromId(id:Int) = viewModelScope.launch {
         repository.getUserFromId(id)
@@ -58,8 +56,9 @@ class UserViewModel @Inject constructor(
         repository.updateExpFromId(userId, newExp)
     }
 
-    fun insertNewUser(user: User) = viewModelScope.launch {
-        repository.insertNewUser(user)
-    }
+    suspend fun insertNewUser(user: User) = repository.insertNewUser(user)
+    //viewModelScope.launch {
+    //    repository.insertNewUser(user)
+    //}
 }
 
