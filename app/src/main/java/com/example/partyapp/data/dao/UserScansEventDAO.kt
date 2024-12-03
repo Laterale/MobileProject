@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserScansEventCrossRef
 import kotlinx.coroutines.flow.Flow
@@ -15,11 +16,11 @@ interface UserScansEventDAO {
     @Query("SELECT * FROM UserScansEventCrossRef")
     fun getAllScans() : Flow<List<UserScansEventCrossRef>>
 
-    @Query("SELECT * FROM UserScansEventCrossRef WHERE id=:userId")
-    fun getScansFromUserId(userId: Int) : Flow<List<UserScansEventCrossRef>>
+    @Query("SELECT e.* FROM Event e JOIN UserScansEventCrossRef use ON e.eventId = use.eventId WHERE use.id=:userId")
+    fun getScansFromUserId(userId: Int) : Flow<List<Event>>
 
-    @Query("SELECT * FROM UserScansEventCrossRef WHERE id=:eventId")
-    fun getScansFromEventId(eventId: Int) : Flow<List<UserScansEventCrossRef>>
+    @Query("SELECT u.* FROM User u JOIN UserScansEventCrossRef use ON u.id = use.id WHERE use.eventId=:eventId")
+    fun getScansFromEventId(eventId: Int) : Flow<List<User>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addScan(vararg userScansEventCrossRef: UserScansEventCrossRef)

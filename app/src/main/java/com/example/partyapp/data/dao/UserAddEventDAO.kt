@@ -16,8 +16,8 @@ interface UserAddEventDAO{
     @Query("SELECT * FROM UserAddEventCrossRef")
     fun getAllParticipants(): Flow<List<UserAddEventCrossRef>>
 
-    @Query("SELECT * FROM UserAddEventCrossRef WHERE eventId=:eventId")
-    fun getParticipantsFromEventId(eventId: Int): Flow<List<UserAddEventCrossRef>>
+    @Query("SELECT u.* FROM User u JOIN UserAddEventCrossRef uad ON u.id WHERE uad.eventId=:eventId")
+    fun getParticipantsFromEventId(eventId: Int): Flow<List<User>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addParticipant(vararg userAddEventCrossRef: UserAddEventCrossRef)

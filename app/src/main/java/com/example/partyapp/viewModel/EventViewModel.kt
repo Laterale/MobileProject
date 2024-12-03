@@ -29,22 +29,16 @@ class EventViewModel @Inject constructor(
         _eventSelected = event
     }
 
-    /*
-    fun getEventByEventId(eventId: Int): Flow<List<Event>> {
-        return eRepository.getEventByEventId(eventId)
-    }
-    fun getEventsByCity(city: String): Flow<List<Event>> {
-        return eRepository.getEventsByCity(city)
-    }
-    */
-    fun updateParticipants(newNum: Int, eventId: Int) = viewModelScope.launch {
-        eRepository.updateParticipants(newNum, eventId)
-    }
+
+
+
 
     val allParticipants = uaeRepository.getAllParticipants
 
-    fun getParticipantsFromEventId(eventId: Int): Flow<List<UserAddEventCrossRef>> {
-        return uaeRepository.getParticipantsFromEventId(eventId)
+    fun getParticipantsFromEventId(eventId: Int) = uaeRepository.getParticipantsFromEventId(eventId)
+
+    fun updateParticipants(newNum: Int, eventId: Int) = viewModelScope.launch {
+        eRepository.updateParticipants(newNum, eventId)
     }
 
     fun addParticipant(userAddEventCrossRef: UserAddEventCrossRef) = viewModelScope.launch {
@@ -56,15 +50,12 @@ class EventViewModel @Inject constructor(
     }
 
 
+
     val allScans = useRepository.allScans
 
-    fun getScansFromUserId(userId: Int) = viewModelScope.launch {
-        useRepository.getScansFromUserId(userId)
-    }
+    fun getScansFromUserId(userId: Int) = useRepository.getScansFromUserId(userId)
 
-    fun getScansFromEventId(eventId: Int) = viewModelScope.launch {
-        useRepository.getScansFromEventId(eventId)
-    }
+    fun getScansFromEventId(eventId: Int) = useRepository.getScansFromEventId(eventId)
 
     fun addScan(userScansEventCrossRef: UserScansEventCrossRef) = viewModelScope.launch {
         useRepository.addScan(userScansEventCrossRef)

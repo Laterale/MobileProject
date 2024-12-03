@@ -38,10 +38,6 @@ class UserViewModel @Inject constructor(
 
     fun getUserFromUsername(username:String) = repository.getUserFromUsername(username)
 
-    fun getUserFromId(id:Int) = viewModelScope.launch {
-        repository.getUserFromId(id)
-    }
-
     fun checkLoginCredentials(username: String, password:String) = repository.checkLoginCredentials(username, password)
 
     fun changeUsernameFromId(userId: Int, newUsername: String) = viewModelScope.launch {
