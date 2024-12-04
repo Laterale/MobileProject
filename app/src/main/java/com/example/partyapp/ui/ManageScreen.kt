@@ -45,7 +45,7 @@ import com.example.partyapp.viewModel.UserViewModel
 @Composable
 fun ManageScreen(
     eventViewModel: EventViewModel,
-    onEventClicked: ()->Unit,
+    onEventClicked: () -> Unit,
 ){
     Column(
         modifier = Modifier

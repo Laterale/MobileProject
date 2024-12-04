@@ -1,9 +1,7 @@
 package com.example.partyapp.ui
 
-import android.media.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -37,24 +34,22 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
-import okhttp3.internal.wait
 
 @Composable
 fun EventScreen(
     session: String,
-    eventId: Int,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
     onPfpClicked: ()->Unit,
     onAddEventClicked: ()->Unit
 ){
+    val event = eventViewModel.eventSelected
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,13 +58,11 @@ fun EventScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
-            model = "",
-            contentDescription = "Event image",
+            model = event!!.image,
+            contentDescription = "Image for the event",
             modifier = Modifier
                 .weight(0.25f)
                 .clip(shape = RoundedCornerShape(10.dp))
-                .background(Color.Black)
-
         )
         Row(
             modifier = Modifier
@@ -81,7 +74,7 @@ fun EventScreen(
                     .fillMaxHeight(),
             ) {
                 Text(
-                    text = "PartyName",
+                    text = event!!.name,
                     style = TextStyle(
                         fontSize = 25.sp,
                         lineHeight = 28.sp,
@@ -101,7 +94,7 @@ fun EventScreen(
                 horizontalArrangement = Arrangement.End
             ){
                 Text(
-                    text = "by organizerName",
+                    text = event.creator.username,
                     style = TextStyle(
                         fontSize = 14.sp,
                         lineHeight = 28.sp,
@@ -122,8 +115,8 @@ fun EventScreen(
                     .align(Alignment.Bottom)
             ) {
                 AsyncImage(
-                    model = "",
-                    contentDescription = "Creator pfp",
+                    model = event.creator.pfp,
+                    contentDescription = "Profile picture of event creator",
                     modifier = Modifier
                         .size(35.dp, 35.dp)
                         .clip(CircleShape)
@@ -147,8 +140,9 @@ fun EventScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.CalendarMonth,
-                    contentDescription = "Date",
+                    contentDescription = "Day of the event",
                     tint = Color.White)
+                Text(text = event.day.toString())
             }
             Row(
                 modifier = Modifier
@@ -157,8 +151,9 @@ fun EventScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.AccessTime,
-                    contentDescription = "Time",
+                    contentDescription = "Time of the event",
                     tint = Color.White)
+                Text(text = event.starts + "-" + event.ends)
             }
             Row(
                 modifier = Modifier
@@ -167,8 +162,9 @@ fun EventScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.AddLocation,
-                    contentDescription = "Location",
+                    contentDescription = "Location of the event",
                     tint = Color.White)
+                Text(text = event.location.city)
             }
             Row(
                 modifier = Modifier
@@ -177,14 +173,15 @@ fun EventScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Person,
-                    contentDescription = "Participants",
+                    contentDescription = "Number of participants",
                     tint = Color.White)
+                Text(text = event.participants.toString())
             }
         }
         Column(
             modifier = Modifier
                 .weight(0.43f)
-                .padding(0.dp, 0.dp,0.dp,10.dp)
+                .padding(0.dp, 0.dp, 0.dp, 10.dp)
         ) {
             OutlinedCard(
                 modifier = Modifier.fillMaxSize(),

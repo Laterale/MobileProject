@@ -59,6 +59,7 @@ import com.example.partyapp.ui.ManageScreen
 import com.example.partyapp.ui.MapScreen
 import com.example.partyapp.ui.ProfileScreen
 import com.example.partyapp.ui.SettingsScreen
+import com.example.partyapp.ui.user
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
@@ -258,6 +259,7 @@ private fun NavigationGraph(
                 onEventClicked = {
                     navController.navigate(AppScreen.Event.name)
                 },
+                userViewModel = userViewModel,
                 eventViewModel = eventViewModel,
                 locationViewModel = locationViewModel,
                 session = session
@@ -328,7 +330,6 @@ private fun NavigationGraph(
                 userViewModel = userViewModel,
                 onPfpClicked = {},
                 onAddEventClicked = {},
-                eventId = 0
             )
         }
     }
