@@ -1,6 +1,7 @@
 package com.example.partyapp
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -232,8 +233,9 @@ private fun NavigationGraph(
     val eventViewModel = hiltViewModel<EventViewModel>()
 
     val users = userViewModel.users.collectAsState(initial = listOf())
-    if (users != null && users.value.isNotEmpty()) {
-
+    if (userViewModel.loggedUser == null && session != "" && session != "default") {
+        var current = users.value.find { it.username == session }
+        current?.let { userViewModel.selectUser(it) }
     }
 
     // TODO: review start destination logic
@@ -248,6 +250,7 @@ private fun NavigationGraph(
     ) {
         composable(route = AppScreen.Manage.name) {
             ManageScreen(
+                userViewModel = userViewModel,
                 eventViewModel = eventViewModel,
                 onEventClicked = {
                     navController.navigate(AppScreen.Event.name)

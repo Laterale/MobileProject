@@ -22,17 +22,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.partyapp.data.entity.User
+import com.example.partyapp.services.EventFactory
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 
 @Composable
 fun MyEvents(
+    currentUser: User,
     eventViewModel: EventViewModel,
     onEventClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .padding(top = 20.dp)
     ) {
         Text(
@@ -47,8 +51,12 @@ fun MyEvents(
                 .padding(vertical = 20.dp)
                 .horizontalScroll(ScrollState(0))
         ) {
-            AddEvent { /* TODO */ }
-            ShowTemplateThumbnails()
+            AddEvent(onAddEvent = {
+                val newEvent = EventFactory().createEmptyEvent(creator = currentUser)
+                eventViewModel.selectEvent(newEvent)
+                onEventClicked.invoke()
+            })
+            ShowTemplateThumbnails(onEventClicked = onEventClicked)
         }
     }
 }
@@ -76,7 +84,9 @@ fun AddEvent(
 }
 
 @Composable
-fun ShowTemplateThumbnails() {
+fun ShowTemplateThumbnails(
+    onEventClicked: () -> Unit
+) {
     var i = 0
     while (i != 10) {
         IconButton(

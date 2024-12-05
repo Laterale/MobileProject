@@ -25,20 +25,26 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.partyapp.R
+import com.example.partyapp.data.entity.User
 import com.example.partyapp.ui.components.MyEvents
 import com.example.partyapp.viewModel.EventViewModel
+import com.example.partyapp.viewModel.UserViewModel
 
 @Composable
 fun ManageScreen(
+    userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
     onEventClicked: () -> Unit,
 ){
+    var currentUser = userViewModel.loggedUser
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(30.dp, 20.dp, 30.dp, 0.dp)
     ) {
-        MyEvents(eventViewModel, onEventClicked)
+        if (currentUser != null) {
+            MyEvents(currentUser, eventViewModel, onEventClicked)
+        }
         Divider(color = Color.White)
         AddedEvents(onEventClicked)
     }

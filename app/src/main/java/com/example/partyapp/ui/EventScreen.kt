@@ -50,6 +50,8 @@ fun EventScreen(
     onAddEventClicked: ()->Unit
 ){
     val event = eventViewModel.eventSelected
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
