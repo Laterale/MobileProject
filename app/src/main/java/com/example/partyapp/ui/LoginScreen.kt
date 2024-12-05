@@ -173,7 +173,6 @@ fun RegistrationForm(
     var email: String by remember { mutableStateOf("") }
 
     val emailFocusRequester = FocusRequester()
-    val ageFocusRequester = FocusRequester()
     val passwordFocusRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
 
@@ -191,7 +190,7 @@ fun RegistrationForm(
         placeholder = "Email",
         leadingIcon = { Icon(imageVector = Icons.Default.Email, "Email", tint = Color.White) },
         keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {ageFocusRequester.requestFocus()}),
+        keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(emailFocusRequester)
