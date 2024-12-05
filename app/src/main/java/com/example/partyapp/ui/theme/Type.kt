@@ -45,5 +45,11 @@ val Typography = Typography(
         color = Color(0xFFFFFFFF),
         textAlign = TextAlign.Center,
         shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
+    ),
+    titleMedium = TextStyle(
+        fontSize = 20.sp,
+        fontFamily = FontFamily(Font(R.font.roboto)),
+        color = Color.hsl(0f, 0f, 1f, 0.70f),
+        shadow = Shadow(Color.DarkGray, offset = Offset(0f, 5f), blurRadius = 10f)
     )
 )
