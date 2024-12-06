@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,7 +23,6 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -45,9 +47,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.data.entity.Event
+import com.example.partyapp.services.EventFactory
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.PartyTextField
-import com.example.partyapp.ui.components.TextFieldType
+import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 
@@ -59,75 +62,25 @@ fun EventScreen(
     onPfpClicked: () -> Unit,
     onAddEventClicked: () -> Unit
 ) {
-    val event = eventViewModel.eventSelected
+    val factory = EventFactory()
+    val event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent)
             .padding(30.dp, 10.dp, 30.dp, 0.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         EventImage(event, modifier = Modifier.fillMaxHeight(0.25f))
-        Spacer(modifier = Modifier.size(5.dp))
-        EventDetails(event)
+        EventTitle(event = event)
+        EventAuthor(event = event)
         Divider(color = Color.White, modifier = Modifier.padding(vertical = 2.dp))
+        EventDetails(event, modifier = Modifier.fillMaxWidth())
 
         if (event !== null) {
 
-            Column(
-                modifier = Modifier.weight(0.15f)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 5.dp, 0.dp, 0.dp)
 
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarMonth,
-                        contentDescription = "Day of the event",
-                        tint = Color.White
-                    )
-                    Text(text = event.day.toString())
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 5.dp, 0.dp, 0.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AccessTime,
-                        contentDescription = "Time of the event",
-                        tint = Color.White
-                    )
-                    Text(text = event.starts + "-" + event.ends)
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 5.dp, 0.dp, 0.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AddLocation,
-                        contentDescription = "Location of the event",
-                        tint = Color.White
-                    )
-                    Text(text = event.location.city)
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 5.dp, 0.dp, 0.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = "Number of participants",
-                        tint = Color.White
-                    )
-                    Text(text = event.participants.toString())
-                }
-            }
             Column(
                 modifier = Modifier
                     .weight(0.43f)
@@ -147,7 +100,10 @@ fun EventScreen(
 @Composable
 fun EventImage(event: Event?, modifier: Modifier = Modifier) {
     if (event == null || event.eventId == -1) {
-        AddButton(onAdd = { /*TODO*/ }, modifier = modifier.fillMaxWidth())
+        AddButton(
+            onAdd = { /*TODO*/ },
+            modifier = modifier.fillMaxWidth()
+        )
     } else if (event.eventId > 0) {
         AsyncImage(
             model = event.image,
@@ -160,63 +116,67 @@ fun EventImage(event: Event?, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EventDetails(event: Event?) {
-    Row(
-        modifier = Modifier
+fun EventDetails(event: Event?, modifier: Modifier = Modifier) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = modifier,
     ) {
-        EventTitle(event = event)
-        if (event != null) {
-
-            Row(
-                modifier = Modifier
-                    .weight(0.4f)
-                    .fillMaxHeight(),
-                horizontalArrangement = Arrangement.End
-            ) {
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                Icon(
+                    imageVector = Icons.Filled.CalendarMonth,
+                    contentDescription = "Day of the event",
+                    tint = Color.White
+                )
+                Text(text = event?.day.toString(), color = Color.White)
+            }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                Icon(
+                    imageVector = Icons.Filled.AddLocation,
+                    contentDescription = "Location of the event",
+                    tint = Color.White
+                )
+                Text(text = event?.location?.city ?: "No location", color = Color.White)
+            }
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                Icon(
+                    imageVector = Icons.Filled.AccessTime,
+                    contentDescription = "Time of the event",
+                    tint = Color.White
+                )
                 Text(
-                    text = event.creator.username,
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 28.sp,
-                        fontFamily = FontFamily(Font(R.font.roboto)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0x80FFFFFF),
-                        textAlign = TextAlign.Center,
-                        shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                    ),
-                    modifier = Modifier
-                        .align(Alignment.Bottom)
-                        .padding(0.dp, 0.dp, 5.dp, 0.dp)
+                    text = if (event != null) event.starts + "-" + event.ends else "---",
+                    color = Color.White
                 )
             }
-            Row(
-                modifier = Modifier
-                    .weight(0.1f)
-                    .align(Alignment.Bottom)
-            ) {
-                AsyncImage(
-                    model = event.creator.pfp,
-                    contentDescription = "Profile picture of event creator",
-                    modifier = Modifier
-                        .size(35.dp, 35.dp)
-                        .clip(CircleShape)
-                        .background(Color.Black)
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = "Number of participants",
+                    tint = Color.White
                 )
+                Text(text = event?.participants?.toString() ?: "0", color = Color.White)
             }
-
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun EventTitle(event: Event?, modifier: Modifier = Modifier) {
-    Row(modifier = Modifier.fillMaxHeight()) {
+    Row(modifier = modifier.fillMaxWidth()) {
         if (event == null || event.eventId == -1) {
             var title: String by remember { mutableStateOf("") }
             PartyTextField(
                 value = title, onValueChange = { title = it },
-                placeholder = "PartyName",
+                placeholder = "Party Name",
                 modifier = Modifier.fillMaxWidth()
             )
         } else {
@@ -233,5 +193,38 @@ fun EventTitle(event: Event?, modifier: Modifier = Modifier) {
                 modifier = Modifier.align(Alignment.Bottom)
             )
         }
+    }
+}
+
+@Composable
+fun EventAuthor(event: Event?, modifier: Modifier = Modifier) {
+    val pfpSize = 25.dp
+    Row(modifier = modifier) {
+        if (event == null) {
+            AsyncImage(
+                model = null,
+                contentDescription = "Profile picture of event creator",
+                modifier = Modifier
+                    .size(pfpSize)
+                    .clip(CircleShape)
+                    .background(Color.Black)
+            )
+        } else {
+            AsyncImage(
+                model = event.creator.pfp,
+                contentDescription = "Profile picture of event creator",
+                modifier = Modifier
+                    .size(pfpSize)
+                    .clip(CircleShape)
+                    .background(Color.Black)
+            )
+        }
+        Text(
+            text = event?.creator?.username ?: "No data",
+            style = Typography.labelSmall,
+            modifier = Modifier
+                .align(alignment = Alignment.CenterVertically)
+                .padding(horizontal = 5.dp)
+        )
     }
 }

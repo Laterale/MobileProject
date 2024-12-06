@@ -15,10 +15,12 @@ class EventFactory {
             image = "",
             location = LocationDetails(
                 latitude = 0.0, longitude = 0.0,
-                state = "", city = "", street = ""
+                state = "No location data",
+                city = "No location data",
+                street = "No location data"
             ),
-            starts = "",
-            ends = "",
+            starts = "00:00",
+            ends = "00:00",
             description = "Insert description",
             day = 1,
             participants = 0
