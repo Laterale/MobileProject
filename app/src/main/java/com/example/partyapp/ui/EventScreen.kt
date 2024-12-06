@@ -77,24 +77,8 @@ fun EventScreen(
         EventAuthor(event = event)
         Divider(color = Color.White, modifier = Modifier.padding(vertical = 2.dp))
         EventDetails(event, modifier = Modifier.fillMaxWidth())
-
-        if (event !== null) {
-
-
-            Column(
-                modifier = Modifier
-                    .weight(0.43f)
-                    .padding(0.dp, 0.dp, 0.dp, 10.dp)
-            ) {
-                OutlinedCard(
-                    modifier = Modifier.fillMaxSize(),
-                    colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-                    border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
-                ) {}
-            }
-        }
+        EventDescription(event = event)
     }
-
 }
 
 @Composable
@@ -226,5 +210,20 @@ fun EventAuthor(event: Event?, modifier: Modifier = Modifier) {
                 .align(alignment = Alignment.CenterVertically)
                 .padding(horizontal = 5.dp)
         )
+    }
+}
+
+@Composable
+fun EventDescription(event: Event?, modifier: Modifier = Modifier) {
+    if (event != null) {
+        Column(
+            modifier = modifier.padding(bottom = 10.dp)
+        ) {
+            OutlinedCard(
+                modifier = Modifier.fillMaxSize(),
+                colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+                border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+            ) {}
+        }
     }
 }
