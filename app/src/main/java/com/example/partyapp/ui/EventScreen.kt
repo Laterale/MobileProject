@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,10 +20,15 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +44,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.data.entity.Event
+import com.example.partyapp.ui.components.AddButton
+import com.example.partyapp.ui.components.PartyTextField
+import com.example.partyapp.ui.components.TextFieldType
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 
@@ -46,11 +56,10 @@ fun EventScreen(
     session: String,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onPfpClicked: ()->Unit,
-    onAddEventClicked: ()->Unit
-){
+    onPfpClicked: () -> Unit,
+    onAddEventClicked: () -> Unit
+) {
     val event = eventViewModel.eventSelected
-
 
     Column(
         modifier = Modifier
@@ -59,42 +68,111 @@ fun EventScreen(
             .padding(30.dp, 10.dp, 30.dp, 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        EventImage(event, modifier = Modifier.fillMaxHeight(0.25f))
+        Spacer(modifier = Modifier.size(5.dp))
+        EventDetails(event)
+        Divider(color = Color.White, modifier = Modifier.padding(vertical = 2.dp))
+
+        if (event !== null) {
+
+            Column(
+                modifier = Modifier.weight(0.15f)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(0.dp, 5.dp, 0.dp, 0.dp)
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarMonth,
+                        contentDescription = "Day of the event",
+                        tint = Color.White
+                    )
+                    Text(text = event.day.toString())
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(0.dp, 5.dp, 0.dp, 0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AccessTime,
+                        contentDescription = "Time of the event",
+                        tint = Color.White
+                    )
+                    Text(text = event.starts + "-" + event.ends)
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(0.dp, 5.dp, 0.dp, 0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AddLocation,
+                        contentDescription = "Location of the event",
+                        tint = Color.White
+                    )
+                    Text(text = event.location.city)
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(0.dp, 5.dp, 0.dp, 0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = "Number of participants",
+                        tint = Color.White
+                    )
+                    Text(text = event.participants.toString())
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .weight(0.43f)
+                    .padding(0.dp, 0.dp, 0.dp, 10.dp)
+            ) {
+                OutlinedCard(
+                    modifier = Modifier.fillMaxSize(),
+                    colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+                    border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+                ) {}
+            }
+        }
+    }
+
+}
+
+@Composable
+fun EventImage(event: Event?, modifier: Modifier = Modifier) {
+    if (event == null || event.eventId == -1) {
+        AddButton(onAdd = { /*TODO*/ }, modifier = modifier.fillMaxWidth())
+    } else if (event.eventId > 0) {
         AsyncImage(
-            model = event!!.image,
-            contentDescription = "Image for the event",
-            modifier = Modifier
-                .weight(0.25f)
+            model = event.image,
+            contentDescription = "Event image",
+            modifier = modifier
                 .clip(shape = RoundedCornerShape(10.dp))
+                .background(Color.Black)
         )
-        Row(
-            modifier = Modifier
-                .weight(0.05f)
-        ) {
+    }
+}
+
+@Composable
+fun EventDetails(event: Event?) {
+    Row(
+        modifier = Modifier
+    ) {
+        EventTitle(event = event)
+        if (event != null) {
+
             Row(
                 modifier = Modifier
                     .weight(0.4f)
                     .fillMaxHeight(),
-            ) {
-                Text(
-                    text = event!!.name,
-                    style = TextStyle(
-                        fontSize = 25.sp,
-                        lineHeight = 28.sp,
-                        fontFamily = FontFamily(Font(R.font.roboto)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFFFFFFF),
-                        textAlign = TextAlign.End,
-                        shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                    ),
-                    modifier = Modifier.align(Alignment.Bottom)
-                )
-            }
-            Row (
-                modifier = Modifier
-                    .weight(0.4f)
-                    .fillMaxHeight(),
                 horizontalArrangement = Arrangement.End
-            ){
+            ) {
                 Text(
                     text = event.creator.username,
                     style = TextStyle(
@@ -127,71 +205,33 @@ fun EventScreen(
             }
 
         }
-        Divider(
-            color = Color.White,
-            modifier = Modifier.padding(0.dp, 2.dp)
-        )
-        Column(
-            modifier = Modifier.weight(0.15f)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 5.dp, 0.dp, 0.dp)
-
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.CalendarMonth,
-                    contentDescription = "Day of the event",
-                    tint = Color.White)
-                Text(text = event.day.toString())
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 5.dp, 0.dp, 0.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AccessTime,
-                    contentDescription = "Time of the event",
-                    tint = Color.White)
-                Text(text = event.starts + "-" + event.ends)
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 5.dp, 0.dp, 0.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AddLocation,
-                    contentDescription = "Location of the event",
-                    tint = Color.White)
-                Text(text = event.location.city)
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 5.dp, 0.dp, 0.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = "Number of participants",
-                    tint = Color.White)
-                Text(text = event.participants.toString())
-            }
-        }
-        Column(
-            modifier = Modifier
-                .weight(0.43f)
-                .padding(0.dp, 0.dp, 0.dp, 10.dp)
-        ) {
-            OutlinedCard(
-                modifier = Modifier.fillMaxSize(),
-                colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-                border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
-            ){}
-        }
     }
-
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EventTitle(event: Event?, modifier: Modifier = Modifier) {
+    Row(modifier = Modifier.fillMaxHeight()) {
+        if (event == null || event.eventId == -1) {
+            var title: String by remember { mutableStateOf("") }
+            PartyTextField(
+                value = title, onValueChange = { title = it },
+                placeholder = "PartyName",
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else {
+            Text(
+                text = event.name,
+                style = TextStyle(
+                    fontSize = 25.sp,
+                    lineHeight = 28.sp,
+                    fontFamily = FontFamily(Font(R.font.roboto)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF),
+                    shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
+                ),
+                modifier = Modifier.align(Alignment.Bottom)
+            )
+        }
+    }
+}

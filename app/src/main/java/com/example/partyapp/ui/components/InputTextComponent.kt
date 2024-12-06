@@ -28,23 +28,6 @@ enum class TextFieldType {
     NUMBER
 }
 
-/*
-* TextField(
-        value = username,
-        onValueChange = { username = it },
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(15)),
-        leadingIcon = { Icon(imageVector = inputType1.icon, null) },
-        label = { Text(text = inputType1.label) },
-        shape = MaterialTheme.shapes.small,
-        keyboardOptions = inputType1.keyboardOptions,
-        visualTransformation = inputType1.visualTransformation,
-        keyboardActions = KeyboardActions(onNext = {
-            passwordFocusRequester.requestFocus()
-        })
-    )
-* */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
