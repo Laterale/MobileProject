@@ -1,7 +1,5 @@
 package com.example.partyapp.ui
 
-import android.app.TimePickerDialog
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,11 +37,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -52,10 +50,10 @@ import com.example.partyapp.data.entity.Event
 import com.example.partyapp.services.EventFactory
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.PartyTextField
+import com.example.partyapp.ui.components.PartyTimePickerComponent
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
-import java.util.Calendar
 
 val factory = EventFactory()
 var event: Event = factory.CreateEmpty()
@@ -210,39 +208,29 @@ fun EventDescription(modifier: Modifier = Modifier) {
     }
 }
 
+@Preview
 @Composable
-fun EventTimeDetail() {
-    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+fun EventTimeDetail(modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
         Icon(
             imageVector = Icons.Filled.AccessTime,
             contentDescription = "Time of the event",
             tint = Color.White
         )
         if (event.eventId == -1) {
-            val context = LocalContext.current
-            val tp = TimePickerDialog(
-                context,
-                { _, i, i2 ->
-                    Log.d("TIME_PICKER", "$i:$i2")
-                    event.starts = "$i:$i2"
-                },
-                Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
-                Calendar.getInstance().get(Calendar.MINUTE),
-                true
+            PartyTimePickerComponent(
+                text = event.starts,
+                onTimePicked = { h, m -> event.starts = "$h:$m" }
             )
-            Button(
-                colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-                onClick = { tp.show() }
-            ) {
-                Text(text = event.starts, color = Color.White)
-            }
-            Text(text = "-")
-            Button(
-                colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-                onClick = { tp.show() }
-            ) {
-                Text(text = event.ends, color = Color.White)
-            }
+            Text(text = "-", color = Color.White)
+            PartyTimePickerComponent(
+                text = event.ends,
+                onTimePicked = { h, m -> event.ends = "$h:$m" }
+            )
         } else {
             Text(
                 text = event.starts + "-" + event.ends,
