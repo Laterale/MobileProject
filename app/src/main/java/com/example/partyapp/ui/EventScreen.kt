@@ -14,8 +14,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
@@ -56,7 +54,7 @@ import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 
 val factory = EventFactory()
-var event: Event = factory.CreateEmpty()
+var event: Event = factory.createEmpty()
 
 @Composable
 fun EventScreen(
@@ -150,9 +148,13 @@ fun EventDetails(modifier: Modifier = Modifier) {
 fun EventTitle(modifier: Modifier = Modifier) {
     Row(modifier = modifier.fillMaxWidth()) {
         if (event.eventId == -1) {
-            var title: String by remember { mutableStateOf("") }
+            var title: String by remember { mutableStateOf(event.name) }
             PartyTextField(
-                value = title, onValueChange = { title = it },
+                value = title,
+                onValueChange = {
+                    title = it
+                    event = event.copy(name = it)
+                },
                 placeholder = "Party Name",
                 modifier = Modifier.fillMaxWidth()
             )
@@ -200,11 +202,30 @@ fun EventDescription(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.padding(bottom = 10.dp)
     ) {
-        OutlinedCard(
-            modifier = Modifier.fillMaxSize(),
-            colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-            border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
-        ) {}
+        if (event.eventId == -1) {
+            var des: String by remember { mutableStateOf(event.description) }
+            PartyTextField(
+                value = des,
+                onValueChange = {
+                    des = it
+                    event = event.copy(description = it)
+                },
+                placeholder = "Description",
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            OutlinedCard(
+                modifier = Modifier.fillMaxSize(),
+                colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+                border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+            ) {
+                Text(
+                    text = event.name,
+                    style = Typography.bodyMedium,
+                    modifier = Modifier.align(alignment = Alignment.Start)
+                )
+            }
+        }
     }
 }
 

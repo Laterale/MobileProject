@@ -1,13 +1,12 @@
 package com.example.partyapp.services
 
-import android.os.Parcelable.Creator
 import com.example.partyapp.data.LocationDetails
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
 
 class EventFactory {
 
-    fun CreateEmpty(): Event {
+    fun createEmpty(): Event {
         return Event(
             eventId = -1,
             creator = User(
@@ -38,7 +37,7 @@ class EventFactory {
         return Event(
             eventId = -1,
             creator = creator,
-            name = "MyParty",
+            name = "",
             image = "",
             location = LocationDetails(
                 latitude = 0.0, longitude = 0.0,
@@ -48,7 +47,7 @@ class EventFactory {
             ),
             starts = "00:00",
             ends = "00:00",
-            description = "Insert description",
+            description = "",
             day = 1,
             participants = 0
         )

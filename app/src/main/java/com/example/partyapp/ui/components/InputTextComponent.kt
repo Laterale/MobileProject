@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 
@@ -41,7 +42,8 @@ fun PartyTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     textType: TextFieldType = TextFieldType.TEXT,
     keyboardImeAction: ImeAction = ImeAction.Default,
-    keyboardActions: KeyboardActions = KeyboardActions()
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    cornerSize: Dp = 15.dp
 ) {
     val visualTrans = if (textType == TextFieldType.PASSWORD) PasswordVisualTransformation()
         else VisualTransformation.None
@@ -75,7 +77,7 @@ fun PartyTextField(
             disabledIndicatorColor = Color.Transparent,
             textColor = Color.White
         ),
-        shape = MaterialTheme.shapes.small,
+        shape = RoundedCornerShape(cornerSize),
         singleLine = singleLine,
         visualTransformation = visualTrans,
         keyboardOptions = KeyboardOptions(
@@ -85,7 +87,7 @@ fun PartyTextField(
         keyboardActions = keyboardActions,
         modifier = modifier.border(
             border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
-            shape = RoundedCornerShape(15)
+            shape = RoundedCornerShape(cornerSize)
         )
     )
 }
