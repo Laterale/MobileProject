@@ -1,5 +1,9 @@
 package com.example.partyapp.ui
 
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +22,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Person
@@ -37,6 +42,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -48,12 +55,14 @@ import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.services.EventFactory
+import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import java.io.File
 
 val factory = EventFactory()
 var event: Event = factory.createEmpty()
@@ -63,7 +72,7 @@ fun EventScreen(
     session: String,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onPfpClicked: () -> Unit,
+    onSaveEvent: () -> Unit,
     onAddEventClicked: () -> Unit
 ) {
     event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
@@ -87,18 +96,81 @@ fun EventScreen(
 
 @Composable
 fun EventImage(modifier: Modifier = Modifier) {
-    if (event.eventId == -1) {
-        AddButton(
-            onAdd = { /*TODO*/ },
+    var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
+    val setImg: (Uri, String) -> Unit = { uri, path ->
+        photoUri = uri
+        event = event.copy(image = path)
+    }
+
+    if (event.eventId == -1 && photoUri == Uri.EMPTY) {
+        AddEventImageBtn(
+            onImageChosen = setImg,
             modifier = modifier.fillMaxWidth()
         )
     } else {
         AsyncImage(
             model = event.image,
             contentDescription = "Event image",
+            contentScale = ContentScale.Crop,
             modifier = modifier
+                .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(10.dp))
                 .background(Color.Black)
+        )
+    }
+}
+
+
+@Composable
+fun AddEventImageBtn(
+    onImageChosen: (Uri, String) -> Unit,
+    modifier: Modifier
+) {
+    val context = LocalContext.current
+    val imgChooser = ImageChooserService()
+    var showDialog: Boolean by remember { mutableStateOf(false) }
+    var tempPhotoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val savedPath = imgChooser.saveImageToInternalStorage(context, uri)
+            if (savedPath != null) {
+                onImageChosen(uri, savedPath)
+            }
+        }
+    }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            val file = File(tempPhotoUri.path ?: return@rememberLauncherForActivityResult)
+            imgChooser.addPhotoToGallery(context, file) // Notify gallery
+            onImageChosen(tempPhotoUri, tempPhotoUri.toString())
+        }
+    }
+    val cameraPermissionRequest = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            tempPhotoUri = imgChooser.getTempImageUri(context)
+            cameraLauncher.launch(tempPhotoUri)
+        }
+        else {
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    AddButton(
+        onAdd = { showDialog = true },
+        modifier = modifier
+    )
+    if (showDialog) {
+        imgChooser.ChooseImage(
+            imagePickerLauncher = imagePickerLauncher,
+            cameraPermissionRequest = cameraPermissionRequest,
+            onDismissRequest = { showDialog = false }
         )
     }
 }
