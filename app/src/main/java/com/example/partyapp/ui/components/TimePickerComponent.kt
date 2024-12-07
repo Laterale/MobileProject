@@ -1,10 +1,7 @@
 package com.example.partyapp.ui.components
 
 import android.app.TimePickerDialog
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material3.Text
@@ -12,14 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.util.Calendar
 
-@Preview
 @Composable
 fun PartyTimePickerComponent(
-    text: String = "test",
+    text: String = "",
     onTimePicked: (Int, Int) -> Unit = {h, m -> },
     is24HourView: Boolean = true,
     modifier: Modifier = Modifier
@@ -43,6 +38,6 @@ fun PartyTimePickerComponent(
 //                color = Color.hsl(0f, 0f, 1f, 0.20f),
 //            )
     ) {
-        Text(text = text.toString(), color = Color.White)
+        Text(text = text, color = Color.White)
     }
 }

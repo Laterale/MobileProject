@@ -222,14 +222,22 @@ fun EventTimeDetail(modifier: Modifier = Modifier) {
             tint = Color.White
         )
         if (event.eventId == -1) {
+            var starts: String by remember { mutableStateOf(event.starts) }
+            var ends: String by remember { mutableStateOf(event.ends) }
             PartyTimePickerComponent(
-                text = event.starts,
-                onTimePicked = { h, m -> event.starts = "$h:$m" }
+                text = starts,
+                onTimePicked = { h, m ->
+                    starts = "%02d:%02d".format(h, m)
+                    event = event.copy(starts = starts)
+                }
             )
             Text(text = "-", color = Color.White)
             PartyTimePickerComponent(
-                text = event.ends,
-                onTimePicked = { h, m -> event.ends = "$h:$m" }
+                text = ends,
+                onTimePicked = { h, m ->
+                    ends = "%02d:%02d".format(h, m)
+                    event = event.copy(ends = ends)
+                }
             )
         } else {
             Text(
