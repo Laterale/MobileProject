@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
@@ -78,7 +80,8 @@ fun EventScreen(
         EventAuthor()
         Divider(color = Color.White, modifier = Modifier.padding(vertical = 2.dp))
         EventDetails(modifier = Modifier.fillMaxWidth())
-        EventDescription()
+        EventDescription(modifier = Modifier.fillMaxHeight(0.8f))
+        Actions()
     }
 }
 
@@ -100,15 +103,20 @@ fun EventImage(modifier: Modifier = Modifier) {
     }
 }
 
+@Preview
 @Composable
 fun EventDetails(modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
         modifier = modifier,
     ) {
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     imageVector = Icons.Filled.CalendarMonth,
                     contentDescription = "Day of the event",
@@ -118,7 +126,10 @@ fun EventDetails(modifier: Modifier = Modifier) {
             }
         }
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     imageVector = Icons.Filled.AddLocation,
                     contentDescription = "Location of the event",
@@ -131,7 +142,11 @@ fun EventDetails(modifier: Modifier = Modifier) {
             EventTimeDetail()
         }
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 13.dp)
+            ) {
                 Icon(
                     imageVector = Icons.Filled.Person,
                     contentDescription = "Number of participants",
@@ -200,7 +215,7 @@ fun EventAuthor(modifier: Modifier = Modifier) {
 @Composable
 fun EventDescription(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.padding(bottom = 10.dp)
+        modifier = modifier
     ) {
         if (event.eventId == -1) {
             var des: String by remember { mutableStateOf(event.description) }
@@ -265,6 +280,43 @@ fun EventTimeDetail(modifier: Modifier = Modifier) {
                 text = event.starts + "-" + event.ends,
                 color = Color.White
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun Actions() {
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        if (event.eventId == -1) {
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(0.5f),
+                shape = RoundedCornerShape(15.dp),
+                colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+            ) {
+                Text(text = "Discard", color = Color.White)
+            }
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(15.dp),
+                colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+            ) {
+                Text(text = "Save", color = Color.White)
+            }
+        } else {
+            Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(15.dp),
+                colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+            ) {
+                Text(text = "Add", color = Color.White)
+            }            
         }
     }
 }
