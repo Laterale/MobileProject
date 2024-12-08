@@ -329,6 +329,11 @@ private fun NavigationGraph(
                 userViewModel = userViewModel,
                 onSaveEvent = {},
                 onAddEventClicked = {},
+                onBackToPrevPage = {
+                    navController.navigate(AppScreen.Manage.name) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
             )
         }
     }

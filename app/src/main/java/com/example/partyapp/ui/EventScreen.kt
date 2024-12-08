@@ -1,6 +1,7 @@
 package com.example.partyapp.ui
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,7 +23,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Person
@@ -73,7 +73,8 @@ fun EventScreen(
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
     onSaveEvent: () -> Unit,
-    onAddEventClicked: () -> Unit
+    onAddEventClicked: () -> Unit,
+    onBackToPrevPage: () -> Unit = {}
 ) {
     event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
 
@@ -90,7 +91,10 @@ fun EventScreen(
         Divider(color = Color.White, modifier = Modifier.padding(vertical = 2.dp))
         EventDetails(modifier = Modifier.fillMaxWidth())
         EventDescription(modifier = Modifier.fillMaxHeight(0.8f))
-        Actions()
+        Actions(
+            eventViewModel = eventViewModel,
+            onBackToPrevPage = onBackToPrevPage
+        )
     }
 }
 
@@ -356,16 +360,20 @@ fun EventTimeDetail(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview
 @Composable
-fun Actions() {
+fun Actions(
+    eventViewModel: EventViewModel,
+    onBackToPrevPage: () -> Unit = {}
+) {
     Row (
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (event.eventId == -1) {
             Button(
-                onClick = {},
+                onClick = {
+
+                },
                 modifier = Modifier.fillMaxWidth(0.5f),
                 shape = RoundedCornerShape(15.dp),
                 colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
@@ -373,7 +381,11 @@ fun Actions() {
                 Text(text = "Discard", color = Color.White)
             }
             Button(
-                onClick = {},
+                onClick = {
+                    Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
+                    eventViewModel.createNewEvent(event)
+                    onBackToPrevPage()
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(15.dp),
                 colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
@@ -382,7 +394,10 @@ fun Actions() {
             }
         } else {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    //onAddEventClicked()
+                    Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(15.dp),
                 colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
