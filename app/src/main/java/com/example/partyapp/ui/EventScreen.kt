@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.data.entity.Event
+import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.ui.components.AddButton
@@ -66,6 +67,7 @@ import java.io.File
 
 val factory = EventFactory()
 var event: Event = factory.createEmpty()
+lateinit var loggedUser: User
 
 @Composable
 fun EventScreen(
@@ -77,6 +79,7 @@ fun EventScreen(
     onBackToPrevPage: () -> Unit = {}
 ) {
     event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
+    loggedUser = userViewModel.loggedUser!!
 
     Column(
         modifier = Modifier
@@ -221,7 +224,7 @@ fun EventDetails(modifier: Modifier = Modifier) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = 13.dp)
+                modifier = Modifier.padding(top = if (event.eventId == -1) 15.dp else 0.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Person,
@@ -314,6 +317,7 @@ fun EventDescription(modifier: Modifier = Modifier) {
                     text = event.name,
                     style = Typography.bodyMedium,
                     modifier = Modifier.align(alignment = Alignment.Start)
+                        .padding(10.dp)
                 )
             }
         }
@@ -371,9 +375,7 @@ fun Actions(
     ) {
         if (event.eventId == -1) {
             Button(
-                onClick = {
-
-                },
+                onClick = onBackToPrevPage,
                 modifier = Modifier.fillMaxWidth(0.5f),
                 shape = RoundedCornerShape(15.dp),
                 colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
@@ -392,7 +394,7 @@ fun Actions(
             ) {
                 Text(text = "Save", color = Color.White)
             }
-        } else {
+        } else if (event.creator.username !== loggedUser.username) {
             Button(
                 onClick = {
                     //onAddEventClicked()
