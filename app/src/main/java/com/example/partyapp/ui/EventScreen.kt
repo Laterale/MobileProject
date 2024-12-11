@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
@@ -380,7 +379,7 @@ fun Actions(
         if (event.eventId == -1) {
             SaveDiscardBtns(eventViewModel, onBackToPrevPage)
         } else if (event.creator.username !== loggedUser.username) {
-            AddBtn(eventViewModel, onBackToPrevPage)
+            AddEventButton(eventViewModel, onBackToPrevPage)
         }
     }
 }
@@ -400,8 +399,8 @@ fun SaveDiscardBtns(
     }
     Button(
         onClick = {
-            Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
             eventViewModel.createNewEvent(event)
+            addPartecipation(eventViewModel)
             onBackToPrevPage()
         },
         modifier = Modifier.fillMaxWidth(),
@@ -413,7 +412,7 @@ fun SaveDiscardBtns(
 }
 
 @Composable
-fun AddBtn(
+fun AddEventButton(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
@@ -424,13 +423,7 @@ fun AddBtn(
         .contains(loggedUser.id)
 
     Button(
-        onClick = {
-            Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
-            val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
-            event = event.copy(participants = event.participants + 1)
-            eventViewModel.addParticipant(crossRef)
-            eventViewModel.updateParticipants(partecipants.value.size+1, event.eventId)
-        },
+        onClick = { addPartecipation(eventViewModel) },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
         colors = GetDefaultButtonColors(),
@@ -442,4 +435,11 @@ fun AddBtn(
             Text(text = "Add", color = Color.White)
         }
     }
+}
+
+fun addPartecipation(eventViewModel: EventViewModel) {
+    val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
+    eventViewModel.addParticipant(crossRef)
+    event = event.copy(participants = event.participants + 1)
+    eventViewModel.updateParticipants(event.participants.toInt(), event.eventId)
 }
