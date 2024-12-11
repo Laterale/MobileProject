@@ -427,6 +427,7 @@ fun AddBtn(
         onClick = {
             Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
             val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
+            event = event.copy(participants = event.participants + 1)
             eventViewModel.addParticipant(crossRef)
             eventViewModel.updateParticipants(partecipants.value.size+1, event.eventId)
         },
