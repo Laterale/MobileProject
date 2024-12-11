@@ -32,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,11 +56,13 @@ import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.data.relation.UserAddEventCrossRef
 import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
+import com.example.partyapp.ui.theme.GetDefaultButtonColors
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
@@ -314,9 +317,10 @@ fun EventDescription(modifier: Modifier = Modifier) {
                 border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
             ) {
                 Text(
-                    text = event.name,
+                    text = event.description,
                     style = Typography.bodyMedium,
-                    modifier = Modifier.align(alignment = Alignment.Start)
+                    modifier = Modifier
+                        .align(alignment = Alignment.Start)
                         .padding(10.dp)
                 )
             }
@@ -374,38 +378,67 @@ fun Actions(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (event.eventId == -1) {
-            Button(
-                onClick = onBackToPrevPage,
-                modifier = Modifier.fillMaxWidth(0.5f),
-                shape = RoundedCornerShape(15.dp),
-                colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-            ) {
-                Text(text = "Discard", color = Color.White)
-            }
-            Button(
-                onClick = {
-                    Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
-                    eventViewModel.createNewEvent(event)
-                    onBackToPrevPage()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(15.dp),
-                colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-            ) {
-                Text(text = "Save", color = Color.White)
-            }
+            SaveDiscardBtns(eventViewModel, onBackToPrevPage)
         } else if (event.creator.username !== loggedUser.username) {
-            Button(
-                onClick = {
-                    //onAddEventClicked()
-                    Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(15.dp),
-                colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-            ) {
-                Text(text = "Add", color = Color.White)
-            }            
+            AddBtn(eventViewModel, onBackToPrevPage)
+        }
+    }
+}
+
+@Composable
+fun SaveDiscardBtns(
+    eventViewModel: EventViewModel,
+    onBackToPrevPage: () -> Unit = {}
+) {
+    Button(
+        onClick = onBackToPrevPage,
+        modifier = Modifier.fillMaxWidth(0.5f),
+        shape = RoundedCornerShape(15.dp),
+        colors = GetDefaultButtonColors(),
+    ) {
+        Text(text = "Discard", color = Color.White)
+    }
+    Button(
+        onClick = {
+            Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
+            eventViewModel.createNewEvent(event)
+            onBackToPrevPage()
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(15.dp),
+        colors = GetDefaultButtonColors(),
+    ) {
+        Text(text = "Save", color = Color.White)
+    }
+}
+
+@Composable
+fun AddBtn(
+    eventViewModel: EventViewModel,
+    onBackToPrevPage: () -> Unit = {}
+) {
+    val partecipants = eventViewModel.getParticipantsFromEventId(event.eventId)
+        .collectAsState(initial = listOf())
+    var wasAddedByCurrentUser = partecipants.value
+        .map { it.id }
+        .contains(loggedUser.id)
+
+    Button(
+        onClick = {
+            Log.d("ADD_EVENT", "${event.name}, ${event.creator.username}")
+            val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
+            eventViewModel.addParticipant(crossRef)
+            eventViewModel.updateParticipants(partecipants.value.size+1, event.eventId)
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(15.dp),
+        colors = GetDefaultButtonColors(),
+        enabled = !wasAddedByCurrentUser
+    ) {
+        if (wasAddedByCurrentUser) {
+            Text(text = "Added", color = Color.Gray)
+        } else {
+            Text(text = "Add", color = Color.White)
         }
     }
 }
