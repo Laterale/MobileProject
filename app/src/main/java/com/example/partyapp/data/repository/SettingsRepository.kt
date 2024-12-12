@@ -23,9 +23,10 @@ class SettingsRepository(private val context: Context) {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings_preferences")
 
         private val UI_THEME = stringPreferencesKey("ui_theme")
+        private val SYS_THEME = stringPreferencesKey("sys_theme")
     }
 
-    val preferenceFlow: Flow<String> = context.dataStore.data
+    val themePreferenceFlow: Flow<String> = context.dataStore.data
         .catch {
             if (it is IOException) {
                 it.printStackTrace()
@@ -38,9 +39,28 @@ class SettingsRepository(private val context: Context) {
             preferences[UI_THEME]?:context.getString(R.string.light_theme)
         }
 
-    suspend fun saveToDataStore(theme: String) {
+    val sysDefaultPreferenceFlow: Flow<String> = context.dataStore.data
+        .catch {
+            if (it is IOException) {
+                it.printStackTrace()
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }
+        .map { preferences ->
+            preferences[SYS_THEME]?:"false"
+        }
+
+    suspend fun saveThemeToDataStore(theme: String) {
         context.dataStore.edit { preferences ->
             preferences[UI_THEME] = theme
+        }
+    }
+
+    suspend fun saveUseSysThemeToDataStore(theme: String) {
+        context.dataStore.edit { preferences ->
+            preferences[SYS_THEME] = theme
         }
     }
 }

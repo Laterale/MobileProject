@@ -11,11 +11,18 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor (
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
-    val theme = settingsRepository.preferenceFlow
+    val theme = settingsRepository.themePreferenceFlow
+    val useSysDefault = settingsRepository.sysDefaultPreferenceFlow
 
     fun saveTheme(theme: String) {
         viewModelScope.launch {
-            settingsRepository.saveToDataStore(theme)
+            settingsRepository.saveThemeToDataStore(theme)
+        }
+    }
+
+    fun saveUseSysDefaultTheme(useSysDefault: String) {
+        viewModelScope.launch {
+            settingsRepository.saveUseSysThemeToDataStore(useSysDefault)
         }
     }
 }

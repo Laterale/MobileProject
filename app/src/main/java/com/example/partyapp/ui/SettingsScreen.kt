@@ -47,7 +47,7 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(15.dp)
     ) {
-        ThemeSetting(settingsViewModel)
+        ThemeSettings(settingsViewModel)
         LogoutButton(navigateToLogin, userViewModel)
     }
 }
@@ -76,9 +76,16 @@ fun LogoutButton(
 }
 
 @Composable
-fun ThemeSetting(
+fun ThemeSettings(
     settingsViewModel: SettingsViewModel
 ) {
+    Text(text = "Theme Settings", style = Typography.titleMedium)
+    SysDefaultSetting(settingsViewModel = settingsViewModel)
+    DarkThemeSetting(settingsViewModel = settingsViewModel)
+}
+
+@Composable
+fun DarkThemeSetting(settingsViewModel: SettingsViewModel) {
     var checked by remember { mutableStateOf(false) }
     settingsViewModel.theme.collectAsState(initial = LIGHT_THEME)
         .also { checked = (it.value == DARK_THEME) }
@@ -93,6 +100,32 @@ fun ThemeSetting(
             checked = checked, onCheckedChange = {
                 checked = it
                 settingsViewModel.saveTheme(if (checked) DARK_THEME else LIGHT_THEME )
+            },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White, checkedTrackColor = Color.Cyan,
+                uncheckedThumbColor = Color.White, uncheckedTrackColor = Indigo
+            ),
+            modifier = Modifier
+        )
+    }
+}
+
+@Composable
+fun SysDefaultSetting(settingsViewModel: SettingsViewModel) {
+    var checked by remember { mutableStateOf(false) }
+    settingsViewModel.useSysDefault.collectAsState(initial = "false")
+        .also { checked = (it.value == "true") }
+
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = "Use system default theme", color = Color.White)
+        Switch(
+            checked = checked, onCheckedChange = {
+                checked = it
+                settingsViewModel.saveUseSysDefaultTheme(if (checked) "true" else "false" )
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White, checkedTrackColor = Color.Cyan,
