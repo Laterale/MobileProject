@@ -38,6 +38,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -59,6 +60,7 @@ import com.example.partyapp.ui.ManageScreen
 import com.example.partyapp.ui.MapScreen
 import com.example.partyapp.ui.ProfileScreen
 import com.example.partyapp.ui.SettingsScreen
+import com.example.partyapp.ui.theme.getColorScheme
 import com.example.partyapp.ui.user
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
@@ -88,16 +90,15 @@ var homeTabIndex = 0
 val homeScreens = listOf(AppScreen.Explore.name, AppScreen.Manage.name)
 val bottomBarScreens = listOf(AppScreen.Profile.name, AppScreen.Explore.name, AppScreen.Map.name)
 val noBottomBarScreens = listOf(AppScreen.Loading.name, AppScreen.Register.name, AppScreen.Login.name, AppScreen.Settings.name)
-val colors = arrayOf(
-    0.1f to Color(0xffDD9191),
-    0.5f to Color(0xff46389D),
-    0.9f to Color(0xff090F48))
+
 
 @Composable
 fun BottomAppBar(
     currentScreen: String,
     navController: NavHostController
 ){
+
+
     var isSelected: Boolean
     var selectedIcon = Icons.Outlined.Clear
     var unselectedIcon = Icons.Filled.Clear
@@ -195,6 +196,12 @@ fun NavigationApp(
     session: String,
     navController: NavHostController = rememberNavController()
 ){
+    val colorScheme = getColorScheme()
+    val bgGradient =  arrayOf(
+        0.1f to colorScheme.primary,
+        0.5f to colorScheme.background,
+        0.9f to colorScheme.tertiary
+    )
 
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -205,7 +212,7 @@ fun NavigationApp(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(colorStops = colors))
+            .background(Brush.verticalGradient(colorStops = bgGradient))
     ) {
         Scaffold(
             containerColor = Color.Transparent,
