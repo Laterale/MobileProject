@@ -65,6 +65,8 @@ import com.example.partyapp.ui.theme.GetDefaultButtonColors
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import java.io.File
 
 val factory = EventFactory()
@@ -389,6 +391,7 @@ fun SaveDiscardBtns(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
+    var events = eventViewModel.events.collectAsState(initial = listOf()).value
     Button(
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
@@ -399,9 +402,16 @@ fun SaveDiscardBtns(
     }
     Button(
         onClick = {
-            eventViewModel.createNewEvent(event)
-            addPartecipation(eventViewModel)
-            onBackToPrevPage()
+            try {
+                val newID = events.map { it.eventId }.ifEmpty { listOf(0) }.max().plus(1)
+                event = event.copy(eventId = newID)
+
+                eventViewModel.createNewEvent(event)
+                addPartecipation(eventViewModel)
+                onBackToPrevPage()
+            } catch (e: Exception) {
+
+            }
         },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),

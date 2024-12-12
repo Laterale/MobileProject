@@ -32,9 +32,7 @@ class EventViewModel @Inject constructor(
 
     fun createNewEvent(event: Event) {
         viewModelScope.launch {
-            val maxId: Int? = events.map { evs -> evs.maxOfOrNull { it.eventId } }.firstOrNull()
-            val baseId = maxId ?: event.eventId
-            eRepository.insertNewEvent(event.copy(eventId = baseId + 1))
+            eRepository.insertNewEvent(event)
         }
     }
 
