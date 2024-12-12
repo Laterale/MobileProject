@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.partyapp.R
 import com.example.partyapp.ui.theme.Glass10
+import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.viewModel.EventViewModel
 
 @Composable
@@ -86,7 +87,7 @@ fun ShowTemplateEvents(onEventClicked: () -> Unit) {
                     .fillMaxWidth()
                     .height(80.dp),
                 colors = CardDefaults.cardColors(Glass10),
-                border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+                border = BorderStroke(1.dp, Glass20),
                 onClick = {
                     onEventClicked()
                 }  //evento generico, da collegare al viewmodel

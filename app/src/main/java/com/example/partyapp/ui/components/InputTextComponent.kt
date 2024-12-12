@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
+import com.example.partyapp.ui.theme.Glass20
 
 enum class TextFieldType {
     TEXT,
@@ -101,10 +102,10 @@ fun PartyTextField(
         ),
         keyboardActions = keyboardActions,
         modifier = modifier.border(
-            border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+            border = BorderStroke(1.dp, Glass20),
             shape = RoundedCornerShape(15)
         )
     )
 }
 
-//border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+//border = BorderStroke(1.dp, Glass20),
