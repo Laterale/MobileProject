@@ -16,13 +16,13 @@ data class Event(
     val eventId : Int = 0,
 
     @Embedded val creator: User,
-    val name : String,
-    val image : String,
-    @Embedded val location: LocationDetails,
-    @ColumnInfo(name = "starting_time") val starts : String,
-    @ColumnInfo(name = "ending_time") val ends : String,
-    val description: String,
-    val day : Int,
-    val participants: Long
+    var name : String,
+    var image : String,
+    @Embedded var location: LocationDetails,
+    @ColumnInfo(name = "starting_time") var starts : String,
+    @ColumnInfo(name = "ending_time") var ends : String,
+    var description: String,
+    var day : Int,
+    var participants: Long
 
 )

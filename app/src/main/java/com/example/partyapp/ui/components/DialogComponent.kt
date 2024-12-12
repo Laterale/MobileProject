@@ -50,7 +50,7 @@ fun PartyDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = title, color = Color.White, style = Typography.labelMedium)
+                    Text(text = title, color = Color.White, style = Typography.bodyMedium)
                     Surface(
                         onClick = onDismissRequest, shape = RectangleShape,
                         modifier = Modifier.padding(2.dp), color = Color.Transparent
