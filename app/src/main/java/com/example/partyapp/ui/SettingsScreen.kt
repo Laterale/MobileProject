@@ -15,6 +15,7 @@ import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,20 +23,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.partyapp.DARK_THEME
+import com.example.partyapp.LIGHT_THEME
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.ui.theme.Indigo
-import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.ui.theme.Typography
-import com.example.partyapp.ui.theme.Violet
+import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
 
 @Composable
 fun SettingsScreen(
     navigateToLogin: () -> Unit,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    settingsViewModel: SettingsViewModel
 ) {
     Column(
         modifier = Modifier
@@ -45,7 +47,7 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(15.dp)
     ) {
-        ThemeSetting()
+        ThemeSetting(settingsViewModel)
         LogoutButton(navigateToLogin, userViewModel)
     }
 }
@@ -73,10 +75,14 @@ fun LogoutButton(
     }
 }
 
-@Preview
 @Composable
-fun ThemeSetting() {
+fun ThemeSetting(
+    settingsViewModel: SettingsViewModel
+) {
     var checked by remember { mutableStateOf(false) }
+    settingsViewModel.theme.collectAsState(initial = LIGHT_THEME)
+        .also { checked = (it.value == DARK_THEME) }
+
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -84,13 +90,15 @@ fun ThemeSetting() {
     ) {
         Text(text = "Dark mode", color = Color.White)
         Switch(
-            checked = checked, onCheckedChange = {checked = it},
+            checked = checked, onCheckedChange = {
+                checked = it
+                settingsViewModel.saveTheme(if (checked) DARK_THEME else LIGHT_THEME )
+            },
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White, checkedTrackColor = Violet,
+                checkedThumbColor = Color.White, checkedTrackColor = Color.Cyan,
                 uncheckedThumbColor = Color.White, uncheckedTrackColor = Indigo
             ),
             modifier = Modifier
-
         )
     }
 }

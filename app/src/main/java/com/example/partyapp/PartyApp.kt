@@ -66,6 +66,7 @@ import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.coroutines.flow.Flow
 
 
 @HiltAndroidApp
@@ -86,11 +87,15 @@ sealed class AppScreen(val name: String){
 }
 
 const val ROOT_ROUTE = "root"
+const val DARK_THEME = "dark"
+const val LIGHT_THEME = "light"
+
 var homeTabIndex = 0
 val homeScreens = listOf(AppScreen.Explore.name, AppScreen.Manage.name)
 val bottomBarScreens = listOf(AppScreen.Profile.name, AppScreen.Explore.name, AppScreen.Map.name)
 val noBottomBarScreens = listOf(AppScreen.Loading.name, AppScreen.Register.name, AppScreen.Login.name, AppScreen.Settings.name)
 
+var settings: SettingsViewModel? = null
 
 @Composable
 fun BottomAppBar(
@@ -196,12 +201,21 @@ fun NavigationApp(
     session: String,
     navController: NavHostController = rememberNavController()
 ){
-    val colorScheme = getColorScheme()
-    val bgGradient =  arrayOf(
+    var colorScheme = getColorScheme()
+    var bgGradient by remember { mutableStateOf(value = arrayOf(
         0.1f to colorScheme.primary,
         0.5f to colorScheme.background,
         0.9f to colorScheme.tertiary
-    )
+    )) }
+
+    settings?.theme?.collectAsState(initial = LIGHT_THEME)?.also {
+        colorScheme = getColorScheme(it.value)
+        bgGradient = arrayOf(
+            0.1f to colorScheme.primary,
+            0.5f to colorScheme.background,
+            0.9f to colorScheme.tertiary
+        )
+    }
 
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -238,10 +252,9 @@ private fun NavigationGraph(
     val locationViewModel = hiltViewModel<LocationViewModel>()
     val eventViewModel = hiltViewModel<EventViewModel>()
 
-    val users = userViewModel.users.collectAsState(initial = listOf())
-    if (users != null && users.value.isNotEmpty()) {
+    settings = settingsViewModel
 
-    }
+    val users = userViewModel.users.collectAsState(initial = listOf())
 
     // TODO: review start destination logic
     NavHost(
@@ -327,7 +340,8 @@ private fun NavigationGraph(
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 },
-                userViewModel
+                userViewModel,
+                settingsViewModel
             )
         }
         composable(route = AppScreen.Event.name){
