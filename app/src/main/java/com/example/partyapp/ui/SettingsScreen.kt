@@ -23,9 +23,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.partyapp.DARK_THEME
-import com.example.partyapp.LIGHT_THEME
+import com.example.partyapp.R
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.ui.theme.Indigo
@@ -86,9 +86,10 @@ fun ThemeSettings(
 
 @Composable
 fun DarkThemeSetting(settingsViewModel: SettingsViewModel) {
+    val context = LocalContext.current
     var checked by remember { mutableStateOf(false) }
-    settingsViewModel.theme.collectAsState(initial = LIGHT_THEME)
-        .also { checked = (it.value == DARK_THEME) }
+    settingsViewModel.theme.collectAsState(initial = context.getString(R.string.light_theme))
+        .also { checked = (it.value == context.getString(R.string.dark_theme)) }
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -99,7 +100,10 @@ fun DarkThemeSetting(settingsViewModel: SettingsViewModel) {
         Switch(
             checked = checked, onCheckedChange = {
                 checked = it
-                settingsViewModel.saveTheme(if (checked) DARK_THEME else LIGHT_THEME )
+                settingsViewModel.saveTheme(
+                    if (checked) context.getString(R.string.dark_theme)
+                    else context.getString(R.string.light_theme)
+                )
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White, checkedTrackColor = Color.Cyan,
