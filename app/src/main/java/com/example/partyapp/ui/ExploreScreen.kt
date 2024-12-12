@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.data.entity.Event
@@ -165,6 +166,7 @@ fun EventCard(
                     AsyncImage(
                         model = event.image,
                         contentDescription = "event image",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .padding(1.dp)
                             .clip(RoundedCornerShape(0.dp, 11.dp, 11.dp, 0.dp))
