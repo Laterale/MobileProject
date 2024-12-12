@@ -16,3 +16,4 @@ val Violet = Color(0xff46389D)
 val Indigo = Color(0xff090F48)
 
 val Glass10 = Color.hsl(0f, 0f, 1f, 0.10f)
+val Glass20 = Color.hsl(0f, 0f, 1f, 0.20f)
