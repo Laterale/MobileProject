@@ -30,17 +30,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.room.Room
 import com.example.partyapp.R
+import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.viewModel.EventViewModel
-import com.example.partyapp.viewModel.LocationViewModel
-import com.example.partyapp.viewModel.UserViewModel
 
 @Composable
 fun ManageScreen(
@@ -69,7 +66,7 @@ fun ShowTemplateThumbnails() {
                 .width(80.dp)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(15.dp)),
-            colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
+            colors = IconButtonDefaults.iconButtonColors(Glass10)
 
         ) {}
         i += 1
@@ -88,7 +85,7 @@ fun ShowTemplateEvents(onEventClicked: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp),
-                colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+                colors = CardDefaults.cardColors(Glass10),
                 border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
                 onClick = {
                     onEventClicked()
@@ -125,7 +122,7 @@ fun YourEvents() {
                 .width(80.dp)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(15.dp)),
-            colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
+            colors = IconButtonDefaults.iconButtonColors(Glass10)
 
         ) {
             Icon(

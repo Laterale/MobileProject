@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.data.entity.Event
+import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.UserViewModel
@@ -119,7 +120,7 @@ fun EventCard(
     ) {
         OutlinedCard(
             modifier = Modifier.fillMaxSize(),
-            colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+            colors = CardDefaults.cardColors(Glass10),
             border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
             onClick = {
                 eventViewModel.selectEvent(event)
