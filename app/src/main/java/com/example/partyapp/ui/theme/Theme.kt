@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
 import com.example.partyapp.R
 
@@ -49,7 +50,7 @@ fun getColorScheme(
     theme: String = "",
     darkTheme: Boolean = isSystemInDarkTheme()
 ): ColorScheme {
-    return if (theme == "" || theme == context.getString(R.string.light_theme)) LightColorScheme
+    return if (theme == "" || theme == stringResource(R.string.light_theme)) LightColorScheme
     else DarkColorScheme
 //    return if (darkTheme) DarkColorScheme else LightColorScheme
 }

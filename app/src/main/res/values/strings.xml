@@ -1,9 +1,21 @@
 <resources>
-    <string name="app_name">PartyApp</string>
-    <string name="light_theme">Light</string>
-    <string name="dark_theme">Dark</string>
-    <string name="settings">Settings</string>
-    <string name="profile">Profile</string>
-    <string name="filters">Filters</string>
     <string name="api_key">AIzaSyCewSyfTXC2PRdeAjMjhcuaNGRq1xFyDic</string>
+    <string name="app_name">PartyApp</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="dark_theme">Dark</string>
+    <string name="edit">Edit</string>
+    <string name="filters">Filters</string>
+    <string name="light_theme">Light</string>
+    <string name="location">Location</string>
+    <string name="logout">Logout</string>
+    <string name="no_location">No location</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+    <string name="theme_settings">Theme settings</string>
+    <string name="username">Username</string>
+    <string name="user_profile_picture">User profile picture</string>
+    <string name="use_system_theme">Use system default theme</string>
+    <string name="you_are_here">You are here</string>
+    <string name="your_events">Your events</string>
 </resources>
