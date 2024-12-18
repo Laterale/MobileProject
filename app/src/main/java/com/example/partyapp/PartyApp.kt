@@ -38,7 +38,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -61,12 +60,10 @@ import com.example.partyapp.ui.MapScreen
 import com.example.partyapp.ui.ProfileScreen
 import com.example.partyapp.ui.SettingsScreen
 import com.example.partyapp.ui.theme.getColorScheme
-import com.example.partyapp.ui.user
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
-import kotlinx.coroutines.flow.Flow
 
 
 @HiltAndroidApp
@@ -87,8 +84,8 @@ sealed class AppScreen(val name: String){
 }
 
 const val ROOT_ROUTE = "root"
-const val DARK_THEME = "dark"
-const val LIGHT_THEME = "light"
+const val DARK_THEME = "Dark"
+const val LIGHT_THEME = "Light"
 
 var homeTabIndex = 0
 val homeScreens = listOf(AppScreen.Explore.name, AppScreen.Manage.name)
@@ -208,7 +205,7 @@ fun NavigationApp(
         0.9f to colorScheme.tertiary
     )) }
 
-    settings?.theme?.collectAsState(initial = LIGHT_THEME)?.also {
+    settings?.settings?.collectAsState(initial = null)?.also {
         colorScheme = getColorScheme(it.value)
         bgGradient = arrayOf(
             0.1f to colorScheme.primary,

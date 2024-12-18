@@ -26,12 +26,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.partyapp.DARK_THEME
 import com.example.partyapp.LIGHT_THEME
+import com.example.partyapp.data.UserSettings
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+
+var userSettings = UserSettings(
+    useSystemTheme = false,
+    customTheme = "Light"
+)
 
 @Composable
 fun SettingsScreen(
@@ -47,6 +53,7 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(15.dp)
     ) {
+        SystemThemeSetting(settingsViewModel)
         ThemeSetting(settingsViewModel)
         LogoutButton(navigateToLogin, userViewModel)
     }
@@ -76,12 +83,49 @@ fun LogoutButton(
 }
 
 @Composable
+fun SystemThemeSetting(
+    settingsViewModel: SettingsViewModel
+) {
+    var checked by remember { mutableStateOf(false) }
+    settingsViewModel.settings.collectAsState(initial = userSettings)
+        .also {
+            if (it.value != null) {
+                checked = it.value!!.useSystemTheme
+            }
+        }
+
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = "Use system theme", color = Color.White)
+        Switch(
+            checked = checked, onCheckedChange = {
+                checked = it
+                userSettings = userSettings.copy(useSystemTheme = checked)
+                settingsViewModel.saveSettings(userSettings)
+            },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White, checkedTrackColor = Color.Cyan,
+                uncheckedThumbColor = Color.White, uncheckedTrackColor = Indigo
+            ),
+            modifier = Modifier
+        )
+    }
+}
+
+@Composable
 fun ThemeSetting(
     settingsViewModel: SettingsViewModel
 ) {
     var checked by remember { mutableStateOf(false) }
-    settingsViewModel.theme.collectAsState(initial = LIGHT_THEME)
-        .also { checked = (it.value == DARK_THEME) }
+    settingsViewModel.settings.collectAsState(initial = userSettings)
+        .also {
+            if (it.value != null) {
+                checked = it.value!!.customTheme == DARK_THEME
+            }
+        }
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -92,12 +136,14 @@ fun ThemeSetting(
         Switch(
             checked = checked, onCheckedChange = {
                 checked = it
-                settingsViewModel.saveTheme(if (checked) DARK_THEME else LIGHT_THEME )
+                userSettings = userSettings.copy(customTheme = if (checked) DARK_THEME else LIGHT_THEME)
+                settingsViewModel.saveSettings(userSettings)
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = Color.White, checkedTrackColor = Color.Cyan,
                 uncheckedThumbColor = Color.White, uncheckedTrackColor = Indigo
             ),
+            enabled = !userSettings.useSystemTheme,
             modifier = Modifier
         )
     }
