@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.ui.theme.Glass10
+import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 
@@ -185,8 +187,8 @@ fun EventScreen(
         ) {
             OutlinedCard(
                 modifier = Modifier.fillMaxSize(),
-                colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-                border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+                colors = CardDefaults.cardColors(Glass10),
+                border = BorderStroke(1.dp, Glass20),
             ){}
         }
     }

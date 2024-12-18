@@ -77,33 +77,8 @@ fun LoginScreen(
     }
 }
 
-sealed class InputType(
-    val label: String,
-    val icon: ImageVector,
-    val keyboardOptions: KeyboardOptions,
-    val visualTransformation: VisualTransformation
-) {
-    object Name : InputType(
-        label = "Username",
-        icon = Icons.Default.Person,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        visualTransformation = VisualTransformation.None
-    )
-
-    object Password : InputType(
-        label = "Password",
-        icon = Icons.Default.Lock,
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Password
-        ),
-        visualTransformation = PasswordVisualTransformation()
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginForm(
+private fun LoginForm(
     onSuccessfulLogin: () -> Unit,
     userViewModel: UserViewModel
 ) {
@@ -163,7 +138,7 @@ fun LoginForm(
 }
 
 @Composable
-fun RegistrationForm(
+private fun RegistrationForm(
     onSuccessfulLogin: () -> Unit,
     userViewModel: UserViewModel
 ) {
@@ -259,7 +234,7 @@ fun RegistrationForm(
 }
 
 @Composable
-fun SwitchMode(
+private fun SwitchMode(
     isLogin: Boolean,
     onSwitch: () -> Unit
 ) {

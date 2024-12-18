@@ -14,3 +14,8 @@ val Pink40 = Color(0xFF7D5260)
 val Salmon = Color(0xffDD9191)
 val Violet = Color(0xff46389D)
 val Indigo = Color(0xff090F48)
+
+val DarkTeal = Color(0xff01498b)
+
+val Glass10 = Color.hsl(0f, 0f, 1f, 0.10f)
+val Glass20 = Color.hsl(0f, 0f, 1f, 0.20f)
