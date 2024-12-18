@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.partyapp.R
 import com.example.partyapp.ui.theme.Glass10
@@ -72,7 +71,7 @@ fun LogoutButton(
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = stringResource(R.string.logout), style = Typography.bodyMedium)
+        Text(text = "Logout", style = Typography.bodyMedium)
     }
 }
 
@@ -80,7 +79,7 @@ fun LogoutButton(
 fun ThemeSettings(
     settingsViewModel: SettingsViewModel
 ) {
-    Text(text = stringResource(R.string.theme_settings), style = Typography.titleMedium)
+    Text(text = "Theme Settings", style = Typography.titleMedium)
     SysDefaultSetting(settingsViewModel = settingsViewModel)
     DarkThemeSetting(settingsViewModel = settingsViewModel)
 }
@@ -89,18 +88,15 @@ fun ThemeSettings(
 fun DarkThemeSetting(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     var checked by remember { mutableStateOf(false) }
-    settingsViewModel.theme.collectAsState(initial = stringResource(R.string.light_theme))
-        .also { checked = (it.value == stringResource(R.string.dark_theme)) }
+    settingsViewModel.theme.collectAsState(initial = context.getString(R.string.light_theme))
+        .also { checked = (it.value == context.getString(R.string.dark_theme)) }
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = stringResource(R.string.dark_theme),
-            color = Color.White
-        )
+        Text(text = "Dark mode", color = Color.White)
         Switch(
             checked = checked, onCheckedChange = {
                 checked = it
@@ -129,7 +125,7 @@ fun SysDefaultSetting(settingsViewModel: SettingsViewModel) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = stringResource(R.string.use_system_theme), color = Color.White)
+        Text(text = "Use system default theme", color = Color.White)
         Switch(
             checked = checked, onCheckedChange = {
                 checked = it

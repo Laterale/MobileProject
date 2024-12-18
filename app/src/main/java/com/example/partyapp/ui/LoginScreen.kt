@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -23,22 +25,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.example.partyapp.data.entity.User
-import com.example.partyapp.ui.components.PartyAppLogo
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.TextFieldType
+import com.example.partyapp.ui.components.PartyAppLogo
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEmpty
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 
@@ -48,8 +56,8 @@ fun LoginScreen(
     onRegisterButtonClicked: () -> Unit,
     userViewModel: UserViewModel
 ) {
-    val scroll = rememberScrollState(0)
     var isLogin: Boolean by remember { mutableStateOf(value = true) }
+    val scroll = rememberScrollState(0)
     Column(
         modifier = Modifier
             .padding(24.dp)

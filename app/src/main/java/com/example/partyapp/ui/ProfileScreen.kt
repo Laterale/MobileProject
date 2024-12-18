@@ -1,7 +1,8 @@
 package com.example.partyapp.ui
 
 import LocationHelper
-import android.content.Context
+import android.location.Location
+import android.util.Log
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,6 +29,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,10 +41,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.partyapp.R
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.services.ImageChooserService
@@ -63,7 +63,6 @@ fun ProfileScreen(
     settingsViewModel: SettingsViewModel,
     session: String,
 ) {
-    val context = LocalContext.current
     SetCurrentUser(userViewModel, session)
     /*
     val context = LocalContext.current
@@ -86,16 +85,13 @@ fun ProfileScreen(
             ) {
                 Icon(
                     Icons.Filled.Settings,
-                    contentDescription = stringResource(R.string.settings),
+                    contentDescription = "Settings",
                     tint = Color.White
                 )
             }
             UserProfilePic(userViewModel)
-            Text(
-                text = user?.username ?: stringResource(R.string.username),
-                style = Typography.labelMedium
-            )
-            CityNameDisplay(context)
+            Text(text = user?.username ?: "Username", style = Typography.labelMedium)
+            CityNameDisplay()
             XpBar()
             Divider(
                 color = Color.White
@@ -145,7 +141,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
         }
         AsyncImage(
             model = photoUri,
-            contentDescription = stringResource(R.string.user_profile_picture),
+            contentDescription = "Profile image",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(130.dp)
@@ -197,7 +193,7 @@ fun AddImageBtn(
             cameraLauncher.launch(tempPhotoUri)
         }
         else {
-            Toast.makeText(context, context.getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -209,7 +205,7 @@ fun AddImageBtn(
     ) {
         Icon(
             imageVector = Icons.Filled.AddAPhoto,
-            contentDescription = stringResource(R.string.edit),
+            contentDescription = "Edit profile",
             tint = Color.Black,
             modifier = Modifier.size(20.dp)
         )
@@ -224,7 +220,8 @@ fun AddImageBtn(
 }
 
 @Composable
-fun CityNameDisplay(context: Context) {
+fun CityNameDisplay() {
+    val context = LocalContext.current
     val helper = LocationHelper(context)
     var cityName: String?  by remember { mutableStateOf(null) }
 
@@ -241,7 +238,7 @@ fun CityNameDisplay(context: Context) {
     Row {
         Icon(
             imageVector = if (cityName != null) Icons.Filled.LocationOn else Icons.Filled.LocationOff,
-            contentDescription = stringResource(R.string.location),
+            contentDescription = if (cityName != null) "Location marker enabled" else "Location marker disabled",
             tint = labelGray,
             modifier = Modifier
                 .size(20.dp)
@@ -249,7 +246,7 @@ fun CityNameDisplay(context: Context) {
         )
         Spacer(modifier = Modifier.size(5.dp))
         Text(
-            text = if (cityName != null) cityName.toString() else stringResource(R.string.no_location),
+            text = if (cityName != null) cityName.toString() else "No location",
             style = Typography.labelSmall
         )
     }
