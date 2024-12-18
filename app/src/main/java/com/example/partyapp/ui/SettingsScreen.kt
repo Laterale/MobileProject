@@ -53,6 +53,7 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(15.dp)
     ) {
+        SystemThemeSetting(settingsViewModel)
         ThemeSetting(settingsViewModel)
         LogoutButton(navigateToLogin, userViewModel)
     }
@@ -78,6 +79,39 @@ fun LogoutButton(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = "Logout", style = Typography.bodyMedium)
+    }
+}
+
+@Composable
+fun SystemThemeSetting(
+    settingsViewModel: SettingsViewModel
+) {
+    var checked by remember { mutableStateOf(false) }
+    settingsViewModel.settings.collectAsState(initial = userSettings)
+        .also {
+            if (it.value != null) {
+                checked = it.value!!.useSystemTheme
+            }
+        }
+
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = "Use system theme", color = Color.White)
+        Switch(
+            checked = checked, onCheckedChange = {
+                checked = it
+                userSettings = userSettings.copy(useSystemTheme = checked)
+                settingsViewModel.saveSettings(userSettings)
+            },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White, checkedTrackColor = Color.Cyan,
+                uncheckedThumbColor = Color.White, uncheckedTrackColor = Indigo
+            ),
+            modifier = Modifier
+        )
     }
 }
 
