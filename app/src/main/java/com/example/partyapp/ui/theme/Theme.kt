@@ -1,7 +1,6 @@
 package com.example.partyapp.ui.theme
 
 import android.app.Activity
-import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -17,7 +16,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.example.partyapp.R
+import com.example.partyapp.DARK_THEME
+import com.example.partyapp.LIGHT_THEME
 
 private val DarkColorScheme = darkColorScheme(
     primary = DarkTeal,
@@ -45,12 +45,10 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun getColorScheme(
-    context: Context,
-    theme: String = "",
+    theme: String = LIGHT_THEME,
     darkTheme: Boolean = isSystemInDarkTheme()
 ): ColorScheme {
-    return if (theme == "" || theme == context.getString(R.string.light_theme)) LightColorScheme
-    else DarkColorScheme
+    return if (theme == DARK_THEME) DarkColorScheme else LightColorScheme
 //    return if (darkTheme) DarkColorScheme else LightColorScheme
 }
 

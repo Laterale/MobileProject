@@ -87,6 +87,9 @@ sealed class AppScreen(val name: String){
 }
 
 const val ROOT_ROUTE = "root"
+const val DARK_THEME = "dark"
+const val LIGHT_THEME = "light"
+
 var homeTabIndex = 0
 val homeScreens = listOf(AppScreen.Explore.name, AppScreen.Manage.name)
 val bottomBarScreens = listOf(AppScreen.Profile.name, AppScreen.Explore.name, AppScreen.Map.name)
@@ -198,23 +201,21 @@ fun NavigationApp(
     session: String,
     navController: NavHostController = rememberNavController()
 ){
-    val context = LocalContext.current
-    var colorScheme = getColorScheme(context, "")
+    var colorScheme = getColorScheme()
     var bgGradient by remember { mutableStateOf(value = arrayOf(
         0.1f to colorScheme.primary,
         0.5f to colorScheme.background,
         0.9f to colorScheme.tertiary
     )) }
 
-    settings?.theme?.collectAsState(initial = context.getString(R.string.light_theme))
-        ?.also {
-            colorScheme = getColorScheme(context, it.value)
-            bgGradient = arrayOf(
-                0.1f to colorScheme.primary,
-                0.5f to colorScheme.background,
-                0.9f to colorScheme.tertiary
-            )
-        }
+    settings?.theme?.collectAsState(initial = LIGHT_THEME)?.also {
+        colorScheme = getColorScheme(it.value)
+        bgGradient = arrayOf(
+            0.1f to colorScheme.primary,
+            0.5f to colorScheme.background,
+            0.9f to colorScheme.tertiary
+        )
+    }
 
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
