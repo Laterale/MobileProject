@@ -30,9 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -59,7 +57,6 @@ import com.example.partyapp.ui.ManageScreen
 import com.example.partyapp.ui.MapScreen
 import com.example.partyapp.ui.ProfileScreen
 import com.example.partyapp.ui.SettingsScreen
-import com.example.partyapp.ui.user
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
@@ -232,8 +229,9 @@ private fun NavigationGraph(
     val eventViewModel = hiltViewModel<EventViewModel>()
 
     val users = userViewModel.users.collectAsState(initial = listOf())
-    if (users != null && users.value.isNotEmpty()) {
-
+    if (userViewModel.loggedUser == null && session != "" && session != "default") {
+        var current = users.value.find { it.username == session }
+        current?.let { userViewModel.selectUser(it) }
     }
 
     // TODO: review start destination logic
@@ -248,6 +246,7 @@ private fun NavigationGraph(
     ) {
         composable(route = AppScreen.Manage.name) {
             ManageScreen(
+                userViewModel = userViewModel,
                 eventViewModel = eventViewModel,
                 onEventClicked = {
                     navController.navigate(AppScreen.Event.name)
@@ -328,8 +327,13 @@ private fun NavigationGraph(
                 session = session,
                 eventViewModel = eventViewModel,
                 userViewModel = userViewModel,
-                onPfpClicked = {},
+                onSaveEvent = {},
                 onAddEventClicked = {},
+                onBackToPrevPage = {
+                    navController.navigate(AppScreen.Manage.name) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
             )
         }
     }
