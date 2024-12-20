@@ -30,9 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -248,10 +246,8 @@ private fun NavigationGraph(
     val userViewModel = hiltViewModel<UserViewModel>()
     val locationViewModel = hiltViewModel<LocationViewModel>()
     val eventViewModel = hiltViewModel<EventViewModel>()
-
-    settings = settingsViewModel
-
     val users = userViewModel.users.collectAsState(initial = listOf())
+
 
     // TODO: review start destination logic
     NavHost(
@@ -265,6 +261,7 @@ private fun NavigationGraph(
     ) {
         composable(route = AppScreen.Manage.name) {
             ManageScreen(
+                userViewModel = userViewModel,
                 eventViewModel = eventViewModel,
                 onEventClicked = {
                     navController.navigate(AppScreen.Event.name)
@@ -346,8 +343,13 @@ private fun NavigationGraph(
                 session = session,
                 eventViewModel = eventViewModel,
                 userViewModel = userViewModel,
-                onPfpClicked = {},
+                onSaveEvent = {},
                 onAddEventClicked = {},
+                onBackToPrevPage = {
+                    navController.navigate(AppScreen.Manage.name) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
             )
         }
     }
