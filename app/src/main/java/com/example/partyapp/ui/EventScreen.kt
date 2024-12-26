@@ -1,7 +1,6 @@
 package com.example.partyapp.ui
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -59,15 +58,15 @@ import com.example.partyapp.data.relation.UserAddEventCrossRef
 import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.ui.components.AddButton
+import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
 import com.example.partyapp.ui.theme.GetDefaultButtonColors
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import java.io.File
+import java.util.Date
 
 val factory = EventFactory()
 var event: Event = factory.createEmpty()
@@ -196,17 +195,21 @@ fun EventDetails(modifier: Modifier = Modifier) {
         modifier = modifier,
     ) {
         item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.CalendarMonth,
-                    contentDescription = "Day of the event",
-                    tint = Color.White
-                )
-                Text(text = event.day.toString(), color = Color.White)
-            }
+//            Row(
+//                horizontalArrangement = Arrangement.spacedBy(5.dp),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Filled.CalendarMonth,
+//                    contentDescription = "Day of the event",
+//                    tint = Color.White
+//                )
+//                //val dateStr = Date().toGMTString()
+//                // .split(" ").take(3)
+//                // .reduce {acc, s -> acc + " " + s}
+//                Text(text = event.day.toString(), color = Color.White)
+//            }
+            EventDateDetail()
         }
         item {
             Row(
@@ -325,6 +328,45 @@ fun EventDescription(modifier: Modifier = Modifier) {
                         .padding(10.dp)
                 )
             }
+        }
+    }
+}
+
+private fun dateToStr(date: Date): String {
+    return date.toGMTString()
+        .split(" ")
+        .take(3)
+        .reduce {acc, s -> "$acc $s" }
+}
+
+@Preview
+@Composable
+fun EventDateDetail(modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Filled.CalendarMonth,
+            contentDescription = "Day of the event",
+            tint = Color.White
+        )
+        if (event.eventId == -1) {
+            var date: String by remember { mutableStateOf(dateToStr(Date())) }
+            PartyDatePickerComponent(
+                text = date,
+                onDatePicked = { y, m, d ->
+                    val selectedDate = Date(y, m, d)
+                    date = dateToStr(selectedDate)
+                    event = event.copy(starts = date)
+                }
+            )
+        } else {
+            Text(
+                text = event.day.toString(),
+                color = Color.White
+            )
         }
     }
 }
