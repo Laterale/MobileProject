@@ -90,7 +90,7 @@ fun ProfileScreen(
                 )
             }
             UserProfilePic(userViewModel)
-            Text(text = user?.username ?: "Username", style = Typography.labelMedium)
+            Text(text = user?.username ?: "Username", style = Typography.bodyMedium)
             CityNameDisplay()
             XpBar()
             Divider(
@@ -247,7 +247,7 @@ fun CityNameDisplay() {
         Spacer(modifier = Modifier.size(5.dp))
         Text(
             text = if (cityName != null) cityName.toString() else "No location",
-            style = Typography.labelSmall
+            style = Typography.labelMedium
         )
     }
 }

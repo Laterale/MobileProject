@@ -9,7 +9,8 @@ import com.example.partyapp.data.repository.EventRepository
 import com.example.partyapp.data.repository.UserAddEventRepository
 import com.example.partyapp.data.repository.UserScansEventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,9 +30,15 @@ class EventViewModel @Inject constructor(
         _eventSelected = event
     }
 
+    fun createNewEvent(event: Event) {
+        viewModelScope.launch {
+            eRepository.insertNewEvent(event)
+        }
+    }
 
 
 
+// EVENT ADDED
 
     val allParticipants = uaeRepository.getAllParticipants
 
@@ -49,7 +56,7 @@ class EventViewModel @Inject constructor(
         uaeRepository.deleteParticipant(userAddEventCrossRef)
     }
 
-
+// EVENT SCANS
 
     val allScans = useRepository.allScans
 

@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.example.partyapp.ui.theme.Glass20
@@ -29,23 +30,6 @@ enum class TextFieldType {
     NUMBER
 }
 
-/*
-* TextField(
-        value = username,
-        onValueChange = { username = it },
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(15)),
-        leadingIcon = { Icon(imageVector = inputType1.icon, null) },
-        label = { Text(text = inputType1.label) },
-        shape = MaterialTheme.shapes.small,
-        keyboardOptions = inputType1.keyboardOptions,
-        visualTransformation = inputType1.visualTransformation,
-        keyboardActions = KeyboardActions(onNext = {
-            passwordFocusRequester.requestFocus()
-        })
-    )
-* */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -59,7 +43,8 @@ fun PartyTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     textType: TextFieldType = TextFieldType.TEXT,
     keyboardImeAction: ImeAction = ImeAction.Default,
-    keyboardActions: KeyboardActions = KeyboardActions()
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    cornerSize: Dp = 15.dp
 ) {
     val visualTrans = if (textType == TextFieldType.PASSWORD) PasswordVisualTransformation()
         else VisualTransformation.None
@@ -93,7 +78,7 @@ fun PartyTextField(
             disabledIndicatorColor = Color.Transparent,
             textColor = Color.White
         ),
-        shape = MaterialTheme.shapes.small,
+        shape = RoundedCornerShape(cornerSize),
         singleLine = singleLine,
         visualTransformation = visualTrans,
         keyboardOptions = KeyboardOptions(
@@ -103,7 +88,7 @@ fun PartyTextField(
         keyboardActions = keyboardActions,
         modifier = modifier.border(
             border = BorderStroke(1.dp, Glass20),
-            shape = RoundedCornerShape(15)
+            shape = RoundedCornerShape(cornerSize)
         )
     )
 }

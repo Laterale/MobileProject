@@ -1,5 +1,10 @@
 package com.example.partyapp.ui
 
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,8 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
@@ -23,175 +31,427 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
+import com.example.partyapp.data.entity.Event
+import com.example.partyapp.data.entity.User
+import com.example.partyapp.data.relation.UserAddEventCrossRef
+import com.example.partyapp.services.EventFactory
+import com.example.partyapp.services.ImageChooserService
+import com.example.partyapp.ui.components.AddButton
+import com.example.partyapp.ui.components.PartyTextField
+import com.example.partyapp.ui.components.PartyTimePickerComponent
+import com.example.partyapp.ui.theme.GetDefaultButtonColors
+import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import java.io.File
+
+val factory = EventFactory()
+var event: Event = factory.createEmpty()
+lateinit var loggedUser: User
 
 @Composable
 fun EventScreen(
     session: String,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onPfpClicked: ()->Unit,
-    onAddEventClicked: ()->Unit
-){
-    val event = eventViewModel.eventSelected
+    onSaveEvent: () -> Unit,
+    onAddEventClicked: () -> Unit,
+    onBackToPrevPage: () -> Unit = {}
+) {
+    event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
+    loggedUser = userViewModel.loggedUser!!
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent)
             .padding(30.dp, 10.dp, 30.dp, 0.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
+        EventImage(modifier = Modifier.fillMaxHeight(0.25f))
+        EventTitle()
+        EventAuthor()
+        Divider(color = Color.White, modifier = Modifier.padding(vertical = 2.dp))
+        EventDetails(modifier = Modifier.fillMaxWidth())
+        EventDescription(modifier = Modifier.fillMaxHeight(0.8f))
+        Actions(
+            eventViewModel = eventViewModel,
+            onBackToPrevPage = onBackToPrevPage
+        )
+    }
+}
+
+@Composable
+fun EventImage(modifier: Modifier = Modifier) {
+    var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
+    val setImg: (Uri, String) -> Unit = { uri, path ->
+        photoUri = uri
+        event = event.copy(image = path)
+    }
+
+    if (event.eventId == -1 && photoUri == Uri.EMPTY) {
+        AddEventImageBtn(
+            onImageChosen = setImg,
+            modifier = modifier.fillMaxWidth()
+        )
+    } else {
         AsyncImage(
-            model = event!!.image,
-            contentDescription = "Image for the event",
-            modifier = Modifier
-                .weight(0.25f)
+            model = event.image,
+            contentDescription = "Event image",
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+                .fillMaxWidth()
                 .clip(shape = RoundedCornerShape(10.dp))
+                .background(Color.Black)
         )
-        Row(
-            modifier = Modifier
-                .weight(0.05f)
-        ) {
-            Row(
-                modifier = Modifier
-                    .weight(0.4f)
-                    .fillMaxHeight(),
-            ) {
-                Text(
-                    text = event!!.name,
-                    style = TextStyle(
-                        fontSize = 25.sp,
-                        lineHeight = 28.sp,
-                        fontFamily = FontFamily(Font(R.font.roboto)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFFFFFFF),
-                        textAlign = TextAlign.End,
-                        shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                    ),
-                    modifier = Modifier.align(Alignment.Bottom)
-                )
-            }
-            Row (
-                modifier = Modifier
-                    .weight(0.4f)
-                    .fillMaxHeight(),
-                horizontalArrangement = Arrangement.End
-            ){
-                Text(
-                    text = event.creator.username,
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 28.sp,
-                        fontFamily = FontFamily(Font(R.font.roboto)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0x80FFFFFF),
-                        textAlign = TextAlign.Center,
-                        shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
-                    ),
-                    modifier = Modifier
-                        .align(Alignment.Bottom)
-                        .padding(0.dp, 0.dp, 5.dp, 0.dp)
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .weight(0.1f)
-                    .align(Alignment.Bottom)
-            ) {
-                AsyncImage(
-                    model = event.creator.pfp,
-                    contentDescription = "Profile picture of event creator",
-                    modifier = Modifier
-                        .size(35.dp, 35.dp)
-                        .clip(CircleShape)
-                        .background(Color.Black)
-                )
-            }
+    }
+}
 
+
+@Composable
+fun AddEventImageBtn(
+    onImageChosen: (Uri, String) -> Unit,
+    modifier: Modifier
+) {
+    val context = LocalContext.current
+    val imgChooser = ImageChooserService()
+    var showDialog: Boolean by remember { mutableStateOf(false) }
+    var tempPhotoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val savedPath = imgChooser.saveImageToInternalStorage(context, uri)
+            if (savedPath != null) {
+                onImageChosen(uri, savedPath)
+            }
         }
-        Divider(
-            color = Color.White,
-            modifier = Modifier.padding(0.dp, 2.dp)
-        )
-        Column(
-            modifier = Modifier.weight(0.15f)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 5.dp, 0.dp, 0.dp)
+    }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            val file = File(tempPhotoUri.path ?: return@rememberLauncherForActivityResult)
+            imgChooser.addPhotoToGallery(context, file) // Notify gallery
+            onImageChosen(tempPhotoUri, tempPhotoUri.toString())
+        }
+    }
+    val cameraPermissionRequest = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            tempPhotoUri = imgChooser.getTempImageUri(context)
+            cameraLauncher.launch(tempPhotoUri)
+        }
+        else {
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
+    AddButton(
+        onAdd = { showDialog = true },
+        modifier = modifier
+    )
+    if (showDialog) {
+        imgChooser.ChooseImage(
+            imagePickerLauncher = imagePickerLauncher,
+            cameraPermissionRequest = cameraPermissionRequest,
+            onDismissRequest = { showDialog = false }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun EventDetails(modifier: Modifier = Modifier) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = modifier,
+    ) {
+        item {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Filled.CalendarMonth,
                     contentDescription = "Day of the event",
-                    tint = Color.White)
-                Text(text = event.day.toString())
+                    tint = Color.White
+                )
+                Text(text = event.day.toString(), color = Color.White)
             }
+        }
+        item {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 5.dp, 0.dp, 0.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AccessTime,
-                    contentDescription = "Time of the event",
-                    tint = Color.White)
-                Text(text = event.starts + "-" + event.ends)
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 5.dp, 0.dp, 0.dp)
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Filled.AddLocation,
                     contentDescription = "Location of the event",
-                    tint = Color.White)
-                Text(text = event.location.city)
+                    tint = Color.White
+                )
+                Text(text = event.location.city, color = Color.White)
             }
+        }
+        item {
+            EventTimeDetail()
+        }
+        item {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 5.dp, 0.dp, 0.dp)
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = if (event.eventId == -1) 15.dp else 0.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Person,
                     contentDescription = "Number of participants",
-                    tint = Color.White)
-                Text(text = event.participants.toString())
+                    tint = Color.White
+                )
+                Text(text = event.participants.toString(), color = Color.White)
             }
         }
-        Column(
+    }
+}
+
+
+@Composable
+fun EventTitle(modifier: Modifier = Modifier) {
+    Row(modifier = modifier.fillMaxWidth()) {
+        if (event.eventId == -1) {
+            var title: String by remember { mutableStateOf(event.name) }
+            PartyTextField(
+                value = title,
+                onValueChange = {
+                    title = it
+                    event = event.copy(name = it)
+                },
+                placeholder = "Party Name",
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else {
+            Text(
+                text = event.name,
+                style = TextStyle(
+                    fontSize = 25.sp,
+                    lineHeight = 28.sp,
+                    fontFamily = FontFamily(Font(R.font.roboto)),
+                    fontWeight = FontWeight(400),
+                    color = Color(0xFFFFFFFF),
+                    shadow = Shadow(Color.DarkGray, offset = Offset(0f, 10f), blurRadius = 5f)
+                ),
+                modifier = Modifier.align(Alignment.Bottom)
+            )
+        }
+    }
+}
+
+@Composable
+fun EventAuthor(modifier: Modifier = Modifier) {
+    val pfpSize = 25.dp
+    Row(modifier = modifier) {
+        AsyncImage(
+            model = event.creator.pfp,
+            contentDescription = "Profile picture of event creator",
             modifier = Modifier
-                .weight(0.43f)
-                .padding(0.dp, 0.dp, 0.dp, 10.dp)
-        ) {
+                .size(pfpSize)
+                .clip(CircleShape)
+                .background(Color.Black)
+        )
+        Text(
+            text = event.creator.username,
+            style = Typography.labelSmall,
+            modifier = Modifier
+                .align(alignment = Alignment.CenterVertically)
+                .padding(horizontal = 5.dp)
+        )
+    }
+}
+
+@Composable
+fun EventDescription(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+    ) {
+        if (event.eventId == -1) {
+            var des: String by remember { mutableStateOf(event.description) }
+            PartyTextField(
+                value = des,
+                onValueChange = {
+                    des = it
+                    event = event.copy(description = it)
+                },
+                placeholder = "Description",
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
             OutlinedCard(
                 modifier = Modifier.fillMaxSize(),
                 colors = CardDefaults.cardColors(Glass10),
-                border = BorderStroke(1.dp, Glass20),
-            ){}
+                border = BorderStroke(1.dp, Glass20)
+            ) {
+                Text(
+                    text = event.description,
+                    style = Typography.bodyMedium,
+                    modifier = Modifier
+                        .align(alignment = Alignment.Start)
+                        .padding(10.dp)
+                )
+            }
         }
     }
-
 }
 
+@Preview
+@Composable
+fun EventTimeDetail(modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Filled.AccessTime,
+            contentDescription = "Time of the event",
+            tint = Color.White
+        )
+        if (event.eventId == -1) {
+            var starts: String by remember { mutableStateOf(event.starts) }
+            var ends: String by remember { mutableStateOf(event.ends) }
+            PartyTimePickerComponent(
+                text = starts,
+                onTimePicked = { h, m ->
+                    starts = "%02d:%02d".format(h, m)
+                    event = event.copy(starts = starts)
+                }
+            )
+            Text(text = "-", color = Color.White)
+            PartyTimePickerComponent(
+                text = ends,
+                onTimePicked = { h, m ->
+                    ends = "%02d:%02d".format(h, m)
+                    event = event.copy(ends = ends)
+                }
+            )
+        } else {
+            Text(
+                text = event.starts + "-" + event.ends,
+                color = Color.White
+            )
+        }
+    }
+}
+
+@Composable
+fun Actions(
+    eventViewModel: EventViewModel,
+    onBackToPrevPage: () -> Unit = {}
+) {
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        if (event.eventId == -1) {
+            SaveDiscardBtns(eventViewModel, onBackToPrevPage)
+        } else if (event.creator.username !== loggedUser.username) {
+            AddEventButton(eventViewModel, onBackToPrevPage)
+        }
+    }
+}
+
+@Composable
+fun SaveDiscardBtns(
+    eventViewModel: EventViewModel,
+    onBackToPrevPage: () -> Unit = {}
+) {
+    var events = eventViewModel.events.collectAsState(initial = listOf()).value
+    Button(
+        onClick = onBackToPrevPage,
+        modifier = Modifier.fillMaxWidth(0.5f),
+        shape = RoundedCornerShape(15.dp),
+        colors = GetDefaultButtonColors(),
+    ) {
+        Text(text = "Discard", color = Color.White)
+    }
+    Button(
+        onClick = {
+            try {
+                val newID = events.map { it.eventId }.ifEmpty { listOf(0) }.max().plus(1)
+                event = event.copy(eventId = newID)
+
+                eventViewModel.createNewEvent(event)
+                addPartecipation(eventViewModel)
+                onBackToPrevPage()
+            } catch (e: Exception) {
+
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(15.dp),
+        colors = GetDefaultButtonColors(),
+    ) {
+        Text(text = "Save", color = Color.White)
+    }
+}
+
+@Composable
+fun AddEventButton(
+    eventViewModel: EventViewModel,
+    onBackToPrevPage: () -> Unit = {}
+) {
+    val partecipants = eventViewModel.getParticipantsFromEventId(event.eventId)
+        .collectAsState(initial = listOf())
+    var wasAddedByCurrentUser = partecipants.value
+        .map { it.id }
+        .contains(loggedUser.id)
+
+    Button(
+        onClick = { addPartecipation(eventViewModel) },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(15.dp),
+        colors = GetDefaultButtonColors(),
+        enabled = !wasAddedByCurrentUser
+    ) {
+        if (wasAddedByCurrentUser) {
+            Text(text = "Added", color = Color.Gray)
+        } else {
+            Text(text = "Add", color = Color.White)
+        }
+    }
+}
+
+fun addPartecipation(eventViewModel: EventViewModel) {
+    val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
+    eventViewModel.addParticipant(crossRef)
+    event = event.copy(participants = event.participants + 1)
+    eventViewModel.updateParticipants(event.participants.toInt(), event.eventId)
+}
