@@ -1,6 +1,8 @@
 package com.example.partyapp
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -66,6 +68,17 @@ import com.example.partyapp.viewModel.UserViewModel
 @HiltAndroidApp
 class PartyApp : Application(){
     val database by lazy { PartyAppDB.getDatabase(this) }
+
+    override fun onCreate() {
+        super.onCreate()
+        val notificationChannel = NotificationChannel(
+            "notification_channel_id",
+            "Notification name",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
 }
 
 sealed class AppScreen(val name: String){

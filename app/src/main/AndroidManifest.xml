@@ -71,6 +71,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <receiver
+            android:name=".services.NotificationEventReceiver"
+            android:enabled="true"/>
     </application>
 
 </manifest>
