@@ -133,7 +133,6 @@ private fun EventImage(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
 private fun AddEventImageBtn(
     onImageChosen: (Uri, String) -> Unit,
@@ -228,7 +227,6 @@ private fun EventDetails(modifier: Modifier = Modifier) {
         }
     }
 }
-
 
 @Composable
 private fun EventTitle(modifier: Modifier = Modifier) {
@@ -349,10 +347,7 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
                 }
             )
         } else {
-            val calendar = Calendar.getInstance()
-            calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
-            calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
-            calendar.set(Calendar.YEAR, event.day / 10000)
+            val calendar = getEventDate()
             Text(
                 text = dateToStr(calendar.time),
                 color = Color.White
@@ -437,20 +432,8 @@ private fun SaveDiscardBtns(
     }
     Button(
         onClick = {
-            try {
-                val newID = events.map { it.eventId }
-                    .ifEmpty { listOf(0) }
-                    .max()
-                    .plus(1)
-                event = event.copy(eventId = newID)
-                checkEventValid()
-                eventViewModel.createNewEvent(event)
-                addParticipation(eventViewModel)
-                addNotification(context = context)
-                onBackToPrevPage()
-            } catch (ex: Exception) {
-                Toast.makeText(context, ex.toString(), Toast.LENGTH_SHORT).show()
-            }
+            saveNewEvent(context, eventViewModel, events)
+            onBackToPrevPage()
         },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
@@ -507,22 +490,22 @@ private fun DeleteEditBtns(
             eventViewModel.deleteEvent(event.eventId)
             onBackToPrevPage()
         },
-        modifier = Modifier.fillMaxWidth(0.5f),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
         colors = GetDefaultButtonColors(),
     ) {
         Text(text = "Delete", color = Color.Red)
     }
-    Button(
-        onClick = {
-            isEditing = true
-        },
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = GetDefaultButtonColors(),
-    ) {
-        Text(text = "Edit", color = Color.White)
-    }
+//    Button(
+//        onClick = {
+//            isEditing = true
+//        },
+//        modifier = Modifier.fillMaxWidth(),
+//        shape = RoundedCornerShape(15.dp),
+//        colors = GetDefaultButtonColors(),
+//    ) {
+//        Text(text = "Edit", color = Color.White)
+//    }
 }
 
 private fun addParticipation(eventViewModel: EventViewModel) {
@@ -534,13 +517,10 @@ private fun addParticipation(eventViewModel: EventViewModel) {
 
 private fun addNotification(context: Context) {
     val scheduler = NotificationScheduler()
-    val calendar = Calendar.getInstance()
+    val calendar = getEventDate()
     val (h, m) = event.starts.split(":").map { it.toInt() }
     calendar.set(Calendar.HOUR_OF_DAY, h)
     calendar.set(Calendar.MINUTE, m)
-    calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
-    calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
-    calendar.set(Calendar.YEAR, event.day / 10000)
 
     Log.d("DELAYED_NOTIF", "test notifica ${calendar.time}")
     scheduler.scheduleNotification(
@@ -555,6 +535,29 @@ private fun checkEventValid() {
     if (event.name.isEmpty()) {
         throw IllegalStateException("Event name cannot be empty")
     }
+    if (getEventDate().before(Calendar.getInstance())) {
+        throw IllegalStateException("Event date cannot be in the past")
+    }
+}
+
+private fun saveNewEvent(
+    context: Context,
+    eventViewModel: EventViewModel,
+    events: List<Event>
+) {
+    try {
+        val newID = events.map { it.eventId }
+            .ifEmpty { listOf(0) }
+            .max()
+            .plus(1)
+        event = event.copy(eventId = newID)
+        checkEventValid()
+        eventViewModel.createNewEvent(event)
+        addParticipation(eventViewModel)
+        addNotification(context = context)
+    } catch (ex: Exception) {
+        Toast.makeText(context, ex.toString(), Toast.LENGTH_SHORT).show()
+    }
 }
 
 private fun isEditingMode(): Boolean {
@@ -567,4 +570,12 @@ private fun isNewEvent(): Boolean {
 
 private fun isCreatedByCurrentUser(): Boolean {
     return event.creator.username == loggedUser.username
+}
+
+private fun getEventDate(): Calendar {
+    val calendar = Calendar.getInstance()
+    calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
+    calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
+    calendar.set(Calendar.YEAR, event.day / 10000)
+    return calendar
 }
