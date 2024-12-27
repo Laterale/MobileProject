@@ -57,6 +57,8 @@ import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserAddEventCrossRef
 import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.ImageChooserService
+import com.example.partyapp.services.NotificationHelper
+import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
@@ -66,6 +68,7 @@ import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import java.io.File
+import java.util.Calendar
 import java.util.Date
 
 val factory = EventFactory()
@@ -342,6 +345,24 @@ private fun dateToStr(date: Date): String {
 @Preview
 @Composable
 fun EventDateDetail(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    var nh = NotificationHelper(context = context)
+    val sc = NotificationScheduler()
+    Button(onClick = {
+        //nh.showSimpleNotification("test", "content")
+        var date = Calendar.getInstance()
+        date.set(2024,11,27,17,50)
+        sc.scheduleNotification(
+            context = context,
+            scheduledDate = date,
+            title = "test",
+            content = "content"
+        )
+    }) {
+        Text("click")
+    }
+
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
