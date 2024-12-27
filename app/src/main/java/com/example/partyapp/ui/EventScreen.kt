@@ -25,7 +25,7 @@ import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -97,7 +97,7 @@ fun EventScreen(
         EventImage(modifier = Modifier.fillMaxHeight(0.25f))
         EventTitle()
         EventAuthor()
-        Divider(color = Color.White, modifier = Modifier.padding(vertical = 2.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = Color.White)
         EventDetails(modifier = Modifier.fillMaxWidth())
         EventDescription(modifier = Modifier.fillMaxHeight(0.8f))
         Actions(

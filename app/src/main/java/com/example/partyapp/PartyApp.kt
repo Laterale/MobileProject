@@ -18,8 +18,8 @@ import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Place
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -112,13 +112,7 @@ fun BottomAppBar(
     var selectedIcon = Icons.Outlined.Clear
     var unselectedIcon = Icons.Filled.Clear
     Column {
-        Row(
-            modifier = Modifier.padding(30.dp, 0.dp, 30.dp, 0.dp)
-        ) {
-            Divider(
-                color = Color.White
-            )
-        }
+        HorizontalDivider(color = Color.White, modifier = Modifier.padding(30.dp, 0.dp, 30.dp, 0.dp))
         NavigationBar(
             containerColor = Color.Transparent,
             contentColor = Color.Transparent
@@ -243,7 +237,7 @@ private fun NavigationGraph(
 
     val users = userViewModel.users.collectAsState(initial = listOf())
     if (userViewModel.loggedUser == null && session != "" && session != "default") {
-        var current = users.value.find { it.username == session }
+        val current = users.value.find { it.username == session }
         current?.let { userViewModel.selectUser(it) }
     }
 

@@ -18,8 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AreaChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedCard
@@ -52,11 +52,7 @@ fun ExploreScreen(
             .fillMaxSize()
             .padding(30.dp, 10.dp, 30.dp, 0.dp)) {
         FiltersBar()
-        Row() {
-            Divider(
-                color = Color.White
-            )
-        }
+        HorizontalDivider(color = Color.White)
         Column(
             modifier = Modifier
                 .fillMaxSize()

@@ -22,7 +22,7 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -93,7 +93,7 @@ fun ProfileScreen(
             Text(text = user?.username ?: "Username", style = Typography.bodyMedium)
             CityNameDisplay()
             XpBar()
-            Divider(
+            HorizontalDivider(
                 color = Color.White
             )
         }
@@ -116,10 +116,10 @@ fun XpBar() {
         modifier = Modifier.padding(0.dp,15.dp,0.dp,30.dp)
     ) {
         LinearProgressIndicator(
-            progress = 0.5f,
+            progress = { 0.5f },
+            modifier = Modifier.size(200.dp, 2.5.dp),
             color = Color.White,
             trackColor = Color.DarkGray,
-            modifier = Modifier.size(200.dp, 2.5.dp)
         )
     }
 }
@@ -228,7 +228,7 @@ fun CityNameDisplay() {
     PermissionsHelper(context).RequestLocationPermission {
         helper.getCurrentLocation { loc ->
             if (loc != null) {
-                cityName = helper.getCityName(context, loc!!.latitude, loc!!.longitude)
+                cityName = helper.getCityName(context, loc.latitude, loc.longitude)
             } else {
                 cityName = null
             }
