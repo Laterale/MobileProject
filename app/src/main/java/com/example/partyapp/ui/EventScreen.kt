@@ -1,5 +1,6 @@
 package com.example.partyapp.ui
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -58,7 +59,6 @@ import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserAddEventCrossRef
 import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.ImageChooserService
-import com.example.partyapp.services.NotificationHelper
 import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
@@ -74,6 +74,7 @@ import java.util.Date
 
 val factory = EventFactory()
 var event: Event = factory.createEmpty()
+var eventDateAsLong: Long = 0
 lateinit var loggedUser: User
 
 @Composable
@@ -109,7 +110,7 @@ fun EventScreen(
 }
 
 @Composable
-fun EventImage(modifier: Modifier = Modifier) {
+private fun EventImage(modifier: Modifier = Modifier) {
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     val setImg: (Uri, String) -> Unit = { uri, path ->
         photoUri = uri
@@ -136,7 +137,7 @@ fun EventImage(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun AddEventImageBtn(
+private fun AddEventImageBtn(
     onImageChosen: (Uri, String) -> Unit,
     modifier: Modifier
 ) {
@@ -191,30 +192,14 @@ fun AddEventImageBtn(
 
 @Preview
 @Composable
-fun EventDetails(modifier: Modifier = Modifier) {
+private fun EventDetails(modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(5.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         modifier = modifier,
     ) {
-        item {
-//            Row(
-//                horizontalArrangement = Arrangement.spacedBy(5.dp),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Icon(
-//                    imageVector = Icons.Filled.CalendarMonth,
-//                    contentDescription = "Day of the event",
-//                    tint = Color.White
-//                )
-//                //val dateStr = Date().toGMTString()
-//                // .split(" ").take(3)
-//                // .reduce {acc, s -> acc + " " + s}
-//                Text(text = event.day.toString(), color = Color.White)
-//            }
-            EventDateDetail()
-        }
+        item { EventDateDetail() }
         item {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -228,9 +213,7 @@ fun EventDetails(modifier: Modifier = Modifier) {
                 Text(text = event.location.city, color = Color.White)
             }
         }
-        item {
-            EventTimeDetail()
-        }
+        item { EventTimeDetail() }
         item {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -250,7 +233,7 @@ fun EventDetails(modifier: Modifier = Modifier) {
 
 
 @Composable
-fun EventTitle(modifier: Modifier = Modifier) {
+private fun EventTitle(modifier: Modifier = Modifier) {
     Row(modifier = modifier.fillMaxWidth()) {
         if (event.eventId == -1) {
             var title: String by remember { mutableStateOf(event.name) }
@@ -281,7 +264,7 @@ fun EventTitle(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EventAuthor(modifier: Modifier = Modifier) {
+private fun EventAuthor(modifier: Modifier = Modifier) {
     val pfpSize = 25.dp
     Row(modifier = modifier) {
         AsyncImage(
@@ -303,7 +286,7 @@ fun EventAuthor(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EventDescription(modifier: Modifier = Modifier) {
+private fun EventDescription(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
     ) {
@@ -345,27 +328,7 @@ private fun dateToStr(date: Date): String {
 
 @Preview
 @Composable
-fun EventDateDetail(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    var nh = NotificationHelper(context = context)
-    val sc = NotificationScheduler()
-    Button(onClick = {
-        nh.showSimpleNotification("Click!", "Testing notifications")
-        val calendar = Calendar.getInstance().apply {
-            add(Calendar.SECOND, 30) // Schedule 10 seconds later
-        }
-        Log.d("DELAYED_NOTIF", "test notifica ${calendar.time}")
-        sc.scheduleNotification(
-            context = context,
-            scheduledDate = calendar,
-            title = "test",
-            content = "content"
-        )
-    }) {
-        Text("click")
-    }
-
-
+private fun EventDateDetail(modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -380,10 +343,11 @@ fun EventDateDetail(modifier: Modifier = Modifier) {
             var date: String by remember { mutableStateOf(dateToStr(Date())) }
             PartyDatePickerComponent(
                 text = date,
-                onDatePicked = { y, m, d ->
-                    val selectedDate = Date(y, m, d)
-                    date = dateToStr(selectedDate)
-                    event = event.copy(starts = date)
+                onDatePicked = { year, month, day ->
+                    val calendar = Calendar.getInstance()
+                        .apply { set(year, month, day) }
+                    date = dateToStr(calendar.time)
+                    event = event.copy(day = year * 10000 + month * 100 + day)
                 }
             )
         } else {
@@ -397,7 +361,7 @@ fun EventDateDetail(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun EventTimeDetail(modifier: Modifier = Modifier) {
+private fun EventTimeDetail(modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -436,7 +400,7 @@ fun EventTimeDetail(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Actions(
+private fun Actions(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
@@ -453,10 +417,11 @@ fun Actions(
 }
 
 @Composable
-fun SaveDiscardBtns(
+private fun SaveDiscardBtns(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     var events = eventViewModel.events.collectAsState(initial = listOf()).value
     Button(
         onClick = onBackToPrevPage,
@@ -469,14 +434,18 @@ fun SaveDiscardBtns(
     Button(
         onClick = {
             try {
-                val newID = events.map { it.eventId }.ifEmpty { listOf(0) }.max().plus(1)
+                val newID = events.map { it.eventId }
+                    .ifEmpty { listOf(0) }
+                    .max()
+                    .plus(1)
                 event = event.copy(eventId = newID)
-
+                checkEventValid(context)
                 eventViewModel.createNewEvent(event)
-                addPartecipation(eventViewModel)
+                addParticipation(eventViewModel)
+                addNotification(context = context)
                 onBackToPrevPage()
-            } catch (e: Exception) {
-
+            } catch (ex: Exception) {
+                Toast.makeText(context, ex.toString(), Toast.LENGTH_SHORT).show()
             }
         },
         modifier = Modifier.fillMaxWidth(),
@@ -488,18 +457,22 @@ fun SaveDiscardBtns(
 }
 
 @Composable
-fun AddEventButton(
+private fun AddEventButton(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
-    val partecipants = eventViewModel.getParticipantsFromEventId(event.eventId)
+    val context = LocalContext.current
+    val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
         .collectAsState(initial = listOf())
-    var wasAddedByCurrentUser = partecipants.value
+    var wasAddedByCurrentUser = participants.value
         .map { it.id }
         .contains(loggedUser.id)
 
     Button(
-        onClick = { addPartecipation(eventViewModel) },
+        onClick = {
+            addParticipation(eventViewModel)
+            addNotification(context = context)
+        },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
         colors = GetDefaultButtonColors(),
@@ -513,9 +486,34 @@ fun AddEventButton(
     }
 }
 
-fun addPartecipation(eventViewModel: EventViewModel) {
+private fun addParticipation(eventViewModel: EventViewModel) {
     val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
     eventViewModel.addParticipant(crossRef)
     event = event.copy(participants = event.participants + 1)
     eventViewModel.updateParticipants(event.participants.toInt(), event.eventId)
+}
+
+private fun addNotification(context: Context) {
+    val scheduler = NotificationScheduler()
+    val calendar = Calendar.getInstance()
+    val (h, m) = event.starts.split(":").map { it.toInt() }
+    calendar.set(Calendar.HOUR_OF_DAY, h)
+    calendar.set(Calendar.MINUTE, m)
+    calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
+    calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
+    calendar.set(Calendar.YEAR, event.day / 10000)
+
+    Log.d("DELAYED_NOTIF", "test notifica ${calendar.time}")
+    scheduler.scheduleNotification(
+        context = context,
+        scheduledDate = calendar,
+        title = "${event.name} is starting!",
+        content = "Hurry! ${event.name} is starting soon!"
+    )
+}
+
+private fun checkEventValid(context: Context) {
+    if (event.name.isEmpty()) {
+        throw IllegalStateException("Event name cannot be empty")
+    }
 }
