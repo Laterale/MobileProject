@@ -351,8 +351,12 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
                 }
             )
         } else {
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
+            calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
+            calendar.set(Calendar.YEAR, event.day / 10000)
             Text(
-                text = event.day.toString(),
+                text = dateToStr(calendar.time),
                 color = Color.White
             )
         }
