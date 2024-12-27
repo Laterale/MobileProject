@@ -64,6 +64,7 @@ import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
+import com.example.partyapp.ui.components.TextButton
 import com.example.partyapp.ui.theme.GetDefaultButtonColors
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
@@ -410,7 +411,7 @@ private fun Actions(
         } else if (isNewEvent()) {
             SaveDiscardBtns(eventViewModel, onBackToPrevPage)
         } else {
-            DeleteEditBtns(eventViewModel, onBackToPrevPage)
+            DeleteEventButton(eventViewModel, onBackToPrevPage)
         }
     }
 }
@@ -422,25 +423,19 @@ private fun SaveDiscardBtns(
 ) {
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
-    Button(
+    TextButton(
+        text = "Discard",
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
-        shape = RoundedCornerShape(15.dp),
-        colors = GetDefaultButtonColors(),
-    ) {
-        Text(text = "Discard", color = Color.White)
-    }
-    Button(
+    )
+    TextButton(
+        text = "Save",
         onClick = {
             saveNewEvent(context, eventViewModel, events)
             onBackToPrevPage()
         },
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = GetDefaultButtonColors(),
-    ) {
-        Text(text = "Save", color = Color.White)
-    }
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
@@ -454,33 +449,28 @@ private fun AddEventButton(
     val wasAddedByCurrentUser = participants.value
         .map { it.id }
         .contains(loggedUser.id)
-
-    Button(
+    TextButton(
+        text = if (wasAddedByCurrentUser) "Added" else "Add",
+        textColor = if (wasAddedByCurrentUser) Color.Gray else Color.White,
         onClick = {
             addParticipation(eventViewModel)
             addNotification(context = context)
         },
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = GetDefaultButtonColors(),
         enabled = !wasAddedByCurrentUser
-    ) {
-        if (wasAddedByCurrentUser) {
-            Text(text = "Added", color = Color.Gray)
-        } else {
-            Text(text = "Add", color = Color.White)
-        }
-    }
+    )
 }
 
 @Composable
-private fun DeleteEditBtns(
+private fun DeleteEventButton(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
     val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
         .collectAsState(initial = listOf())
-    Button(
+    TextButton(
+        text = "Delete",
+        textColor = Color.Red,
         onClick = {
             participants.value.forEach { participant ->
                 eventViewModel.deleteParticipant(UserAddEventCrossRef(
@@ -491,21 +481,7 @@ private fun DeleteEditBtns(
             onBackToPrevPage()
         },
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = GetDefaultButtonColors(),
-    ) {
-        Text(text = "Delete", color = Color.Red)
-    }
-//    Button(
-//        onClick = {
-//            isEditing = true
-//        },
-//        modifier = Modifier.fillMaxWidth(),
-//        shape = RoundedCornerShape(15.dp),
-//        colors = GetDefaultButtonColors(),
-//    ) {
-//        Text(text = "Edit", color = Color.White)
-//    }
+    )
 }
 
 private fun addParticipation(eventViewModel: EventViewModel) {
