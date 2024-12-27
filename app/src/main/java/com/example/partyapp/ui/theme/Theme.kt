@@ -3,6 +3,7 @@ package com.example.partyapp.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material3.MaterialTheme
@@ -17,17 +18,22 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.example.partyapp.DARK_THEME
+import com.example.partyapp.LIGHT_THEME
+import com.example.partyapp.data.UserSettings
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = DarkTeal,
+    secondary = Indigo,
+    tertiary = Color.Black,
+    background = Indigo
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Salmon,
+    secondary = Violet,
+    tertiary = Indigo,
+    background = Violet
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -41,11 +47,14 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun GetDefaultButtonColors(): ButtonColors {
-    return buttonColors(
-        backgroundColor = Color.hsl(0f, 0f, 1f, 0.10f),
-        disabledBackgroundColor = Color.hsl(0f, 0f, 1f, 0.10f)
-    )
+fun getColorScheme(
+    settings: UserSettings? = null,
+): ColorScheme {
+    return if (settings == null) {
+        LightColorScheme
+    } else if (settings.useSystemTheme) {
+        if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
+    } else if (settings.customTheme == DARK_THEME) DarkColorScheme else LightColorScheme
 }
 
 @Composable

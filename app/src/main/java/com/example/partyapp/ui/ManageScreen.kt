@@ -25,10 +25,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.partyapp.R
+import com.example.partyapp.ui.theme.Glass10
+import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.ui.components.MyEvents
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+
 
 @Composable
 fun ManageScreen(
@@ -50,6 +53,23 @@ fun ManageScreen(
     }
 }
 
+@Composable
+fun ShowTemplateThumbnails() {
+    var i = 0
+    while (i != 10) {
+        IconButton(
+            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .padding(5.dp, 0.dp)
+                .width(80.dp)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(15.dp)),
+            colors = IconButtonDefaults.iconButtonColors(Glass10)
+
+        ) {}
+        i += 1
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,14 +83,55 @@ fun ShowTemplateEvents(onEventClicked: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp),
-                colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-                border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+                colors = CardDefaults.cardColors(Glass10),
+                border = BorderStroke(1.dp, Glass20),
                 onClick = {
                     onEventClicked()
                 }  //evento generico, da collegare al viewmodel
             ) {}
             i += 1
         }
+    }
+}
+
+@Composable
+fun YourEvents() {
+    Text(
+        text = "Your events",
+        style = TextStyle(
+            fontSize = 20.sp,
+            fontFamily = FontFamily(Font(R.font.roboto)),
+            color = Color.hsl(0f, 0f, 1f, 0.70f),
+            shadow = Shadow(Color.DarkGray, offset = Offset(0f, 5f), blurRadius = 10f)),
+        modifier = Modifier
+            .padding(5.dp, 0.dp)
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .padding(0.dp, 20.dp)
+            .horizontalScroll(ScrollState(0))
+    ) {
+        IconButton(
+            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .padding(5.dp, 0.dp)
+                .width(80.dp)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(15.dp)),
+            colors = IconButtonDefaults.iconButtonColors(Glass10)
+
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Create new event",
+                tint = Color.White,
+                modifier = Modifier.size(40.dp)
+            )
+
+        }
+        ShowTemplateThumbnails()
     }
 }
 

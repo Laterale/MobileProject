@@ -57,6 +57,7 @@ import com.example.partyapp.ui.ManageScreen
 import com.example.partyapp.ui.MapScreen
 import com.example.partyapp.ui.ProfileScreen
 import com.example.partyapp.ui.SettingsScreen
+import com.example.partyapp.ui.theme.getColorScheme
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
@@ -81,20 +82,23 @@ sealed class AppScreen(val name: String){
 }
 
 const val ROOT_ROUTE = "root"
+const val DARK_THEME = "Dark"
+const val LIGHT_THEME = "Light"
+
 var homeTabIndex = 0
 val homeScreens = listOf(AppScreen.Explore.name, AppScreen.Manage.name)
 val bottomBarScreens = listOf(AppScreen.Profile.name, AppScreen.Explore.name, AppScreen.Map.name)
 val noBottomBarScreens = listOf(AppScreen.Loading.name, AppScreen.Register.name, AppScreen.Login.name, AppScreen.Settings.name)
-val colors = arrayOf(
-    0.1f to Color(0xffDD9191),
-    0.5f to Color(0xff46389D),
-    0.9f to Color(0xff090F48))
+
+var settings: SettingsViewModel? = null
 
 @Composable
 fun BottomAppBar(
     currentScreen: String,
     navController: NavHostController
 ){
+
+
     var isSelected: Boolean
     var selectedIcon = Icons.Outlined.Clear
     var unselectedIcon = Icons.Filled.Clear
@@ -192,6 +196,21 @@ fun NavigationApp(
     session: String,
     navController: NavHostController = rememberNavController()
 ){
+    var colorScheme = getColorScheme()
+    var bgGradient by remember { mutableStateOf(value = arrayOf(
+        0.1f to colorScheme.primary,
+        0.5f to colorScheme.background,
+        0.9f to colorScheme.tertiary
+    )) }
+
+    settings?.settings?.collectAsState(initial = null)?.also {
+        colorScheme = getColorScheme(it.value)
+        bgGradient = arrayOf(
+            0.1f to colorScheme.primary,
+            0.5f to colorScheme.background,
+            0.9f to colorScheme.tertiary
+        )
+    }
 
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -202,7 +221,7 @@ fun NavigationApp(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(colorStops = colors))
+            .background(Brush.verticalGradient(colorStops = bgGradient))
     ) {
         Scaffold(
             containerColor = Color.Transparent,
@@ -222,12 +241,12 @@ private fun NavigationGraph(
     session: String,
     modifier: Modifier = Modifier
 ) {
-
     val settingsViewModel = hiltViewModel<SettingsViewModel>()
     val userViewModel = hiltViewModel<UserViewModel>()
     val locationViewModel = hiltViewModel<LocationViewModel>()
     val eventViewModel = hiltViewModel<EventViewModel>()
 
+    settings = settingsViewModel
     val users = userViewModel.users.collectAsState(initial = listOf())
     if (userViewModel.loggedUser == null && session != "" && session != "default") {
         var current = users.value.find { it.username == session }
@@ -319,7 +338,8 @@ private fun NavigationGraph(
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 },
-                userViewModel
+                userViewModel,
+                settingsViewModel
             )
         }
         composable(route = AppScreen.Event.name){
