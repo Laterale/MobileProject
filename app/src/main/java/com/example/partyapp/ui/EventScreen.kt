@@ -1,6 +1,7 @@
 package com.example.partyapp.ui
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -349,12 +350,14 @@ fun EventDateDetail(modifier: Modifier = Modifier) {
     var nh = NotificationHelper(context = context)
     val sc = NotificationScheduler()
     Button(onClick = {
-        //nh.showSimpleNotification("test", "content")
-        var date = Calendar.getInstance()
-        date.set(2024,11,27,17,50)
+        nh.showSimpleNotification("Click!", "Testing notifications")
+        val calendar = Calendar.getInstance().apply {
+            add(Calendar.SECOND, 30) // Schedule 10 seconds later
+        }
+        Log.d("DELAYED_NOTIF", "test notifica ${calendar.time}")
         sc.scheduleNotification(
             context = context,
-            scheduledDate = date,
+            scheduledDate = calendar,
             title = "test",
             content = "content"
         )

@@ -3,11 +3,14 @@ package com.example.partyapp.services
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 
 class NotificationEventReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val scheduleNotificationService = NotificationHelper(context)
+        val helper = NotificationHelper(context)
         val title: String? = intent.getStringExtra("TITLE")
-        scheduleNotificationService.showSimpleNotification(title ?: "", "")
+        val content: String? = intent.getStringExtra("CONTENT")
+        Log.d("NOTIF_SHOW", "Notification received")
+        helper.showSimpleNotification(title ?: "", content ?: "")
     }
 }

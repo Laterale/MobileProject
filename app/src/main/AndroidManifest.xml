@@ -73,6 +73,7 @@
         </provider>
         <receiver
             android:name=".services.NotificationEventReceiver"
+            android:exported="false"
             android:enabled="true"/>
     </application>
 
