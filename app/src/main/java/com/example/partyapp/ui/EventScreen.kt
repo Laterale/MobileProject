@@ -72,18 +72,16 @@ import java.io.File
 import java.util.Calendar
 import java.util.Date
 
-val factory = EventFactory()
-var event: Event = factory.createEmpty()
-var eventDateAsLong: Long = 0
-lateinit var loggedUser: User
+private val factory = EventFactory()
+private var event: Event = factory.createEmpty()
+private lateinit var loggedUser: User
+private var isEditing: Boolean = false
 
 @Composable
 fun EventScreen(
     session: String,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onSaveEvent: () -> Unit,
-    onAddEventClicked: () -> Unit,
     onBackToPrevPage: () -> Unit = {}
 ) {
     event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
@@ -117,7 +115,7 @@ private fun EventImage(modifier: Modifier = Modifier) {
         event = event.copy(image = path)
     }
 
-    if (event.eventId == -1 && photoUri == Uri.EMPTY) {
+    if (isEditingMode() && photoUri == Uri.EMPTY) {
         AddEventImageBtn(
             onImageChosen = setImg,
             modifier = modifier.fillMaxWidth()
@@ -218,7 +216,7 @@ private fun EventDetails(modifier: Modifier = Modifier) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = if (event.eventId == -1) 15.dp else 0.dp)
+                modifier = Modifier.padding(top = if (isEditingMode()) 0.dp else 5.dp, bottom = if (isEditingMode()) 15.dp else 0.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Person,
@@ -235,7 +233,7 @@ private fun EventDetails(modifier: Modifier = Modifier) {
 @Composable
 private fun EventTitle(modifier: Modifier = Modifier) {
     Row(modifier = modifier.fillMaxWidth()) {
-        if (event.eventId == -1) {
+        if (isEditingMode()) {
             var title: String by remember { mutableStateOf(event.name) }
             PartyTextField(
                 value = title,
@@ -290,7 +288,7 @@ private fun EventDescription(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
     ) {
-        if (event.eventId == -1) {
+        if (isEditingMode()) {
             var des: String by remember { mutableStateOf(event.description) }
             PartyTextField(
                 value = des,
@@ -339,7 +337,7 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
             contentDescription = "Day of the event",
             tint = Color.White
         )
-        if (event.eventId == -1) {
+        if (isEditingMode()) {
             var date: String by remember { mutableStateOf(dateToStr(Date())) }
             PartyDatePickerComponent(
                 text = date,
@@ -376,7 +374,7 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
             contentDescription = "Time of the event",
             tint = Color.White
         )
-        if (event.eventId == -1) {
+        if (isEditingMode()) {
             var starts: String by remember { mutableStateOf(event.starts) }
             var ends: String by remember { mutableStateOf(event.ends) }
             PartyTimePickerComponent(
@@ -412,10 +410,12 @@ private fun Actions(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        if (event.eventId == -1) {
+        if (!isCreatedByCurrentUser()) {
+            AddEventButton(eventViewModel)
+        } else if (isNewEvent()) {
             SaveDiscardBtns(eventViewModel, onBackToPrevPage)
-        } else if (event.creator.username !== loggedUser.username) {
-            AddEventButton(eventViewModel, onBackToPrevPage)
+        } else {
+            DeleteEditBtns(eventViewModel, onBackToPrevPage)
         }
     }
 }
@@ -426,7 +426,7 @@ private fun SaveDiscardBtns(
     onBackToPrevPage: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    var events = eventViewModel.events.collectAsState(initial = listOf()).value
+    val events = eventViewModel.events.collectAsState(initial = listOf()).value
     Button(
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
@@ -443,7 +443,7 @@ private fun SaveDiscardBtns(
                     .max()
                     .plus(1)
                 event = event.copy(eventId = newID)
-                checkEventValid(context)
+                checkEventValid()
                 eventViewModel.createNewEvent(event)
                 addParticipation(eventViewModel)
                 addNotification(context = context)
@@ -463,12 +463,12 @@ private fun SaveDiscardBtns(
 @Composable
 private fun AddEventButton(
     eventViewModel: EventViewModel,
-    onBackToPrevPage: () -> Unit = {}
+    //onBackToPrevPage: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
         .collectAsState(initial = listOf())
-    var wasAddedByCurrentUser = participants.value
+    val wasAddedByCurrentUser = participants.value
         .map { it.id }
         .contains(loggedUser.id)
 
@@ -487,6 +487,41 @@ private fun AddEventButton(
         } else {
             Text(text = "Add", color = Color.White)
         }
+    }
+}
+
+@Composable
+private fun DeleteEditBtns(
+    eventViewModel: EventViewModel,
+    onBackToPrevPage: () -> Unit = {}
+) {
+    val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
+        .collectAsState(initial = listOf())
+    Button(
+        onClick = {
+            participants.value.forEach { participant ->
+                eventViewModel.deleteParticipant(UserAddEventCrossRef(
+                    id = participant.id, eventId = event.eventId
+                ))
+            }
+            eventViewModel.deleteEvent(event.eventId)
+            onBackToPrevPage()
+        },
+        modifier = Modifier.fillMaxWidth(0.5f),
+        shape = RoundedCornerShape(15.dp),
+        colors = GetDefaultButtonColors(),
+    ) {
+        Text(text = "Delete", color = Color.Red)
+    }
+    Button(
+        onClick = {
+            isEditing = true
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(15.dp),
+        colors = GetDefaultButtonColors(),
+    ) {
+        Text(text = "Edit", color = Color.White)
     }
 }
 
@@ -516,8 +551,20 @@ private fun addNotification(context: Context) {
     )
 }
 
-private fun checkEventValid(context: Context) {
+private fun checkEventValid() {
     if (event.name.isEmpty()) {
         throw IllegalStateException("Event name cannot be empty")
     }
+}
+
+private fun isEditingMode(): Boolean {
+    return isNewEvent() || isEditing
+}
+
+private fun isNewEvent(): Boolean {
+    return event.eventId == -1
+}
+
+private fun isCreatedByCurrentUser(): Boolean {
+    return event.creator.username == loggedUser.username
 }
