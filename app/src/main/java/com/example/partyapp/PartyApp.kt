@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -45,12 +44,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.partyapp.data.PartyAppDB
-import dagger.hilt.android.HiltAndroidApp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.partyapp.data.PartyAppDB
 import com.example.partyapp.ui.EventScreen
 import com.example.partyapp.ui.ExploreScreen
 import com.example.partyapp.ui.LoadingScreen
@@ -63,6 +61,7 @@ import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import dagger.hilt.android.HiltAndroidApp
 
 
 @HiltAndroidApp
@@ -334,10 +333,8 @@ private fun NavigationGraph(
                 session = session,
                 eventViewModel = eventViewModel,
                 userViewModel = userViewModel,
-                onSaveEvent = {},
-                onAddEventClicked = {},
                 onBackToPrevPage = {
-                    navController.navigate(AppScreen.Manage.name) {
+                    navController.navigate(homeScreens[homeTabIndex]) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 }
