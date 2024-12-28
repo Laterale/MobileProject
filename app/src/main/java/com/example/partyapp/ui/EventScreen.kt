@@ -75,6 +75,7 @@ import java.util.Calendar
 private val factory = EventFactory()
 private var event: Event = factory.createEmpty()
 private lateinit var loggedUser: User
+private lateinit var viewModel: EventViewModel
 private var isEditing: Boolean = false
 private var selectedDateNumber: Int = 0
 private const val BASE_DATE_INT = 1000_00_00
@@ -88,6 +89,7 @@ fun EventScreen(
 ) {
     event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
     loggedUser = userViewModel.loggedUser!!
+    viewModel = eventViewModel
 
     Column(
         modifier = Modifier
@@ -114,7 +116,7 @@ private fun EventImage(modifier: Modifier = Modifier) {
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     val setImg: (Uri, String) -> Unit = { uri, path ->
         photoUri = uri
-        event = event.copy(image = path)
+        updateEvent(event.copy(image = path))
     }
 
     if (isEditingMode() && photoUri == Uri.EMPTY) {
@@ -239,7 +241,7 @@ private fun EventTitle(modifier: Modifier = Modifier) {
                 value = title,
                 onValueChange = {
                     title = it
-                    event = event.copy(name = it)
+                    updateEvent(event.copy(name = it))
                 },
                 placeholder = "Party Name",
                 modifier = Modifier.fillMaxWidth()
@@ -294,7 +296,7 @@ private fun EventDescription(modifier: Modifier = Modifier) {
                 value = des,
                 onValueChange = {
                     des = it
-                    event = event.copy(description = it)
+                    updateEvent(event.copy(description = it))
                 },
                 placeholder = "Description",
                 modifier = Modifier.fillMaxSize()
@@ -340,10 +342,8 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
         if (isEditingMode()) {
             val calendar = Calendar.getInstance()
             if (event.day < BASE_DATE_INT) {
-                event = event.copy(day = calendar.get(Calendar.YEAR) * 10000
-                        + calendar.get(Calendar.MONTH) * 100
-                        + calendar.get(Calendar.DAY_OF_MONTH)
-                )
+                val dayValue = calendar.get(Calendar.YEAR) * 10000 + calendar.get(Calendar.MONTH) * 100 + calendar.get(Calendar.DAY_OF_MONTH)
+                updateEvent(event.copy(day = dayValue))
                 selectedDateNumber = event.day
             }
             var date: String by remember { mutableStateOf(dateToStr(getEventDateTime())) }
@@ -352,7 +352,7 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
                 onDatePicked = { year, month, day ->
                     calendar.apply { set(year, month, day) }
                     date = dateToStr(calendar)
-                    event = event.copy(day = year * 10000 + month * 100 + day)
+                    updateEvent(event.copy(day = year * 10000 + month * 100 + day))
                     selectedDateNumber = event.day
                 }
             )
@@ -383,7 +383,7 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
                 text = starts,
                 onTimePicked = { h, m ->
                     starts = "%02d:%02d".format(h, m)
-                    event = event.copy(starts = starts)
+                    updateEvent(event.copy(starts = starts))
                 }
             )
             Text(text = "-", color = Color.White)
@@ -391,7 +391,7 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
                 text = ends,
                 onTimePicked = { h, m ->
                     ends = "%02d:%02d".format(h, m)
-                    event = event.copy(ends = ends)
+                    updateEvent(event.copy(ends = ends))
                 }
             )
         } else {
@@ -490,7 +490,7 @@ private fun DeleteEventButton(
 private fun addParticipation(eventViewModel: EventViewModel) {
     val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
     eventViewModel.addParticipant(crossRef)
-    event = event.copy(participants = event.participants + 1)
+    updateEvent(event.copy(participants = event.participants + 1))
     eventViewModel.updateParticipants(event.participants.toInt(), event.eventId)
 }
 
@@ -511,7 +511,7 @@ private fun checkEventValid() {
         throw IllegalStateException("Event name cannot be empty")
     }
     if (event.day < BASE_DATE_INT && selectedDateNumber != 0) {
-        event = event.copy(day = selectedDateNumber)
+        updateEvent(event.copy(day = selectedDateNumber))
     }
     if (getEventDateTime().before(Calendar.getInstance())) {
         throw IllegalStateException("Event date cannot be in the past")
@@ -530,7 +530,7 @@ private fun saveNewEvent(
             .ifEmpty { listOf(0) }
             .max()
             .plus(1)
-        event = event.copy(eventId = newID)
+        updateEvent(event.copy(eventId = newID))
         eventViewModel.createNewEvent(event)
         addParticipation(eventViewModel)
         addNotification(context = context)
@@ -562,4 +562,9 @@ private fun getEventDateTime(): Calendar {
     calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
     calendar.set(Calendar.YEAR, event.day / 10000)
     return calendar
+}
+
+private fun updateEvent(updated: Event) {
+    event = updated
+    viewModel.selectEvent(event)
 }
