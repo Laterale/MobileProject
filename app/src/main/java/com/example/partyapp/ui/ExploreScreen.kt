@@ -18,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AreaChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,7 +63,7 @@ fun ExploreScreen(
         ) {
             val events = eventViewModel.events.collectAsState(initial = listOf()).value
             for(event in events) {
-                EventCard(onEventClicked,eventViewModel,event)
+                EventCard(onEventClicked, eventViewModel, userViewModel, event)
             }
             Row(
                 modifier = Modifier.padding(0.dp, 20.dp,0.dp, 0.dp)
@@ -105,19 +104,16 @@ fun FiltersBar(){
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventCard(
-    onEventClicked: ()->Unit,
+    onEventClicked: () -> Unit,
     eventViewModel: EventViewModel,
+    userViewModel: UserViewModel,
     event: Event
-)
-{
-    Row(
-        modifier = Modifier
-            .padding(0.dp, 20.dp, 0.dp, 0.dp)
-            .height(80.dp)
-    ) {
+) {
+    val user = userViewModel.users.collectAsState(initial = listOf())
+        .value.find { it.username == event.creator.username }
+    Row(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp).height(80.dp)) {
         OutlinedCard(
             modifier = Modifier.fillMaxSize(),
             colors = CardDefaults.cardColors(Glass10),
@@ -131,12 +127,9 @@ fun EventCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxSize()
             ) {
-                Column(
-                    Modifier.fillMaxHeight()
-                        .fillMaxWidth(0.25f)
-                ) {
+                Column(Modifier.fillMaxHeight().fillMaxWidth(0.25f)) {
                     AsyncImage(
-                        model = event.creator.pfp,
+                        model = user?.pfp ?: event.creator.pfp,
                         contentDescription = "Creator pfp",
                         modifier = Modifier
                             .padding(10.dp, 9.dp)
@@ -144,9 +137,7 @@ fun EventCard(
                             .background(Color.Black)
                     )
                 }
-                Column(
-                    modifier = Modifier.fillMaxWidth(0.6f)
-                ) {
+                Column(modifier = Modifier.fillMaxWidth(0.6f)) {
                     Text(
                         text = event.name,
                         modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp),
@@ -158,14 +149,13 @@ fun EventCard(
                         modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 15.dp)
                     )
                 }
-                Column(
-                    Modifier.fillMaxHeight()
-                ) {
+                Column(modifier = Modifier.fillMaxHeight()) {
                     AsyncImage(
                         model = event.image,
                         contentDescription = "event image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
+                            .fillMaxHeight()
                             .padding(1.dp)
                             .clip(RoundedCornerShape(0.dp, 11.dp, 11.dp, 0.dp))
                     )
