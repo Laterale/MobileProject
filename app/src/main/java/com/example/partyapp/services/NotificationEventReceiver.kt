@@ -10,7 +10,7 @@ class NotificationEventReceiver: BroadcastReceiver() {
         val helper = NotificationHelper(context)
         val title: String? = intent.getStringExtra("TITLE")
         val content: String? = intent.getStringExtra("CONTENT")
-        Log.d("NOTIF_SHOW", "Notification received")
+        Log.d("DELAYED_NOTIF", "Notification received: $title, $content")
         helper.showSimpleNotification(title ?: "", content ?: "")
     }
 }

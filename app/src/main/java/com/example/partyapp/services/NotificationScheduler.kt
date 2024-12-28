@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import java.util.Calendar
+import kotlin.random.Random
 
 class NotificationScheduler {
     fun scheduleNotification(
@@ -18,7 +19,7 @@ class NotificationScheduler {
         intent.putExtra("CONTENT", content)
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
+            Random.nextInt(),
             intent,
             PendingIntent.FLAG_IMMUTABLE
         )

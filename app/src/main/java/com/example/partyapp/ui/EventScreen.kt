@@ -2,6 +2,7 @@ package com.example.partyapp.ui
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -497,7 +498,7 @@ private fun addParticipation(eventViewModel: EventViewModel) {
 private fun addNotification(context: Context) {
     val scheduler = NotificationScheduler()
     val calendar = getEventDateTime()
-    //Log.d("DELAYED_NOTIF", "test notifica ${calendar.time}")
+    Log.d("DELAYED_NOTIF", "Set notification: ${calendar.time}, ${event.name} ")
     scheduler.scheduleNotification(
         context = context,
         scheduledDate = calendar,
