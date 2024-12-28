@@ -105,7 +105,10 @@ fun ShowTemplateThumbnails(
 
     for(event in events) {
         IconButton(
-            onClick = onEventClicked,
+            onClick = {
+                eventViewModel.selectEvent(event)
+                onEventClicked()
+            },
             modifier = Modifier
                 .padding(5.dp, 0.dp)
                 .width(80.dp)
@@ -117,7 +120,8 @@ fun ShowTemplateThumbnails(
                 model = event.image,
                 contentDescription = "event image",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(Color.Black),
             )
         }

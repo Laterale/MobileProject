@@ -1,6 +1,8 @@
 package com.example.partyapp.ui
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,14 +20,13 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -57,32 +58,39 @@ import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserAddEventCrossRef
 import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.ImageChooserService
+import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
+import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
+import com.example.partyapp.ui.components.TextButton
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.ui.theme.Typography
-import com.example.partyapp.ui.theme.getDefaultButtonColors
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import java.io.File
+import java.time.ZoneId
+import java.util.Calendar
 
-val factory = EventFactory()
-var event: Event = factory.createEmpty()
-lateinit var loggedUser: User
+private val factory = EventFactory()
+private var event: Event = factory.createEmpty()
+private lateinit var loggedUser: User
+private lateinit var viewModel: EventViewModel
+private var isEditing: Boolean = false
+private var selectedDateNumber: Int = 0
+private const val BASE_DATE_INT = 1000_00_00
 
 @Composable
 fun EventScreen(
     session: String,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onSaveEvent: () -> Unit,
-    onAddEventClicked: () -> Unit,
     onBackToPrevPage: () -> Unit = {}
 ) {
     event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
     loggedUser = userViewModel.loggedUser!!
+    viewModel = eventViewModel
 
     Column(
         modifier = Modifier
@@ -94,7 +102,7 @@ fun EventScreen(
         EventImage(modifier = Modifier.fillMaxHeight(0.25f))
         EventTitle()
         EventAuthor()
-        Divider(color = Color.White, modifier = Modifier.padding(vertical = 2.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = Color.White)
         EventDetails(modifier = Modifier.fillMaxWidth())
         EventDescription(modifier = Modifier.fillMaxHeight(0.8f))
         Actions(
@@ -105,14 +113,14 @@ fun EventScreen(
 }
 
 @Composable
-fun EventImage(modifier: Modifier = Modifier) {
+private fun EventImage(modifier: Modifier = Modifier) {
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     val setImg: (Uri, String) -> Unit = { uri, path ->
         photoUri = uri
-        event = event.copy(image = path)
+        updateEvent(event.copy(image = path))
     }
 
-    if (event.eventId == -1 && photoUri == Uri.EMPTY) {
+    if (isEditingMode() && photoUri == Uri.EMPTY) {
         AddEventImageBtn(
             onImageChosen = setImg,
             modifier = modifier.fillMaxWidth()
@@ -130,9 +138,8 @@ fun EventImage(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
-fun AddEventImageBtn(
+private fun AddEventImageBtn(
     onImageChosen: (Uri, String) -> Unit,
     modifier: Modifier
 ) {
@@ -187,26 +194,14 @@ fun AddEventImageBtn(
 
 @Preview
 @Composable
-fun EventDetails(modifier: Modifier = Modifier) {
+private fun EventDetails(modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(5.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         modifier = modifier,
     ) {
-        item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.CalendarMonth,
-                    contentDescription = "Day of the event",
-                    tint = Color.White
-                )
-                Text(text = event.day.toString(), color = Color.White)
-            }
-        }
+        item { EventDateDetail() }
         item {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -220,14 +215,12 @@ fun EventDetails(modifier: Modifier = Modifier) {
                 Text(text = event.location.city, color = Color.White)
             }
         }
-        item {
-            EventTimeDetail()
-        }
+        item { EventTimeDetail() }
         item {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = if (event.eventId == -1) 15.dp else 0.dp)
+                modifier = Modifier.padding(top = if (isEditingMode()) 0.dp else 5.dp, bottom = if (isEditingMode()) 15.dp else 0.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Person,
@@ -240,17 +233,16 @@ fun EventDetails(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
-fun EventTitle(modifier: Modifier = Modifier) {
+private fun EventTitle(modifier: Modifier = Modifier) {
     Row(modifier = modifier.fillMaxWidth()) {
-        if (event.eventId == -1) {
+        if (isEditingMode()) {
             var title: String by remember { mutableStateOf(event.name) }
             PartyTextField(
                 value = title,
                 onValueChange = {
                     title = it
-                    event = event.copy(name = it)
+                    updateEvent(event.copy(name = it))
                 },
                 placeholder = "Party Name",
                 modifier = Modifier.fillMaxWidth()
@@ -273,7 +265,7 @@ fun EventTitle(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EventAuthor(modifier: Modifier = Modifier) {
+private fun EventAuthor(modifier: Modifier = Modifier) {
     val pfpSize = 25.dp
     Row(modifier = modifier) {
         AsyncImage(
@@ -295,17 +287,17 @@ fun EventAuthor(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun EventDescription(modifier: Modifier = Modifier) {
+private fun EventDescription(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
     ) {
-        if (event.eventId == -1) {
+        if (isEditingMode()) {
             var des: String by remember { mutableStateOf(event.description) }
             PartyTextField(
                 value = des,
                 onValueChange = {
                     des = it
-                    event = event.copy(description = it)
+                    updateEvent(event.copy(description = it))
                 },
                 placeholder = "Description",
                 modifier = Modifier.fillMaxSize()
@@ -328,9 +320,53 @@ fun EventDescription(modifier: Modifier = Modifier) {
     }
 }
 
+private fun dateToStr(date: Calendar): String {
+    return date.time.toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .toString()
+}
+
 @Preview
 @Composable
-fun EventTimeDetail(modifier: Modifier = Modifier) {
+private fun EventDateDetail(modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.Filled.CalendarMonth,
+            contentDescription = "Day of the event",
+            tint = Color.White
+        )
+        if (isEditingMode()) {
+            val calendar = Calendar.getInstance()
+            if (event.day < BASE_DATE_INT) {
+                val dayValue = calendar.get(Calendar.YEAR) * 10000 + calendar.get(Calendar.MONTH) * 100 + calendar.get(Calendar.DAY_OF_MONTH)
+                updateEvent(event.copy(day = dayValue))
+                selectedDateNumber = event.day
+            }
+            var date: String by remember { mutableStateOf(dateToStr(getEventDateTime())) }
+            PartyDatePickerComponent(
+                text = date,
+                onDatePicked = { year, month, day ->
+                    calendar.apply { set(year, month, day) }
+                    date = dateToStr(calendar)
+                    updateEvent(event.copy(day = year * 10000 + month * 100 + day))
+                    selectedDateNumber = event.day
+                }
+            )
+        } else {
+            val calendar = getEventDateTime()
+            Text(text = dateToStr(calendar),color = Color.White)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun EventTimeDetail(modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -341,14 +377,14 @@ fun EventTimeDetail(modifier: Modifier = Modifier) {
             contentDescription = "Time of the event",
             tint = Color.White
         )
-        if (event.eventId == -1) {
+        if (isEditingMode()) {
             var starts: String by remember { mutableStateOf(event.starts) }
             var ends: String by remember { mutableStateOf(event.ends) }
             PartyTimePickerComponent(
                 text = starts,
                 onTimePicked = { h, m ->
                     starts = "%02d:%02d".format(h, m)
-                    event = event.copy(starts = starts)
+                    updateEvent(event.copy(starts = starts))
                 }
             )
             Text(text = "-", color = Color.White)
@@ -356,7 +392,7 @@ fun EventTimeDetail(modifier: Modifier = Modifier) {
                 text = ends,
                 onTimePicked = { h, m ->
                     ends = "%02d:%02d".format(h, m)
-                    event = event.copy(ends = ends)
+                    updateEvent(event.copy(ends = ends))
                 }
             )
         } else {
@@ -369,7 +405,7 @@ fun EventTimeDetail(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Actions(
+private fun Actions(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
@@ -377,78 +413,159 @@ fun Actions(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        if (event.eventId == -1) {
+        if (!isCreatedByCurrentUser()) {
+            AddEventButton(eventViewModel)
+        } else if (isNewEvent()) {
             SaveDiscardBtns(eventViewModel, onBackToPrevPage)
-        } else if (event.creator.username !== loggedUser.username) {
-            AddEventButton(eventViewModel, onBackToPrevPage)
+        } else {
+            DeleteEventButton(eventViewModel, onBackToPrevPage)
         }
     }
 }
 
 @Composable
-fun SaveDiscardBtns(
+private fun SaveDiscardBtns(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
-    var events = eventViewModel.events.collectAsState(initial = listOf()).value
-    Button(
+    val context = LocalContext.current
+    val events = eventViewModel.events.collectAsState(initial = listOf()).value
+    TextButton(
+        text = "Discard",
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
-        shape = RoundedCornerShape(15.dp),
-        colors = getDefaultButtonColors(),
-    ) {
-        Text(text = "Discard", color = Color.White)
-    }
-    Button(
-        onClick = {
-            try {
-                val newID = events.map { it.eventId }.ifEmpty { listOf(0) }.max().plus(1)
-                event = event.copy(eventId = newID)
-
-                eventViewModel.createNewEvent(event)
-                addPartecipation(eventViewModel)
-                onBackToPrevPage()
-            } catch (e: Exception) {
-
-            }
-        },
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = getDefaultButtonColors(),
-    ) {
-        Text(text = "Save", color = Color.White)
-    }
+    )
+    TextButton(
+        text = "Save",
+        onClick = { saveNewEvent(context, eventViewModel, events, onBackToPrevPage) },
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
-fun AddEventButton(
+private fun AddEventButton(
+    eventViewModel: EventViewModel,
+    //onBackToPrevPage: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
+        .collectAsState(initial = listOf())
+    val wasAddedByCurrentUser = participants.value
+        .map { it.id }
+        .contains(loggedUser.id)
+    TextButton(
+        text = if (wasAddedByCurrentUser) "Added" else "Add",
+        textColor = if (wasAddedByCurrentUser) Color.Gray else Color.White,
+        onClick = {
+            addParticipation(eventViewModel)
+            addNotification(context = context)
+        },
+        modifier = Modifier.fillMaxWidth(),
+        enabled = !wasAddedByCurrentUser
+    )
+}
+
+@Composable
+private fun DeleteEventButton(
     eventViewModel: EventViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
-    val partecipants = eventViewModel.getParticipantsFromEventId(event.eventId)
+    val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
         .collectAsState(initial = listOf())
-    var wasAddedByCurrentUser = partecipants.value
-        .map { it.id }
-        .contains(loggedUser.id)
-
-    Button(
-        onClick = { addPartecipation(eventViewModel) },
+    TextButton(
+        text = "Delete",
+        textColor = Color.Red,
+        onClick = {
+            participants.value.forEach { participant ->
+                eventViewModel.deleteParticipant(UserAddEventCrossRef(
+                    id = participant.id, eventId = event.eventId
+                ))
+            }
+            eventViewModel.deleteEvent(event.eventId)
+            onBackToPrevPage()
+        },
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = getDefaultButtonColors(),
-        enabled = !wasAddedByCurrentUser
-    ) {
-        if (wasAddedByCurrentUser) {
-            Text(text = "Added", color = Color.Gray)
-        } else {
-            Text(text = "Add", color = Color.White)
-        }
+    )
+}
+
+private fun addParticipation(eventViewModel: EventViewModel) {
+    val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
+    eventViewModel.addParticipant(crossRef)
+    updateEvent(event.copy(participants = event.participants + 1))
+    eventViewModel.updateParticipants(event.participants.toInt(), event.eventId)
+}
+
+private fun addNotification(context: Context) {
+    val scheduler = NotificationScheduler()
+    val calendar = getEventDateTime()
+    Log.d("DELAYED_NOTIF", "Set notification: ${calendar.time}, ${event.name} ")
+    scheduler.scheduleNotification(
+        context = context,
+        scheduledDate = calendar,
+        title = "${event.name} is starting!",
+        content = "Hurry! ${event.name} is starting soon!"
+    )
+}
+
+private fun checkEventValid() {
+    if (event.name.isEmpty()) {
+        throw IllegalStateException("Event name cannot be empty")
+    }
+    if (event.day < BASE_DATE_INT && selectedDateNumber != 0) {
+        updateEvent(event.copy(day = selectedDateNumber))
+    }
+    if (getEventDateTime().before(Calendar.getInstance())) {
+        throw IllegalStateException("Event date cannot be in the past")
     }
 }
 
-fun addPartecipation(eventViewModel: EventViewModel) {
-    val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
-    eventViewModel.addParticipant(crossRef)
-    event = event.copy(participants = event.participants + 1)
-    eventViewModel.updateParticipants(event.participants.toInt(), event.eventId)
+private fun saveNewEvent(
+    context: Context,
+    eventViewModel: EventViewModel,
+    events: List<Event>,
+    onBackToPrevPage: () -> Unit = {}
+) {
+    try {
+        checkEventValid()
+        val newID = events.map { it.eventId }
+            .ifEmpty { listOf(0) }
+            .max()
+            .plus(1)
+        updateEvent(event.copy(eventId = newID))
+        eventViewModel.createNewEvent(event)
+        addParticipation(eventViewModel)
+        addNotification(context = context)
+        onBackToPrevPage()
+    } catch (ex: Exception) {
+        Toast.makeText(context, ex.message, Toast.LENGTH_SHORT).show()
+    }
+}
+
+private fun isEditingMode(): Boolean {
+    return isNewEvent() || isEditing
+}
+
+private fun isNewEvent(): Boolean {
+    return event.eventId == -1
+}
+
+private fun isCreatedByCurrentUser(): Boolean {
+    return event.creator.username == loggedUser.username
+}
+
+private fun getEventDateTime(): Calendar {
+    val calendar = Calendar.getInstance()
+    val (h, m) = event.starts.split(":").map { it.toInt() }
+    calendar.set(Calendar.HOUR_OF_DAY, h)
+    calendar.set(Calendar.MINUTE, m)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
+    calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
+    calendar.set(Calendar.YEAR, event.day / 10000)
+    return calendar
+}
+
+private fun updateEvent(updated: Event) {
+    event = updated
+    viewModel.selectEvent(event)
 }

@@ -1,10 +1,11 @@
 package com.example.partyapp
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,8 +17,8 @@ import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Place
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -69,6 +70,17 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class PartyApp : Application(){
     val database by lazy { PartyAppDB.getDatabase(this) }
+
+    override fun onCreate() {
+        super.onCreate()
+        val notificationChannel = NotificationChannel(
+            "notification_channel_id",
+            "Notification name",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
 }
 
 sealed class AppScreen(val name: String){
@@ -105,13 +117,7 @@ fun BottomAppBar(
     var selectedIcon = Icons.Outlined.Clear
     var unselectedIcon = Icons.Filled.Clear
     Column {
-        Row(
-            modifier = Modifier.padding(30.dp, 0.dp, 30.dp, 0.dp)
-        ) {
-            Divider(
-                color = Color.White
-            )
-        }
+        HorizontalDivider(color = Color.White, modifier = Modifier.padding(30.dp, 0.dp, 30.dp, 0.dp))
         NavigationBar(
             containerColor = Color.Transparent,
             contentColor = Color.Transparent
@@ -251,7 +257,7 @@ private fun NavigationGraph(
     settings = settingsViewModel
     val users = userViewModel.users.collectAsState(initial = listOf())
     if (userViewModel.loggedUser == null && session != "" && session != "default") {
-        var current = users.value.find { it.username == session }
+        val current = users.value.find { it.username == session }
         current?.let { userViewModel.selectUser(it) }
     }
 
@@ -349,10 +355,8 @@ private fun NavigationGraph(
                 session = session,
                 eventViewModel = eventViewModel,
                 userViewModel = userViewModel,
-                onSaveEvent = {},
-                onAddEventClicked = {},
                 onBackToPrevPage = {
-                    navController.navigate(AppScreen.Manage.name) {
+                    navController.navigate(homeScreens[homeTabIndex]) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 }

@@ -9,8 +9,6 @@ import com.example.partyapp.data.repository.EventRepository
 import com.example.partyapp.data.repository.UserAddEventRepository
 import com.example.partyapp.data.repository.UserScansEventRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,7 +34,11 @@ class EventViewModel @Inject constructor(
         }
     }
 
-
+    fun deleteEvent(eventId: Int) {
+        viewModelScope.launch {
+            eRepository.deleteEvent(eventId)
+        }
+    }
 
 // EVENT ADDED
 

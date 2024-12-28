@@ -76,7 +76,7 @@ fun PartyTextField(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
-            textColor = Color.White
+            focusedTextColor = Color.White, unfocusedTextColor = Color.White
         ),
         shape = RoundedCornerShape(cornerSize),
         singleLine = singleLine,

@@ -27,4 +27,9 @@ class EventRepository (private val eventDAO: EventDAO){
     suspend fun insertNewEvent(event: Event){
         eventDAO.insertNewEvent(event)
     }
+
+    @WorkerThread
+    suspend fun deleteEvent(eventId: Int){
+        eventDAO.deleteEvent(eventId)
+    }
 }
