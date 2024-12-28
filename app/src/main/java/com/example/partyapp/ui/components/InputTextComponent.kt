@@ -56,8 +56,6 @@ fun PartyTextField(
     } else if (textType == TextFieldType.NUMBER) {
         kType = KeyboardType.Number
     }
-
-
     TextField(
         value = value,
         onValueChange = { newValue ->
@@ -71,12 +69,17 @@ fun PartyTextField(
         },
         label = { Text(placeholder, color = Color.White) },
         leadingIcon = leadingIcon,
-        colors = TextFieldDefaults.textFieldColors(
-            containerColor = Color.hsl(0f, 0f, 1f, 0.15f),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.hsl(0f, 0f, 1f, 0.15f),
+            unfocusedContainerColor = Color.hsl(0f, 0f, 1f, 0.15f),
+            disabledContainerColor = Color.hsl(0f, 0f, 1f, 0.15f),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
-            focusedTextColor = Color.White, unfocusedTextColor = Color.White
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            disabledTextColor =  Color.White
+
         ),
         shape = RoundedCornerShape(cornerSize),
         singleLine = singleLine,
