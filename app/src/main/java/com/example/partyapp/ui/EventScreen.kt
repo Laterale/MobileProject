@@ -2,7 +2,6 @@ package com.example.partyapp.ui
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -64,6 +63,8 @@ import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
 import com.example.partyapp.ui.components.TextButton
+import com.example.partyapp.ui.theme.Glass10
+import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
@@ -301,8 +302,8 @@ private fun EventDescription(modifier: Modifier = Modifier) {
         } else {
             OutlinedCard(
                 modifier = Modifier.fillMaxSize(),
-                colors = CardDefaults.cardColors(Color.hsl(0f, 0f, 1f, 0.10f)),
-                border = BorderStroke(1.dp, Color.hsl(0f, 0f, 1f, 0.20f)),
+                colors = CardDefaults.cardColors(Glass10),
+                border = BorderStroke(1.dp, Glass20)
             ) {
                 Text(
                     text = event.description,
@@ -435,9 +436,7 @@ private fun SaveDiscardBtns(
     )
     TextButton(
         text = "Save",
-        onClick = {
-            saveNewEvent(context, eventViewModel, events, onBackToPrevPage)
-        },
+        onClick = { saveNewEvent(context, eventViewModel, events, onBackToPrevPage) },
         modifier = Modifier.fillMaxWidth()
     )
 }
@@ -498,7 +497,7 @@ private fun addParticipation(eventViewModel: EventViewModel) {
 private fun addNotification(context: Context) {
     val scheduler = NotificationScheduler()
     val calendar = getEventDateTime()
-    Log.d("DELAYED_NOTIF", "test notifica ${calendar.time}")
+    //Log.d("DELAYED_NOTIF", "test notifica ${calendar.time}")
     scheduler.scheduleNotification(
         context = context,
         scheduledDate = calendar,

@@ -1,11 +1,11 @@
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Geocoder
+import android.location.Location
+import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
-import android.location.Location
-import android.util.Log
 import java.util.Locale
 
 class LocationHelper(context: Context) {

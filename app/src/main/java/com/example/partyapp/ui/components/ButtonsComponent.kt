@@ -15,7 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.partyapp.ui.theme.GetDefaultButtonColors
+import com.example.partyapp.ui.theme.getDefaultButtonColors
 
 @Composable
 fun AddButton(
@@ -50,7 +50,7 @@ fun TextButton(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(cornerRadius),
-        colors = GetDefaultButtonColors(),
+        colors = getDefaultButtonColors(),
         enabled = enabled
     ) {
         Text(text = text, color = textColor)
