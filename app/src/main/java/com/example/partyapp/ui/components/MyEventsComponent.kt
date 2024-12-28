@@ -1,6 +1,5 @@
 package com.example.partyapp.ui.components
 
-import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -30,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.EventFactory
-import com.example.partyapp.ui.EventCard
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 
