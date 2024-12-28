@@ -51,7 +51,6 @@ import java.io.File
 val labelGray: Color = Color(0x80FFFFFF)
 var user: User? = null;
 
-
 @Composable
 fun ProfileScreen(
     onEventClicked: ()->Unit,
@@ -61,54 +60,53 @@ fun ProfileScreen(
     session: String,
 ) {
     SetCurrentUser(userViewModel, session)
-    /*
-    val context = LocalContext.current
-    val users by userViewModel.users.collectAsState(initial = listOf())
-    val currentTheme = settingsViewModel.theme.collectAsState(initial = "Light").value
-    if(users.isNotEmpty() || userViewModel.loggedUser != null) {
-        val loggedUser = if (userViewModel.loggedUser == null)
-            users.find { it.username == session }!! else userViewModel.loggedUser!!*/
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Transparent)
-                .padding(30.dp, 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Transparent)
+            .padding(30.dp, 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        IconButton(
+            modifier = Modifier.align(Alignment.Start),
+            onClick = { onSettingsClicked() }
         ) {
-            IconButton(
-                modifier = Modifier.align(Alignment.Start),
-                onClick = { onSettingsClicked() }
-            ) {
-                Icon(
-                    Icons.Filled.Settings,
-                    contentDescription = "Settings",
-                    tint = Color.White
-                )
-            }
-            UserProfilePic(userViewModel)
-            Text(text = user?.username ?: "Username", style = Typography.bodyMedium)
-            CityNameDisplay()
-            XpBar()
-            HorizontalDivider(
-                color = Color.White
+            Icon(
+                Icons.Filled.Settings,
+                contentDescription = "Settings",
+                tint = Color.White
             )
         }
-    /*}*/
-}
-
-@Composable
-fun SetCurrentUser(userViewModel: UserViewModel, session: String) {
-    val users by userViewModel.users.collectAsState(initial = listOf())
-    if (user == null && users.isNotEmpty()) {
-        user = if (userViewModel.loggedUser != null) userViewModel.loggedUser
-        else if (session != "") users.find { it.username == session }
-        else users.first()
+        UserProfilePic(userViewModel)
+        Text(text = user?.username ?: "Username", style = Typography.bodyMedium)
+        CityNameDisplay()
+        XpBar()
+        HorizontalDivider(
+            color = Color.White
+        )
     }
 }
 
 @Composable
-fun XpBar() {
+private fun SetCurrentUser(userViewModel: UserViewModel, session: String) {
+    val users by userViewModel.users.collectAsState(initial = listOf())
+    if (!isLoggedUser(userViewModel, session)) {
+        user = if (userViewModel.loggedUser != null)
+            userViewModel.loggedUser
+        else if (users.isNotEmpty()) {
+            users.find { it.username == session }
+        } else users.first()
+    }
+}
+
+private fun isLoggedUser(userViewModel: UserViewModel, session: String): Boolean {
+    return if (user == null) false
+    else if (userViewModel.loggedUser != null) user?.username == userViewModel.loggedUser?.username
+    else user?.username == session
+}
+
+@Composable
+private fun XpBar() {
     Row(
         modifier = Modifier.padding(0.dp,15.dp,0.dp,30.dp)
     ) {
@@ -122,7 +120,7 @@ fun XpBar() {
 }
 
 @Composable
-fun UserProfilePic(userViewModel: UserViewModel) {
+private fun UserProfilePic(userViewModel: UserViewModel) {
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     val setImg: (Uri, String) -> Unit = { uri, path ->
         photoUri = uri
@@ -154,7 +152,7 @@ fun UserProfilePic(userViewModel: UserViewModel) {
 }
 
 @Composable
-fun AddImageBtn(
+private fun AddImageBtn(
     onImageChosen: (Uri, String) -> Unit,
     modifier: Modifier
 ) {
@@ -217,7 +215,7 @@ fun AddImageBtn(
 }
 
 @Composable
-fun CityNameDisplay() {
+private fun CityNameDisplay() {
     val context = LocalContext.current
     val helper = LocationHelper(context)
     var cityName: String?  by remember { mutableStateOf(null) }
