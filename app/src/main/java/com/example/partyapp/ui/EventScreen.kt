@@ -1,7 +1,6 @@
 package com.example.partyapp.ui
 
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -53,8 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
-import com.example.partyapp.ui.theme.Glass10
-import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserAddEventCrossRef
@@ -63,12 +60,12 @@ import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
-import com.example.partyapp.ui.theme.GetDefaultButtonColors
+import com.example.partyapp.ui.theme.Glass10
+import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.ui.theme.Typography
+import com.example.partyapp.ui.theme.getDefaultButtonColors
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import java.io.File
 
 val factory = EventFactory()
@@ -398,7 +395,7 @@ fun SaveDiscardBtns(
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
         shape = RoundedCornerShape(15.dp),
-        colors = GetDefaultButtonColors(),
+        colors = getDefaultButtonColors(),
     ) {
         Text(text = "Discard", color = Color.White)
     }
@@ -417,7 +414,7 @@ fun SaveDiscardBtns(
         },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
-        colors = GetDefaultButtonColors(),
+        colors = getDefaultButtonColors(),
     ) {
         Text(text = "Save", color = Color.White)
     }
@@ -438,7 +435,7 @@ fun AddEventButton(
         onClick = { addPartecipation(eventViewModel) },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
-        colors = GetDefaultButtonColors(),
+        colors = getDefaultButtonColors(),
         enabled = !wasAddedByCurrentUser
     ) {
         if (wasAddedByCurrentUser) {

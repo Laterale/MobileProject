@@ -3,9 +3,9 @@ package com.example.partyapp.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults.buttonColors
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.example.partyapp.DARK_THEME
-import com.example.partyapp.LIGHT_THEME
 import com.example.partyapp.data.UserSettings
 
 private val DarkColorScheme = darkColorScheme(
@@ -45,6 +44,14 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
     */
 )
+
+@Composable
+fun getDefaultButtonColors(): ButtonColors {
+    return buttonColors(
+        backgroundColor = Glass10,
+        disabledBackgroundColor = Glass10
+    )
+}
 
 @Composable
 fun getColorScheme(

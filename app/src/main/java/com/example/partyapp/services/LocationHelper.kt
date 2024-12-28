@@ -1,11 +1,11 @@
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Geocoder
+import android.location.Location
+import android.util.Log
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
-import android.location.Location
-import android.util.Log
 import java.util.Locale
 
 class LocationHelper(context: Context) {
@@ -27,7 +27,7 @@ class LocationHelper(context: Context) {
             val geocoder = Geocoder(context, Locale.getDefault())
             val addresses = geocoder.getFromLocation(latitude, longitude, 1)
             if (addresses?.isNotEmpty() == true) {
-                addresses?.get(0)?.locality // This returns the city name
+                addresses[0]?.locality // This returns the city name
             } else {
                 null
             }

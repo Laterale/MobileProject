@@ -1,8 +1,6 @@
 package com.example.partyapp.ui
 
 import LocationHelper
-import android.location.Location
-import android.util.Log
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -29,7 +27,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,8 +41,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.data.entity.User
-import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.services.ImageChooserService
+import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
@@ -228,7 +225,7 @@ fun CityNameDisplay() {
     PermissionsHelper(context).RequestLocationPermission {
         helper.getCurrentLocation { loc ->
             if (loc != null) {
-                cityName = helper.getCityName(context, loc!!.latitude, loc!!.longitude)
+                cityName = helper.getCityName(context, loc.latitude, loc.longitude)
             } else {
                 cityName = null
             }

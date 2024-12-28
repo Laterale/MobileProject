@@ -30,7 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -43,12 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.partyapp.data.PartyAppDB
-import dagger.hilt.android.HiltAndroidApp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.partyapp.data.PartyAppDB
 import com.example.partyapp.ui.EventScreen
 import com.example.partyapp.ui.ExploreScreen
 import com.example.partyapp.ui.LoadingScreen
@@ -62,6 +63,7 @@ import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import dagger.hilt.android.HiltAndroidApp
 
 
 @HiltAndroidApp
