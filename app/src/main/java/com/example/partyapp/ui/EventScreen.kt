@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
@@ -65,18 +64,19 @@ import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
 import com.example.partyapp.ui.components.TextButton
-import com.example.partyapp.ui.theme.GetDefaultButtonColors
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import java.io.File
+import java.time.ZoneId
 import java.util.Calendar
-import java.util.Date
 
 private val factory = EventFactory()
 private var event: Event = factory.createEmpty()
 private lateinit var loggedUser: User
 private var isEditing: Boolean = false
+private var selectedDateNumber: Int = 0
+private const val BASE_DATE_INT = 1000_00_00
 
 @Composable
 fun EventScreen(
@@ -316,11 +316,11 @@ private fun EventDescription(modifier: Modifier = Modifier) {
     }
 }
 
-private fun dateToStr(date: Date): String {
-    return date.toGMTString()
-        .split(" ")
-        .take(3)
-        .reduce {acc, s -> "$acc $s" }
+private fun dateToStr(date: Calendar): String {
+    return date.time.toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .toString()
 }
 
 @Preview
@@ -337,22 +337,27 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
             tint = Color.White
         )
         if (isEditingMode()) {
-            var date: String by remember { mutableStateOf(dateToStr(Date())) }
+            val calendar = Calendar.getInstance()
+            if (event.day < BASE_DATE_INT) {
+                event = event.copy(day = calendar.get(Calendar.YEAR) * 10000
+                        + calendar.get(Calendar.MONTH) * 100
+                        + calendar.get(Calendar.DAY_OF_MONTH)
+                )
+                selectedDateNumber = event.day
+            }
+            var date: String by remember { mutableStateOf(dateToStr(getEventDateTime())) }
             PartyDatePickerComponent(
                 text = date,
                 onDatePicked = { year, month, day ->
-                    val calendar = Calendar.getInstance()
-                        .apply { set(year, month, day) }
-                    date = dateToStr(calendar.time)
+                    calendar.apply { set(year, month, day) }
+                    date = dateToStr(calendar)
                     event = event.copy(day = year * 10000 + month * 100 + day)
+                    selectedDateNumber = event.day
                 }
             )
         } else {
-            val calendar = getEventDate()
-            Text(
-                text = dateToStr(calendar.time),
-                color = Color.White
-            )
+            val calendar = getEventDateTime()
+            Text(text = dateToStr(calendar),color = Color.White)
         }
     }
 }
@@ -431,8 +436,7 @@ private fun SaveDiscardBtns(
     TextButton(
         text = "Save",
         onClick = {
-            saveNewEvent(context, eventViewModel, events)
-            onBackToPrevPage()
+            saveNewEvent(context, eventViewModel, events, onBackToPrevPage)
         },
         modifier = Modifier.fillMaxWidth()
     )
@@ -493,11 +497,7 @@ private fun addParticipation(eventViewModel: EventViewModel) {
 
 private fun addNotification(context: Context) {
     val scheduler = NotificationScheduler()
-    val calendar = getEventDate()
-    val (h, m) = event.starts.split(":").map { it.toInt() }
-    calendar.set(Calendar.HOUR_OF_DAY, h)
-    calendar.set(Calendar.MINUTE, m)
-
+    val calendar = getEventDateTime()
     Log.d("DELAYED_NOTIF", "test notifica ${calendar.time}")
     scheduler.scheduleNotification(
         context = context,
@@ -511,7 +511,10 @@ private fun checkEventValid() {
     if (event.name.isEmpty()) {
         throw IllegalStateException("Event name cannot be empty")
     }
-    if (getEventDate().before(Calendar.getInstance())) {
+    if (event.day < BASE_DATE_INT && selectedDateNumber != 0) {
+        event = event.copy(day = selectedDateNumber)
+    }
+    if (getEventDateTime().before(Calendar.getInstance())) {
         throw IllegalStateException("Event date cannot be in the past")
     }
 }
@@ -519,20 +522,22 @@ private fun checkEventValid() {
 private fun saveNewEvent(
     context: Context,
     eventViewModel: EventViewModel,
-    events: List<Event>
+    events: List<Event>,
+    onBackToPrevPage: () -> Unit = {}
 ) {
     try {
+        checkEventValid()
         val newID = events.map { it.eventId }
             .ifEmpty { listOf(0) }
             .max()
             .plus(1)
         event = event.copy(eventId = newID)
-        checkEventValid()
         eventViewModel.createNewEvent(event)
         addParticipation(eventViewModel)
         addNotification(context = context)
+        onBackToPrevPage()
     } catch (ex: Exception) {
-        Toast.makeText(context, ex.toString(), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, ex.message, Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -548,8 +553,12 @@ private fun isCreatedByCurrentUser(): Boolean {
     return event.creator.username == loggedUser.username
 }
 
-private fun getEventDate(): Calendar {
+private fun getEventDateTime(): Calendar {
     val calendar = Calendar.getInstance()
+    val (h, m) = event.starts.split(":").map { it.toInt() }
+    calendar.set(Calendar.HOUR_OF_DAY, h)
+    calendar.set(Calendar.MINUTE, m)
+    calendar.set(Calendar.SECOND, 0)
     calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
     calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
     calendar.set(Calendar.YEAR, event.day / 10000)
