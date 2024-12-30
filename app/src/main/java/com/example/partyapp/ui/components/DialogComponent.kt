@@ -21,8 +21,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.partyapp.R
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.ui.theme.Typography
 
@@ -56,7 +58,7 @@ fun PartyDialog(
                         modifier = Modifier.padding(2.dp), color = Color.Transparent
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close, contentDescription = "Close",
+                            imageVector = Icons.Default.Close, contentDescription = stringResource(id = R.string.close),
                             tint = Color.White
                         )
                     }

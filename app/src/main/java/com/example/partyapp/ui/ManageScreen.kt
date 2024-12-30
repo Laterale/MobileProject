@@ -12,8 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.partyapp.R
 import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.ui.components.MyEvents
 import com.example.partyapp.ui.theme.Typography
@@ -58,7 +60,7 @@ fun AddedEventsCards(
     }
     if (events.isEmpty()) {
         Text(
-            text = "No events added.",
+            text = stringResource(id = R.string.lbl_no_added_events),
             style = Typography.titleMedium,
             color = Color.Gray,
             textAlign = TextAlign.Center,
@@ -74,7 +76,7 @@ fun AddedEvents(
     userViewModel: UserViewModel
 ) {
     Text(
-        text = "Added events",
+        text = stringResource(id = R.string.added_events),
         style = Typography.titleMedium,
         modifier = Modifier.padding(5.dp, 15.dp, 5.dp, 15.dp)
     )

@@ -18,7 +18,7 @@ import com.example.partyapp.R
 fun PartyAppLogo(color: Color) {
     Icon(
         painter = painterResource(id = R.drawable.logo_icon),
-        contentDescription = "Logo",
+        contentDescription = stringResource(id = R.string.logo),
         tint = color,
         modifier = Modifier.size(80.dp)
     )

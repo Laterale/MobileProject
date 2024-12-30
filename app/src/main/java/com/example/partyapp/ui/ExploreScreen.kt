@@ -19,7 +19,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.partyapp.R
 import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
@@ -72,7 +74,7 @@ fun FiltersBar(){
         ) {
             Icon(
                 imageVector = Icons.Filled.CalendarMonth,
-                contentDescription = "Filters",
+                contentDescription = stringResource(id = R.string.filters),
                 tint = Color.White,
                 modifier = Modifier.fillMaxSize()
             )
@@ -82,7 +84,7 @@ fun FiltersBar(){
         ) {
             Icon(
                 imageVector = Icons.Filled.AreaChart,
-                contentDescription = "Filters",
+                contentDescription = stringResource(id = R.string.filters),
                 tint = Color.White,
                 modifier = Modifier.fillMaxSize()
             )

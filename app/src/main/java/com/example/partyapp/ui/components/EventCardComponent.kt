@@ -21,8 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.partyapp.R
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
@@ -55,7 +57,7 @@ fun EventCard(
                 Column(Modifier.fillMaxHeight().fillMaxWidth(0.25f)) {
                     AsyncImage(
                         model = user?.pfp ?: event.creator.pfp,
-                        contentDescription = "Creator pfp",
+                        contentDescription = stringResource(id = R.string.lbl_creator_pfp),
                         modifier = Modifier
                             .padding(10.dp, 9.dp)
                             .clip(CircleShape)
@@ -77,7 +79,7 @@ fun EventCard(
                 Column(modifier = Modifier.fillMaxHeight()) {
                     AsyncImage(
                         model = event.image,
-                        contentDescription = "event image",
+                        contentDescription = stringResource(id = R.string.lbl_event_image),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxHeight()

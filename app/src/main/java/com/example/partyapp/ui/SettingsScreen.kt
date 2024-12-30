@@ -23,9 +23,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.partyapp.DARK_THEME
 import com.example.partyapp.LIGHT_THEME
+import com.example.partyapp.R
 import com.example.partyapp.data.UserSettings
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
@@ -36,7 +38,7 @@ import com.example.partyapp.viewModel.UserViewModel
 
 var userSettings = UserSettings(
     useSystemTheme = false,
-    customTheme = "Light"
+    customTheme = LIGHT_THEME
 )
 
 @Composable
@@ -78,7 +80,7 @@ fun LogoutButton(
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = "Logout", style = Typography.bodyMedium)
+        Text(text = stringResource(id = R.string.logout), style = Typography.bodyMedium)
     }
 }
 
@@ -99,7 +101,7 @@ fun SystemThemeSetting(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = "Use system theme", color = Color.White)
+        Text(text = stringResource(id = R.string.lbl_set_sys_theme), color = Color.White)
         Switch(
             checked = checked, onCheckedChange = {
                 checked = it
@@ -132,7 +134,7 @@ fun ThemeSetting(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = "Dark mode", color = Color.White)
+        Text(text = stringResource(id = R.string.lbl_set_dark_theme), color = Color.White)
         Switch(
             checked = checked, onCheckedChange = {
                 checked = it

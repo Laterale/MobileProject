@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import com.example.partyapp.R
 import com.example.partyapp.services.PermissionsHelper
 import com.google.android.gms.maps.GoogleMap
@@ -61,8 +62,8 @@ fun ShowMapCenteredOn(location: LatLng) {
         }
         Marker(
             state = MarkerState(position = location),
-            title = "You",
-            snippet = "You are here."
+            title = stringResource(id = R.string.you),
+            snippet = stringResource(id = R.string.you_here)
         )
     }
 }

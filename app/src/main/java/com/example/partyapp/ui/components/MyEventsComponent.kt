@@ -24,11 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.partyapp.R
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.EventFactory
+import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 
@@ -43,7 +46,7 @@ fun MyEvents(
         .filter { it.creator.id == currentUser.id }
     Column(modifier = modifier.fillMaxWidth().padding(top = 20.dp)) {
         Text(
-            text = "Your events",
+            text = stringResource(id = R.string.your_events),
             style = Typography.titleMedium,
             modifier = Modifier.padding(horizontal = 5.dp)
         )
@@ -76,11 +79,11 @@ fun AddEvent(
             .width(80.dp)
             .fillMaxHeight()
             .clip(RoundedCornerShape(15.dp)),
-        colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
+        colors = IconButtonDefaults.iconButtonColors(Glass10)
     ) {
         Icon(
             imageVector = Icons.Filled.Add,
-            contentDescription = "Create new event",
+            contentDescription = stringResource(id = R.string.icon_add),
             tint = Color.White,
             modifier = Modifier.size(40.dp)
         )
@@ -99,11 +102,11 @@ fun EventThumbnail(
             .width(80.dp)
             .fillMaxHeight()
             .clip(RoundedCornerShape(15.dp)),
-        colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
+        colors = IconButtonDefaults.iconButtonColors(Glass10)
     ) {
         AsyncImage(
             model = event.image,
-            contentDescription = "event image",
+            contentDescription = stringResource(id = R.string.lbl_event_image),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()

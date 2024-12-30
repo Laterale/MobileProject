@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -128,7 +129,7 @@ private fun EventImage(modifier: Modifier = Modifier) {
     } else {
         AsyncImage(
             model = event.image,
-            contentDescription = "Event image",
+            contentDescription = stringResource(id = R.string.lbl_event_image),
             contentScale = ContentScale.Crop,
             modifier = modifier
                 .fillMaxWidth()
@@ -209,7 +210,7 @@ private fun EventDetails(modifier: Modifier = Modifier) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.AddLocation,
-                    contentDescription = "Location of the event",
+                    contentDescription = stringResource(id = R.string.lbl_event_location),
                     tint = Color.White
                 )
                 Text(text = event.location.city, color = Color.White)
@@ -224,7 +225,7 @@ private fun EventDetails(modifier: Modifier = Modifier) {
             ) {
                 Icon(
                     imageVector = Icons.Filled.Person,
-                    contentDescription = "Number of participants",
+                    contentDescription = stringResource(id = R.string.lbl_event_participants),
                     tint = Color.White
                 )
                 Text(text = event.participants.toString(), color = Color.White)
@@ -244,7 +245,7 @@ private fun EventTitle(modifier: Modifier = Modifier) {
                     title = it
                     updateEvent(event.copy(name = it))
                 },
-                placeholder = "Party Name",
+                placeholder = stringResource(id = R.string.lbl_event_name),
                 modifier = Modifier.fillMaxWidth()
             )
         } else {
@@ -270,7 +271,7 @@ private fun EventAuthor(modifier: Modifier = Modifier) {
     Row(modifier = modifier) {
         AsyncImage(
             model = event.creator.pfp,
-            contentDescription = "Profile picture of event creator",
+            contentDescription = stringResource(id = R.string.lbl_creator_pfp),
             modifier = Modifier
                 .size(pfpSize)
                 .clip(CircleShape)
@@ -299,7 +300,7 @@ private fun EventDescription(modifier: Modifier = Modifier) {
                     des = it
                     updateEvent(event.copy(description = it))
                 },
-                placeholder = "Description",
+                placeholder = stringResource(id = R.string.description),
                 modifier = Modifier.fillMaxSize()
             )
         } else {
@@ -337,7 +338,7 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
     ) {
         Icon(
             imageVector = Icons.Filled.CalendarMonth,
-            contentDescription = "Day of the event",
+            contentDescription = stringResource(id = R.string.lbl_event_day),
             tint = Color.White
         )
         if (isEditingMode()) {
@@ -374,7 +375,7 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
     ) {
         Icon(
             imageVector = Icons.Filled.AccessTime,
-            contentDescription = "Time of the event",
+            contentDescription = stringResource(id = R.string.lbl_event_time),
             tint = Color.White
         )
         if (isEditingMode()) {
@@ -431,12 +432,12 @@ private fun SaveDiscardBtns(
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
     TextButton(
-        text = "Discard",
+        text = stringResource(id = R.string.discard),
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
     )
     TextButton(
-        text = "Save",
+        text = stringResource(id = R.string.save),
         onClick = { saveNewEvent(context, eventViewModel, events, onBackToPrevPage) },
         modifier = Modifier.fillMaxWidth()
     )
@@ -454,7 +455,8 @@ private fun AddEventButton(
         .map { it.id }
         .contains(loggedUser.id)
     TextButton(
-        text = if (wasAddedByCurrentUser) "Added" else "Add",
+        text = if (wasAddedByCurrentUser) stringResource(id = R.string.add)
+               else stringResource(id = R.string.add),
         textColor = if (wasAddedByCurrentUser) Color.Gray else Color.White,
         onClick = {
             addParticipation(eventViewModel)
@@ -473,7 +475,7 @@ private fun DeleteEventButton(
     val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
         .collectAsState(initial = listOf())
     TextButton(
-        text = "Delete",
+        text = stringResource(id = R.string.delete),
         textColor = Color.Red,
         onClick = {
             participants.value.forEach { participant ->

@@ -38,8 +38,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.partyapp.R
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
@@ -73,12 +75,12 @@ fun ProfileScreen(
         ) {
             Icon(
                 Icons.Filled.Settings,
-                contentDescription = "Settings",
+                contentDescription = stringResource(id = R.string.settings),
                 tint = Color.White
             )
         }
         UserProfilePic(userViewModel)
-        Text(text = user?.username ?: "Username", style = Typography.bodyMedium)
+        Text(text = user?.username ?: stringResource(id = R.string.username), style = Typography.bodyMedium)
         CityNameDisplay()
         XpBar()
         HorizontalDivider(
@@ -136,7 +138,7 @@ private fun UserProfilePic(userViewModel: UserViewModel) {
         }
         AsyncImage(
             model = photoUri,
-            contentDescription = "Profile image",
+            contentDescription = stringResource(id = R.string.lbl_user_pfp),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(130.dp)
@@ -157,6 +159,7 @@ private fun AddImageBtn(
     modifier: Modifier
 ) {
     val context = LocalContext.current
+    val errPermDenied = stringResource(id = R.string.err_perm_denied)
     val imgChooser = ImageChooserService()
     var showDialog: Boolean by remember { mutableStateOf(false) }
     var tempPhotoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
@@ -188,7 +191,7 @@ private fun AddImageBtn(
             cameraLauncher.launch(tempPhotoUri)
         }
         else {
-            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, errPermDenied, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -200,7 +203,7 @@ private fun AddImageBtn(
     ) {
         Icon(
             imageVector = Icons.Filled.AddAPhoto,
-            contentDescription = "Edit profile",
+            contentDescription = stringResource(id = R.string.icon_add),
             tint = Color.Black,
             modifier = Modifier.size(20.dp)
         )
@@ -233,7 +236,8 @@ private fun CityNameDisplay() {
     Row {
         Icon(
             imageVector = if (cityName != null) Icons.Filled.LocationOn else Icons.Filled.LocationOff,
-            contentDescription = if (cityName != null) "Location marker enabled" else "Location marker disabled",
+            contentDescription = if (cityName != null) stringResource(id = R.string.user_location)
+                                 else stringResource(id = R.string.no_location),
             tint = labelGray,
             modifier = Modifier
                 .size(20.dp)
@@ -241,7 +245,8 @@ private fun CityNameDisplay() {
         )
         Spacer(modifier = Modifier.size(5.dp))
         Text(
-            text = if (cityName != null) cityName.toString() else "No location",
+            text = if (cityName != null) cityName.toString()
+                   else stringResource(id = R.string.no_location),
             style = Typography.labelMedium
         )
     }

@@ -18,9 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.example.partyapp.BuildConfig
+import com.example.partyapp.R
 import com.example.partyapp.ui.components.PartyDialog
 import java.io.File
 import java.text.SimpleDateFormat
@@ -36,7 +38,7 @@ class ImageChooserService {
         onDismissRequest: () -> Unit
     ) {
         this.ShowChooseImageDialog(
-            title = "Choose new profile picture",
+            title = stringResource(id = R.string.choose_pfp),
             onPickImage = {
                 imagePickerLauncher.launch(PickVisualMediaRequest(
                     mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
@@ -63,7 +65,7 @@ class ImageChooserService {
                 },
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                 color = Color.Transparent
-            ) { Text("Take a picture", color = Color.White) }
+            ) { Text(stringResource(id = R.string.take_pic), color = Color.White) }
             Surface(
                 onClick = {
                     onPickImage.invoke()
@@ -71,7 +73,7 @@ class ImageChooserService {
                 },
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                 color = Color.Transparent
-            ) { Text("Choose from gallery", color = Color.White) }
+            ) { Text(stringResource(id = R.string.choose_image), color = Color.White) }
         }, onDismissRequest)
     }
 
