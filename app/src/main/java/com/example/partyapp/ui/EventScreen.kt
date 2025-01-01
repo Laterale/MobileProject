@@ -200,7 +200,7 @@ private fun AddEventImageBtn(
 @Preview
 @Composable
 private fun EventDetails(modifier: Modifier = Modifier) {
-    EventLocationDetail()
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -208,19 +208,7 @@ private fun EventDetails(modifier: Modifier = Modifier) {
         modifier = modifier,
     ) {
         item { EventDateDetail() }
-        item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AddLocation,
-                    contentDescription = stringResource(id = R.string.lbl_event_location),
-                    tint = Color.White
-                )
-                Text(text = event.location.city, color = Color.White)
-            }
-        }
+        item { EventLocationDetail() }
         item { EventTimeDetail() }
         item {
             Row(
@@ -414,35 +402,39 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
 private fun EventLocationDetail() {
     val chooseLocation = stringResource(id = R.string.choose_location)
     val context = LocalContext.current
-    val geocoder = Geocoder(context)
     var displayedText by remember { mutableStateOf(chooseLocation) }
-
-    if (isEditingMode()) {
-        LocationPickerDialogButton(
-            text = displayedText,
-            onLocationPicked = { address ->
-                setLocationFromAddress(address)
-                displayedText = getEventLocationString(geocoder)
-            }
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.AddLocation,
+            contentDescription = stringResource(id = R.string.lbl_event_location),
+            tint = Color.White
         )
-    } else {
-        displayedText = getEventLocationString(geocoder)
-        Text(text = displayedText, color = Color.White)
+        if (isEditingMode()) {
+            LocationPickerDialogButton(
+                text = displayedText,
+                onLocationPicked = { address ->
+                    updateEvent(event.copy(location = LocationDetails(
+                        latitude = address.latitude,
+                        longitude = address.longitude,
+                        state = address.countryName,
+                        city = address.locality,
+                        street = "${address.thoroughfare}, ${address.subThoroughfare}"
+                    )))
+                    displayedText = getEventLocationString(context)
+                }
+            )
+        } else {
+            displayedText = getEventLocationString(context)
+            Text(text = displayedText, color = Color.White)
+        }
     }
 }
 
-private fun setLocationFromAddress(address: Address) {
-    event = event.copy(location = LocationDetails(
-        latitude = address.latitude,
-        longitude = address.longitude,
-        state = address.countryName,
-        city = address.locality,
-        street = "${address.thoroughfare}, ${address.subThoroughfare}"
-    ))
-    address.getAddressLine(0)
-}
-
-private fun getEventLocationString(geocoder: Geocoder): String {
+private fun getEventLocationString(context: Context): String {
+    val geocoder = Geocoder(context)
     val addresses: MutableList<Address>? = geocoder.getFromLocation(event.location.latitude, event.location.longitude, 1)
     if (event.location.city != "" && !addresses.isNullOrEmpty()) {
         return addresses[0].getAddressLine(0)
