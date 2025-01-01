@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.partyapp.ui.theme.Glass10
 import java.util.Calendar
 
 @Composable
@@ -29,7 +30,7 @@ fun PartyTimePickerComponent(
     )
     Button(
         onClick = { tp.show() },
-        colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+        colors = buttonColors(Glass10),
         contentPadding = PaddingValues(0.dp),
         modifier = modifier
 //            .border(
