@@ -6,6 +6,7 @@ import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.partyapp.R
 import com.example.partyapp.services.PermissionsHelper
+import com.example.partyapp.viewModel.EventViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -22,12 +24,13 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
-fun MapScreen() {
+fun MapScreen(eventViewModel: EventViewModel) {
     val singapore = LatLng(1.35, 103.87)
     val context = LocalContext.current
     var location: Location? by remember { mutableStateOf(null) }
@@ -38,19 +41,27 @@ fun MapScreen() {
         }
     }
 
-    if (location != null) {
-        ShowMapCenteredOn(location = LatLng(location!!.latitude, location!!.longitude))
-    } else {
-        ShowMapCenteredOn(location = singapore)
-    }
+    ShowMapCenteredOn(
+        location = if (location != null) {
+            LatLng(location!!.latitude, location!!.longitude)
+        } else {
+            singapore
+        },
+        eventViewModel = eventViewModel
+    )
 }
 
+@OptIn(MapsComposeExperimentalApi::class)
 @Composable
-fun ShowMapCenteredOn(location: LatLng) {
+fun ShowMapCenteredOn(
+    location: LatLng,
+    eventViewModel: EventViewModel
+) {
     val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(location, 10f)
     }
+    val events = eventViewModel.events.collectAsState(initial = listOf())
     MapUiSettings(zoomControlsEnabled = true)
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
@@ -63,8 +74,16 @@ fun ShowMapCenteredOn(location: LatLng) {
         Marker(
             state = MarkerState(position = location),
             title = stringResource(id = R.string.you),
-            snippet = stringResource(id = R.string.you_here)
+            snippet = stringResource(id = R.string.you_here),
         )
+        events.value.forEach { event ->
+            if (event.location.latitude == 0.0 && event.location.longitude == 0.0) return@forEach
+            Marker(
+                state = MarkerState(position = LatLng(event.location.latitude, event.location.longitude)),
+                title = event.name,
+                snippet = event.description,
+            )
+        }
     }
 }
 
