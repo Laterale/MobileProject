@@ -61,6 +61,7 @@ import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
+import com.example.partyapp.ui.components.LocationPicker
 import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
@@ -196,6 +197,7 @@ private fun AddEventImageBtn(
 @Preview
 @Composable
 private fun EventDetails(modifier: Modifier = Modifier) {
+    EventLocationDetail()
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -403,6 +405,11 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
             )
         }
     }
+}
+
+@Composable
+private fun EventLocationDetail() {
+    LocationPicker(onLocationPicked = { })
 }
 
 @Composable

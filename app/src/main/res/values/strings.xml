@@ -8,10 +8,13 @@
     <string name="choose_image">Choose from gallery</string>
     <string name="choose_pfp">Choose new profile picture</string>
     <string name="close">Close</string>
+    <string name="confirm">Confirm</string>
     <string name="delete">Delete</string>
     <string name="description">Description</string>
     <string name="discard">Discard</string>
     <string name="email">Email</string>
+    <string name="err_address_not_found">Address not found</string>
+    <string name="err_no_address">Please specify an address</string>
     <string name="err_perm_denied">Permissions denied</string>
     <string name="err_try_again">An error occurred. Please try again.</string>
     <string name="err_username_taken">Username already taken</string>
@@ -21,6 +24,7 @@
     <string name="icon_email">Email icon</string>
     <string name="icon_pwd">Password icon</string>
     <string name="icon_user">User icon</string>
+    <string name="lbl_city_address">City or address</string>
     <string name="lbl_creator_pfp">Event creator\'s profile picture</string>
     <string name="lbl_event_day">Event date</string>
     <string name="lbl_event_image">Event image</string>
@@ -43,6 +47,7 @@
     <string name="profile">Profile</string>
     <string name="register">Register</string>
     <string name="save">Save</string>
+    <string name="search">Search</string>
     <string name="settings">Settings</string>
     <string name="take_pic">Take a picture</string>
     <string name="username">Username</string>
