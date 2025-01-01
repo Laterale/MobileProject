@@ -56,7 +56,13 @@ fun AddedEventsCards(
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
         .filter { added.contains(it.eventId) && it.creator.id != userViewModel.loggedUser!!.id }
     for (event in events) {
-        EventCard(onEventClicked, eventViewModel, userViewModel, event)
+        EventCard(
+            onEventClicked,
+            eventViewModel,
+            userViewModel,
+            event,
+            modifier = Modifier.padding(top = 20.dp)
+        )
     }
     if (events.isEmpty()) {
         Text(

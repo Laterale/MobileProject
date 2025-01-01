@@ -1,13 +1,13 @@
 package com.example.partyapp.ui
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AreaChart
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -36,27 +36,27 @@ fun ExploreScreen(
     locationViewModel: LocationViewModel,
     session: String
 ){
+    val events = eventViewModel.events.collectAsState(initial = listOf()).value
     Column(
         Modifier
             .fillMaxSize()
             .padding(30.dp, 10.dp, 30.dp, 0.dp)) {
         FiltersBar()
         HorizontalDivider(color = Color.White)
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Transparent)
-                .verticalScroll(ScrollState(0)),
+                .background(Color.Transparent),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val events = eventViewModel.events.collectAsState(initial = listOf()).value
-            for(event in events) {
-                EventCard(onEventClicked, eventViewModel, userViewModel, event)
-            }
-            Row(
-                modifier = Modifier.padding(0.dp, 20.dp,0.dp, 0.dp)
-            ){
-
+            items(events) { event ->
+                EventCard(
+                    onEventClicked,
+                    eventViewModel,
+                    userViewModel,
+                    event,
+                    modifier = Modifier.padding(top = 20.dp)
+                )
             }
         }
     }

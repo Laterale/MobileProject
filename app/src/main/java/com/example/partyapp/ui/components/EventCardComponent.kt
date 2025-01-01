@@ -36,11 +36,12 @@ fun EventCard(
     onEventClicked: () -> Unit,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    event: Event
+    event: Event,
+    modifier: Modifier = Modifier
 ) {
     val user = userViewModel.users.collectAsState(initial = listOf())
         .value.find { it.username == event.creator.username }
-    Row(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp).height(80.dp)) {
+    Row(modifier = modifier.height(80.dp)) {
         OutlinedCard(
             modifier = Modifier.fillMaxSize(),
             colors = CardDefaults.cardColors(Glass10),
