@@ -1,6 +1,8 @@
 package com.example.partyapp.ui
 
 import android.content.Context
+import android.location.Address
+import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -54,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.data.LocationDetails
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserAddEventCrossRef
@@ -61,7 +64,7 @@ import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
-import com.example.partyapp.ui.components.LocationPicker
+import com.example.partyapp.ui.components.LocationPickerDialogButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
@@ -409,7 +412,42 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
 
 @Composable
 private fun EventLocationDetail() {
-    LocationPicker(onLocationPicked = { })
+    val chooseLocation = stringResource(id = R.string.choose_location)
+    val context = LocalContext.current
+    val geocoder = Geocoder(context)
+    var displayedText by remember { mutableStateOf(chooseLocation) }
+
+    if (isEditingMode()) {
+        LocationPickerDialogButton(
+            text = displayedText,
+            onLocationPicked = { address ->
+                setLocationFromAddress(address)
+                displayedText = getEventLocationString(geocoder)
+            }
+        )
+    } else {
+        displayedText = getEventLocationString(geocoder)
+        Text(text = displayedText, color = Color.White)
+    }
+}
+
+private fun setLocationFromAddress(address: Address) {
+    event = event.copy(location = LocationDetails(
+        latitude = address.latitude,
+        longitude = address.longitude,
+        state = address.countryName,
+        city = address.locality,
+        street = "${address.thoroughfare}, ${address.subThoroughfare}"
+    ))
+    address.getAddressLine(0)
+}
+
+private fun getEventLocationString(geocoder: Geocoder): String {
+    val addresses: MutableList<Address>? = geocoder.getFromLocation(event.location.latitude, event.location.longitude, 1)
+    if (event.location.city != "" && !addresses.isNullOrEmpty()) {
+        return addresses[0].getAddressLine(0)
+    }
+    return ""
 }
 
 @Composable

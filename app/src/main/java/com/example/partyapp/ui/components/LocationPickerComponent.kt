@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -34,7 +32,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.partyapp.R
 import com.example.partyapp.ui.theme.Glass10
-import com.example.partyapp.ui.theme.getDefaultButtonColors
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -47,6 +44,32 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+
+@Composable
+fun LocationPickerDialogButton(
+    text: String,
+    onLocationPicked: (Address) -> Unit
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    TextButton(
+        text = text,
+        onClick = { showDialog = true }
+    )
+    if (showDialog) {
+        PartyDialog(
+            title = stringResource(id = R.string.choose_location),
+            content = {
+                Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 15.dp)) {
+                    LocationPicker(onLocationPicked = { address ->
+                        onLocationPicked(address)
+                        showDialog = false
+                    })
+                }
+            },
+            onDismissRequest = { showDialog = false }
+        )
+    }
+}
 
 @Composable
 fun LocationPicker(
@@ -76,8 +99,8 @@ fun LocationPicker(
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, zoom)
             }
         }
-        Button(
-            colors = getDefaultButtonColors(),
+        TextButton(
+            text = stringResource(id = R.string.confirm),
             onClick = {
                 val addresses: MutableList<Address>? = geocoder.getFromLocation(
                     cameraPositionState.position.target.latitude,
@@ -87,10 +110,8 @@ fun LocationPicker(
                 if (!addresses.isNullOrEmpty()) {
                     onLocationPicked(addresses[0])
                 }
-            },
-        ) {
-            Text(stringResource(id = R.string.confirm), color = Color.White)
-        }
+            }
+        )
     }
 }
 
@@ -115,7 +136,8 @@ private fun AddressSearch(
             modifier = Modifier.fillMaxWidth(0.8f)
         )
         IconButton(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .background(color = Glass10, shape = RoundedCornerShape(10.dp))
                 .padding(5.dp),
             //colors = iconButtonColors(Glass10),
