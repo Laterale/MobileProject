@@ -1,7 +1,11 @@
 package com.example.partyapp.services
 
+import android.content.Context
+import android.location.Address
+import android.location.Geocoder
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
+import java.time.ZoneId
 import java.util.Calendar
 
 class EventUtilities {
@@ -17,6 +21,23 @@ class EventUtilities {
         calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
         calendar.set(Calendar.YEAR, event.day / 10000)
         return calendar
+    }
+
+    fun getEventDateString(event: Event): String {
+        val date = getEventDateTime(event)
+        return date.time.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .toString()
+    }
+
+    fun getEventLocationString(context: Context, event: Event): String {
+        val geocoder = Geocoder(context)
+        val addresses: MutableList<Address>? = geocoder.getFromLocation(event.location.latitude, event.location.longitude, 1)
+        if (event.location.city != "" && !addresses.isNullOrEmpty()) {
+            return addresses[0].getAddressLine(0)
+        }
+        return ""
     }
     
     fun isEventCreatedBy(event: Event, user: User): Boolean {

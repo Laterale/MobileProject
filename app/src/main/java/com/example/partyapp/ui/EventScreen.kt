@@ -1,8 +1,6 @@
 package com.example.partyapp.ui
 
 import android.content.Context
-import android.location.Address
-import android.location.Geocoder
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -420,23 +418,14 @@ private fun EventLocationDetail() {
                         city = address.locality,
                         street = "${address.thoroughfare}, ${address.subThoroughfare}"
                     )))
-                    displayedText = getEventLocationString(context)
+                    displayedText = EventUtilities().getEventLocationString(context, event)
                 }
             )
         } else {
-            displayedText = getEventLocationString(context)
+            displayedText = EventUtilities().getEventLocationString(context, event)
             Text(text = displayedText, color = Color.White)
         }
     }
-}
-
-private fun getEventLocationString(context: Context): String {
-    val geocoder = Geocoder(context)
-    val addresses: MutableList<Address>? = geocoder.getFromLocation(event.location.latitude, event.location.longitude, 1)
-    if (event.location.city != "" && !addresses.isNullOrEmpty()) {
-        return addresses[0].getAddressLine(0)
-    }
-    return ""
 }
 
 @Composable
