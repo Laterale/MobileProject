@@ -306,7 +306,11 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Map.name) {
             MapScreen(
-
+                eventViewModel = eventViewModel,
+                userViewModel = userViewModel,
+                onEventMarkerClicked = {
+                    navController.navigate(AppScreen.Event.name)
+                }
             )
         }
         composable(route = AppScreen.Loading.name){

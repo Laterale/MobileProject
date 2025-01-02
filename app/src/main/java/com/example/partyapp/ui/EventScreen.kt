@@ -54,13 +54,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.data.LocationDetails
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserAddEventCrossRef
 import com.example.partyapp.services.EventFactory
+import com.example.partyapp.services.EventUtilities
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
+import com.example.partyapp.ui.components.LocationPickerDialogButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
@@ -80,7 +83,6 @@ private lateinit var loggedUser: User
 private lateinit var viewModel: EventViewModel
 private var isEditing: Boolean = false
 private var selectedDateNumber: Int = 0
-private const val BASE_DATE_INT = 1000_00_00
 
 @Composable
 fun EventScreen(
@@ -196,6 +198,7 @@ private fun AddEventImageBtn(
 @Preview
 @Composable
 private fun EventDetails(modifier: Modifier = Modifier) {
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -203,19 +206,7 @@ private fun EventDetails(modifier: Modifier = Modifier) {
         modifier = modifier,
     ) {
         item { EventDateDetail() }
-        item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AddLocation,
-                    contentDescription = stringResource(id = R.string.lbl_event_location),
-                    tint = Color.White
-                )
-                Text(text = event.location.city, color = Color.White)
-            }
-        }
+        item { EventLocationDetail() }
         item { EventTimeDetail() }
         item {
             Row(
@@ -343,12 +334,12 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
         )
         if (isEditingMode()) {
             val calendar = Calendar.getInstance()
-            if (event.day < BASE_DATE_INT) {
+            if (event.day < EventUtilities().BASE_DATE_INT) {
                 val dayValue = calendar.get(Calendar.YEAR) * 10000 + calendar.get(Calendar.MONTH) * 100 + calendar.get(Calendar.DAY_OF_MONTH)
                 updateEvent(event.copy(day = dayValue))
                 selectedDateNumber = event.day
             }
-            var date: String by remember { mutableStateOf(dateToStr(getEventDateTime())) }
+            var date: String by remember { mutableStateOf(dateToStr(EventUtilities().getEventDateTime(event))) }
             PartyDatePickerComponent(
                 text = date,
                 onDatePicked = { year, month, day ->
@@ -359,7 +350,7 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
                 }
             )
         } else {
-            val calendar = getEventDateTime()
+            val calendar = EventUtilities().getEventDateTime(event)
             Text(text = dateToStr(calendar),color = Color.White)
         }
     }
@@ -397,10 +388,42 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
                 }
             )
         } else {
-            Text(
-                text = event.starts + "-" + event.ends,
-                color = Color.White
+            Text(text = event.starts + "-" + event.ends, color = Color.White)
+        }
+    }
+}
+
+@Composable
+private fun EventLocationDetail() {
+    val chooseLocation = stringResource(id = R.string.choose_location)
+    val context = LocalContext.current
+    var displayedText by remember { mutableStateOf(chooseLocation) }
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.AddLocation,
+            contentDescription = stringResource(id = R.string.lbl_event_location),
+            tint = Color.White
+        )
+        if (isEditingMode()) {
+            LocationPickerDialogButton(
+                text = displayedText,
+                onLocationPicked = { address ->
+                    updateEvent(event.copy(location = LocationDetails(
+                        latitude = address.latitude,
+                        longitude = address.longitude,
+                        state = address.countryName,
+                        city = address.locality,
+                        street = "${address.thoroughfare}, ${address.subThoroughfare}"
+                    )))
+                    displayedText = EventUtilities().getEventLocationString(context, event)
+                }
             )
+        } else {
+            displayedText = EventUtilities().getEventLocationString(context, event)
+            Text(text = displayedText, color = Color.White)
         }
     }
 }
@@ -414,9 +437,9 @@ private fun Actions(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        if (!isCreatedByCurrentUser()) {
+        if (!EventUtilities().isEventCreatedBy(event, loggedUser)) {
             AddEventButton(eventViewModel)
-        } else if (isNewEvent()) {
+        } else if (EventUtilities().isNewEvent(event)) {
             SaveDiscardBtns(eventViewModel, onBackToPrevPage)
         } else {
             DeleteEventButton(eventViewModel, onBackToPrevPage)
@@ -499,7 +522,7 @@ private fun addParticipation(eventViewModel: EventViewModel) {
 
 private fun addNotification(context: Context) {
     val scheduler = NotificationScheduler()
-    val calendar = getEventDateTime()
+    val calendar = EventUtilities().getEventDateTime(event)
     Log.d("DELAYED_NOTIF", "Set notification: ${calendar.time}, ${event.name} ")
     scheduler.scheduleNotification(
         context = context,
@@ -509,18 +532,6 @@ private fun addNotification(context: Context) {
     )
 }
 
-private fun checkEventValid() {
-    if (event.name.isEmpty()) {
-        throw IllegalStateException("Event name cannot be empty")
-    }
-    if (event.day < BASE_DATE_INT && selectedDateNumber != 0) {
-        updateEvent(event.copy(day = selectedDateNumber))
-    }
-    if (getEventDateTime().before(Calendar.getInstance())) {
-        throw IllegalStateException("Event date cannot be in the past")
-    }
-}
-
 private fun saveNewEvent(
     context: Context,
     eventViewModel: EventViewModel,
@@ -528,7 +539,7 @@ private fun saveNewEvent(
     onBackToPrevPage: () -> Unit = {}
 ) {
     try {
-        checkEventValid()
+        EventUtilities().checkEventValid(event)
         val newID = events.map { it.eventId }
             .ifEmpty { listOf(0) }
             .max()
@@ -544,27 +555,7 @@ private fun saveNewEvent(
 }
 
 private fun isEditingMode(): Boolean {
-    return isNewEvent() || isEditing
-}
-
-private fun isNewEvent(): Boolean {
-    return event.eventId == -1
-}
-
-private fun isCreatedByCurrentUser(): Boolean {
-    return event.creator.username == loggedUser.username
-}
-
-private fun getEventDateTime(): Calendar {
-    val calendar = Calendar.getInstance()
-    val (h, m) = event.starts.split(":").map { it.toInt() }
-    calendar.set(Calendar.HOUR_OF_DAY, h)
-    calendar.set(Calendar.MINUTE, m)
-    calendar.set(Calendar.SECOND, 0)
-    calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
-    calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
-    calendar.set(Calendar.YEAR, event.day / 10000)
-    return calendar
+    return EventUtilities().isNewEvent(event) || isEditing
 }
 
 private fun updateEvent(updated: Event) {

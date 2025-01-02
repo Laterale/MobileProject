@@ -21,9 +21,9 @@ class EventFactory {
             image = "",
             location = LocationDetails(
                 latitude = 0.0, longitude = 0.0,
-                state = "No location data",
-                city = "No location data",
-                street = "No location data"
+                state = "",
+                city = "",
+                street = ""
             ),
             starts = "00:00",
             ends = "00:00",
@@ -41,9 +41,9 @@ class EventFactory {
             image = "",
             location = LocationDetails(
                 latitude = 0.0, longitude = 0.0,
-                state = "No location data",
-                city = "No location data",
-                street = "No location data"
+                state = "",
+                city = "",
+                street = ""
             ),
             starts = "00:00",
             ends = "00:00",

@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.getDefaultButtonColors
 
 @Composable
@@ -26,7 +27,7 @@ fun AddButton(
     IconButton(
         onClick = onAdd,
         modifier = modifier.clip(RoundedCornerShape(15.dp)),
-        colors = IconButtonDefaults.iconButtonColors(Color.hsl(0f, 0f, 1f, 0.10f))
+        colors = IconButtonDefaults.iconButtonColors(Glass10)
     ) {
         Icon(
             imageVector = Icons.Filled.Add,

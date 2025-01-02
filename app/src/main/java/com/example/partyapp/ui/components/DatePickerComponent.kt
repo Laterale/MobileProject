@@ -1,7 +1,6 @@
 package com.example.partyapp.ui.components
 
 import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
@@ -10,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.partyapp.ui.theme.Glass10
 import java.util.Calendar
 
 @Composable
@@ -27,7 +27,7 @@ fun PartyDatePickerComponent(
     )
     Button(
         onClick = { tp.show() },
-        colors = buttonColors(Color.hsl(0f, 0f, 1f, 0.10f)),
+        colors = buttonColors(Glass10),
         contentPadding = PaddingValues(0.dp),
 //            .border(
 //                width = 1.dp,
