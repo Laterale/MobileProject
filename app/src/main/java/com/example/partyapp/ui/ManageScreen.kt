@@ -84,7 +84,7 @@ fun AddedEvents(
     Text(
         text = stringResource(id = R.string.added_events),
         style = Typography.titleMedium,
-        modifier = Modifier.padding(5.dp, 15.dp, 5.dp, 15.dp)
+        modifier = Modifier.padding(5.dp, 15.dp, 5.dp, 0.dp)
     )
     Column(modifier = Modifier.fillMaxSize().verticalScroll(ScrollState(0))) {
         AddedEventsCards(onEventClicked, eventViewModel, userViewModel)

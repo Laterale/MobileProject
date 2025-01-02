@@ -44,7 +44,7 @@ fun MyEvents(
 ) {
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
         .filter { it.creator.id == currentUser.id }
-    Column(modifier = modifier.fillMaxWidth().padding(top = 20.dp)) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(id = R.string.your_events),
             style = Typography.titleMedium,
