@@ -44,7 +44,6 @@ fun MyEvents(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 20.dp)
     ) {
         Text(
             text = "Your events",
