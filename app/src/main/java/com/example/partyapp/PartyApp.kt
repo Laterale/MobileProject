@@ -4,10 +4,14 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Home
@@ -27,6 +31,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -111,8 +118,6 @@ fun BottomAppBar(
     currentScreen: String,
     navController: NavHostController
 ){
-
-
     var isSelected: Boolean
     var selectedIcon = Icons.Outlined.Clear
     var unselectedIcon = Icons.Filled.Clear
@@ -169,6 +174,14 @@ fun HomeTab(
     TabRow(
         selectedTabIndex = homeTabIndex,
         containerColor = Color.Transparent,
+        indicator = @Composable { tabPositions ->
+            if (homeTabIndex < tabPositions.size) {
+                TabRowDefaults.SecondaryIndicator(
+                    Modifier.tabIndicatorOffset(tabPositions[homeTabIndex]),
+                    height = 2.dp,
+                    color = Color.White,
+                )
+            }},
         divider = {}
     ) {
         homeScreens.forEachIndexed { index, item ->
