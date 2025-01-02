@@ -2,20 +2,26 @@ package com.example.partyapp.ui
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cake
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,28 +31,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
+import com.example.partyapp.R
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.ui.components.PartyAppLogo
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.TextFieldType
-import com.example.partyapp.ui.components.PartyAppLogo
 import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEmpty
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 
@@ -82,8 +84,8 @@ private fun LoginForm(
     onSuccessfulLogin: () -> Unit,
     userViewModel: UserViewModel
 ) {
-    val users by userViewModel.users.collectAsState(initial = listOf())
     val context = LocalContext.current
+    val errMsg = stringResource(id = R.string.err_wrong_credentials)
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -93,8 +95,8 @@ private fun LoginForm(
 
     PartyTextField(
         value = username, onValueChange = { username = it },
-        placeholder = "Username",
-        leadingIcon = { Icon(imageVector = Icons.Default.Person, "User icon", tint = Color.White) },
+        placeholder = stringResource(id = R.string.username),
+        leadingIcon = { Icon(imageVector = Icons.Default.Person, stringResource(id = R.string.icon_user), tint = Color.White) },
         keyboardImeAction = ImeAction.Next,
         keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
         modifier = Modifier.fillMaxWidth()
@@ -103,8 +105,8 @@ private fun LoginForm(
     PartyTextField(
         value = password, onValueChange = { password = it },
         textType = TextFieldType.PASSWORD,
-        leadingIcon = { Icon(imageVector = Icons.Default.Lock, "Locket icon", tint = Color.White) },
-        placeholder = "Password",
+        leadingIcon = { Icon(imageVector = Icons.Default.Lock, stringResource(id = R.string.icon_pwd), tint = Color.White) },
+        placeholder = stringResource(id = R.string.password),
         keyboardImeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()}),
         modifier = Modifier
@@ -125,7 +127,7 @@ private fun LoginForm(
                     userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
                 }
                 else {
-                    Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, errMsg, Toast.LENGTH_SHORT).show()
                 }
             }
         },
@@ -133,7 +135,11 @@ private fun LoginForm(
         colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = "LOGIN", Modifier.padding(vertical = 8.dp), color = Indigo)
+        Text(
+            text = stringResource(id = R.string.login).uppercase(),
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = Indigo
+        )
     }
 }
 
@@ -143,6 +149,8 @@ private fun RegistrationForm(
     userViewModel: UserViewModel
 ) {
     val context = LocalContext.current
+    val errUsernameTaken = stringResource(id = R.string.err_username_taken)
+    val errTryAgain = stringResource(id = R.string.err_try_again)
     var username: String by remember { mutableStateOf("") }
     var password: String by remember { mutableStateOf("") }
     var email: String by remember { mutableStateOf("") }
@@ -153,8 +161,8 @@ private fun RegistrationForm(
 
     PartyTextField(
         value = username, onValueChange = { username = it },
-        placeholder = "Username",
-        leadingIcon = { Icon(imageVector = Icons.Default.Person, "Username", tint = Color.White) },
+        placeholder = stringResource(id = R.string.username),
+        leadingIcon = { Icon(imageVector = Icons.Default.Person, stringResource(id = R.string.icon_user), tint = Color.White) },
         keyboardImeAction = ImeAction.Next,
         keyboardActions = KeyboardActions(onNext = {emailFocusRequester.requestFocus()}),
         modifier = Modifier.fillMaxWidth()
@@ -162,8 +170,8 @@ private fun RegistrationForm(
     PartyTextField(
         textType = TextFieldType.EMAIL,
         value = email, onValueChange = { email = it },
-        placeholder = "Email",
-        leadingIcon = { Icon(imageVector = Icons.Default.Email, "Email", tint = Color.White) },
+        placeholder = stringResource(id = R.string.email),
+        leadingIcon = { Icon(imageVector = Icons.Default.Email, stringResource(id = R.string.icon_email), tint = Color.White) },
         keyboardImeAction = ImeAction.Next,
         keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
         modifier = Modifier
@@ -173,8 +181,8 @@ private fun RegistrationForm(
     PartyTextField(
         textType = TextFieldType.PASSWORD,
         value = password, onValueChange = { password = it },
-        leadingIcon = { Icon(imageVector = Icons.Default.Lock, "Password", tint = Color.White) },
-        placeholder = "Password",
+        leadingIcon = { Icon(imageVector = Icons.Default.Lock, stringResource(id = R.string.icon_pwd), tint = Color.White) },
+        placeholder = stringResource(id = R.string.password),
         keyboardImeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()}),
         modifier = Modifier
@@ -204,13 +212,13 @@ private fun RegistrationForm(
                     } else {
                         Log.d("FETCH_USER", "User already exists: $userFound")
                         userViewModel.viewModelScope.launch(Dispatchers.Main) {
-                            Toast.makeText(context, "Username already taken", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, errUsernameTaken, Toast.LENGTH_SHORT).show()
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("FETCH_USER", "Error fetching user: ${e.message}", e)
                     userViewModel.viewModelScope.launch(Dispatchers.Main) {
-                        Toast.makeText(context, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, errTryAgain, Toast.LENGTH_SHORT).show()
                     }
                 }
             }.invokeOnCompletion {
@@ -220,7 +228,7 @@ private fun RegistrationForm(
                     userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
                 } else {
                     userViewModel.viewModelScope.launch(Dispatchers.Main) {
-                        Toast.makeText(context, "Username already taken", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, errUsernameTaken, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -229,7 +237,7 @@ private fun RegistrationForm(
         colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = "REGISTER", Modifier.padding(vertical = 8.dp), color = Indigo)
+        Text(text = stringResource(id = R.string.register).uppercase(), Modifier.padding(vertical = 8.dp), color = Indigo)
     }
 }
 
@@ -238,17 +246,20 @@ private fun SwitchMode(
     isLogin: Boolean,
     onSwitch: () -> Unit
 ) {
-    val variableText = if (isLogin) "Don't" else "Already"
-    val switchText = if (isLogin) "REGISTER" else "LOGIN"
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "$variableText have an account?",
+            text = if (isLogin) stringResource(id = R.string.lbl_need_register)
+                   else stringResource(id = R.string.lbl_need_login),
             color = Color.Gray
         )
         TextButton(onClick = onSwitch) {
-            Text(text = switchText, color = Salmon, fontWeight = FontWeight.Bold)
+            Text(
+                text = if (isLogin) stringResource(id = R.string.register).uppercase()
+                       else stringResource(id = R.string.login).uppercase(),
+                color = Salmon, fontWeight = FontWeight.Bold
+            )
         }
     }
 }
