@@ -2,6 +2,7 @@ package com.example.partyapp.ui
 
 import LocationHelper
 import android.content.Context
+import android.graphics.Bitmap
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Adb
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.HorizontalDivider
@@ -31,9 +33,11 @@ import com.example.partyapp.services.EventUtilities
 import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.ui.components.PartyDialog
+import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions

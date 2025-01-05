@@ -2,14 +2,19 @@ package com.example.partyapp.ui.components
 
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.partyapp.ui.theme.Glass10
+import java.time.format.TextStyle
 import java.util.Calendar
 
 @Composable
@@ -35,6 +40,6 @@ fun PartyDatePickerComponent(
 //                color = Color.hsl(0f, 0f, 1f, 0.20f),
 //            )
     ) {
-        Text(text = text, color = Color.White)
+        Text(text = text, color = Color.White, fontSize = 11.sp)
     }
 }
