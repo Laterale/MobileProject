@@ -26,9 +26,9 @@ import androidx.compose.ui.unit.dp
 import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.ui.components.IconDatePickerComponent
 import com.example.partyapp.viewModel.EventViewModel
-import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import com.example.partyapp.ui.theme.Glass20
+import com.example.partyapp.viewModel.SettingsViewModel
 import java.time.ZoneId
 import java.util.Calendar
 import kotlin.math.roundToInt
@@ -39,15 +39,14 @@ fun ExploreScreen(
     onEventClicked: ()->Unit,
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
-    locationViewModel: LocationViewModel,
-    session: String
+    settingsViewModel: SettingsViewModel,
 ){
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
     Column(
         Modifier
             .fillMaxSize()
             .padding(30.dp, 10.dp, 30.dp, 0.dp)) {
-        FiltersBar()
+        FiltersBar(settingsViewModel)
         HorizontalDivider(color = Color.White)
         LazyColumn(
             modifier = Modifier
@@ -76,12 +75,14 @@ private fun dateToStr(date: Calendar): String {
 }
 
 @Composable
-fun FiltersBar(){
+fun FiltersBar(
+    settingsViewModel: SettingsViewModel
+){
     val cal = Calendar.getInstance()
     var date: String by remember {
-        mutableStateOf(dateToStr(cal))
+        mutableStateOf(userSettings.dateFilter)
     }
-    var sliderPosition by remember { mutableFloatStateOf(0f) }
+    var sliderPosition by remember { mutableFloatStateOf(userSettings.rangeFilter.toFloat()) }
     Row(
         modifier = Modifier
             .padding(0.dp, 0.dp, 0.dp, 10.dp)
@@ -92,6 +93,8 @@ fun FiltersBar(){
                 date,
                 onDatePicked = { year, month, day ->
                     cal.apply { set(year, month, day) }
+                    userSettings = userSettings.copy(dateFilter = dateToStr(cal))
+                    settingsViewModel.saveSettings(userSettings)
                     date = dateToStr(cal)
                 }
             )
@@ -100,7 +103,11 @@ fun FiltersBar(){
             androidx.compose.material.Slider(
                 value = sliderPosition,
                 onValueChange = { sliderPosition = it.roundToInt().toFloat() },
-                valueRange = 0f..50f,
+                onValueChangeFinished = {
+                    userSettings = userSettings.copy(rangeFilter = sliderPosition.roundToInt())
+                    settingsViewModel.saveSettings(userSettings)
+                },
+                valueRange = 5f..50f,
                 colors = SliderDefaults.colors(
                     thumbColor = Color.White,
                     activeTrackColor = Color.White,

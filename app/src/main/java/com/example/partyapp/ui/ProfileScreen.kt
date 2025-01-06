@@ -55,10 +55,8 @@ var user: User? = null;
 
 @Composable
 fun ProfileScreen(
-    onEventClicked: ()->Unit,
     onSettingsClicked: ()->Unit,
     userViewModel: UserViewModel,
-    settingsViewModel: SettingsViewModel,
     session: String,
 ) {
     SetCurrentUser(userViewModel, session)

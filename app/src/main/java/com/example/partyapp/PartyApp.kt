@@ -300,20 +300,15 @@ private fun NavigationGraph(
                 },
                 userViewModel = userViewModel,
                 eventViewModel = eventViewModel,
-                locationViewModel = locationViewModel,
-                session = session
+                settingsViewModel = settingsViewModel,
             )
         }
         composable(route = AppScreen.Profile.name) {
             ProfileScreen(
-                onEventClicked = {
-                    navController.navigate(AppScreen.Event.name)
-                },
                 onSettingsClicked = {
                     navController.navigate(AppScreen.Settings.name)
                 },
                 userViewModel = userViewModel,
-                settingsViewModel = settingsViewModel,
                 session = session
             )
         }
