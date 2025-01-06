@@ -2,7 +2,6 @@ package com.example.partyapp.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,16 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.SliderDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Adjust
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderColors
-import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -38,10 +28,7 @@ import com.example.partyapp.ui.components.IconDatePickerComponent
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.UserViewModel
-import com.example.partyapp.ui.components.PartyDatePickerComponent
-import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
-import com.example.partyapp.ui.theme.Salmon
 import java.time.ZoneId
 import java.util.Calendar
 import kotlin.math.roundToInt
