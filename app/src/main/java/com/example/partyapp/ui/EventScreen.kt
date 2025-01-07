@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -63,10 +64,12 @@ import com.example.partyapp.services.EventUtilities
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
+import com.example.partyapp.ui.components.IconButton
 import com.example.partyapp.ui.components.LocationPickerDialogButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
+import com.example.partyapp.ui.components.QRDialogButton
 import com.example.partyapp.ui.components.TextButton
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
@@ -497,19 +500,26 @@ private fun DeleteEventButton(
 ) {
     val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
         .collectAsState(initial = listOf())
-    TextButton(
-        text = stringResource(id = R.string.delete),
+
+    IconButton(
+        icon = Icons.Default.DeleteForever,
+        contentDescription = stringResource(id = R.string.delete),
         textColor = Color.Red,
         onClick = {
             participants.value.forEach { participant ->
-                eventViewModel.deleteParticipant(UserAddEventCrossRef(
-                    id = participant.id, eventId = event.eventId
-                ))
+                eventViewModel.deleteParticipant(
+                    UserAddEventCrossRef(
+                        id = participant.id, eventId = event.eventId
+                    )
+                )
             }
-            eventViewModel.deleteEvent(event.eventId)
-            onBackToPrevPage()
         },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(0.5f),
+    )
+    QRDialogButton(
+        text = stringResource(id = R.string.event_qr_code),
+        qrContent = event.eventId.toString(),
+        modifier = Modifier.fillMaxWidth()
     )
 }
 

@@ -21,6 +21,7 @@
     <string name="err_try_again">An error occurred. Please try again.</string>
     <string name="err_username_taken">Username already taken</string>
     <string name="err_wrong_credentials">Wrong credentials</string>
+    <string name="event_qr_code">Event QR code</string>
     <string name="filters">Filters</string>
     <string name="icon_add">Add icon</string>
     <string name="icon_email">Email icon</string>
@@ -48,10 +49,12 @@
     <string name="no_location">No location</string>
     <string name="password">Password</string>
     <string name="profile">Profile</string>
+    <string name="qr">QR code</string>
     <string name="register">Register</string>
     <string name="save">Save</string>
     <string name="search">Search</string>
     <string name="settings">Settings</string>
+    <string name="show_qr">Show QR code</string>
     <string name="take_pic">Take a picture</string>
     <string name="username">Username</string>
     <string name="user_location">User location</string>
