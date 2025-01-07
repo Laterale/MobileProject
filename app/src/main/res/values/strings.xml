@@ -39,6 +39,7 @@
     <string name="lbl_need_login">Already have an account?</string>
     <string name="lbl_need_register">Don\'t have an account yet?</string>
     <string name="lbl_no_added_events">No added events.</string>
+    <string name="lbl_scan_qr">Scan QR code</string>
     <string name="lbl_set_sys_theme">Use system theme</string>
     <string name="lbl_set_dark_theme">Use dark theme</string>
     <string name="lbl_user_pfp">User profile picture</string>

@@ -45,6 +45,7 @@ import com.example.partyapp.R
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
+import com.example.partyapp.ui.components.QRCodeScanner
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
@@ -83,9 +84,8 @@ fun ProfileScreen(
         Text(text = user?.username ?: stringResource(id = R.string.username), style = Typography.bodyMedium)
         CityNameDisplay()
         XpBar()
-        HorizontalDivider(
-            color = Color.White
-        )
+        HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp))
+        ScanEventQRButton()
     }
 }
 
@@ -110,7 +110,7 @@ private fun isLoggedUser(userViewModel: UserViewModel, session: String): Boolean
 @Composable
 private fun XpBar() {
     Row(
-        modifier = Modifier.padding(0.dp,15.dp,0.dp,30.dp)
+        modifier = Modifier.padding(top = 15.dp)
     ) {
         LinearProgressIndicator(
             progress = { 0.5f },
@@ -250,5 +250,10 @@ private fun CityNameDisplay() {
             style = Typography.labelMedium
         )
     }
+}
+
+@Composable
+fun ScanEventQRButton() {
+    QRCodeScanner()
 }
 
