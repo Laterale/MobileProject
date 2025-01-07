@@ -254,6 +254,11 @@ private fun CityNameDisplay() {
 
 @Composable
 fun ScanEventQRButton() {
-    QRCodeScanner()
+    val context = LocalContext.current
+    QRCodeScanner(
+        onScanResult = {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    )
 }
 

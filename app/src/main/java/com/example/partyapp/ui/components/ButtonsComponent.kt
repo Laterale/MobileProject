@@ -1,5 +1,6 @@
 package com.example.partyapp.ui.components
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -79,8 +80,7 @@ fun IconButton(
     ) {
         Icon(imageVector = icon, contentDescription = contentDescription, tint = textColor)
         if (text != "") {
-            Text(text = text, color = textColor)
+            Text(text = text, color = textColor, modifier = Modifier.padding(start = 10.dp))
         }
-
     }
 }

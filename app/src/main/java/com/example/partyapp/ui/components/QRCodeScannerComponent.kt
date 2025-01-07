@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCodeScanner
@@ -39,54 +40,55 @@ import com.example.partyapp.ui.theme.Indigo
 fun QRCodeScanner(
     onScanResult: (String) -> Unit = {}
 ) {
-    val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
-    var hasPermission by remember { mutableStateOf(false) }
-    val permissionsHelper = PermissionsHelper(context)
-
     IconButton(
         icon = Icons.Default.QrCodeScanner,
         contentDescription = stringResource(id = R.string.lbl_scan_qr),
-        text = stringResource(id = R.string.lbl_scan_qr),
+        text = if (!showDialog) stringResource(id = R.string.lbl_scan_qr)
+               else stringResource(id = R.string.lbl_scan_qr_hide),
         onClick = { showDialog = !showDialog },
         modifier = Modifier.fillMaxWidth()
     )
-
     if (showDialog) {
-//        PartyDialog(
-//            title = stringResource(id = R.string.lbl_scan_qr),
-//            content = {
-        Box (
-            Modifier.clip(RoundedCornerShape(20.dp))
-                .fillMaxWidth()
-                .background(
-                    color = Indigo.copy(alpha = 0.7f)
-                        .compositeOver(Color.White.copy(alpha = 0.3f))
-                )
-        ) {
-            permissionsHelper.RequestCameraPermission(
-                doIfGranted = {
-                    Log.d("PERMS", "ok")
-                    hasPermission = true
-                },
-                elseIfDenied = { Log.d("PERMS", "no") }
-            )
-            if (hasPermission) {
-                Scanner(onScanResult)
-            } else {
-                Text(text = stringResource(id = R.string.err_perm_denied), color = Color.Gray)
-            }
-        }
-//            },
-//            onDismissRequest = { showDialog = false }
-//        )
+        Scanner(onScanResult = onScanResult, modifier = Modifier.padding(top = 10.dp))
     }
-
-
 }
 
 @Composable
-private fun Scanner(onScanResult: (String) -> Unit = {}) {
+private fun Scanner(
+    modifier: Modifier = Modifier,
+    onScanResult: (String) -> Unit = {},
+) {
+    val context = LocalContext.current
+    var hasPermission by remember { mutableStateOf(false) }
+    val permissionsHelper = PermissionsHelper(context)
+    Box (
+        modifier
+            .clip(RoundedCornerShape(20.dp))
+            .fillMaxWidth()
+            .background(
+                color = Indigo
+                    .copy(alpha = 0.7f)
+                    .compositeOver(Color.White.copy(alpha = 0.3f))
+            )
+    ) {
+        permissionsHelper.RequestCameraPermission(
+            doIfGranted = {
+                Log.d("PERMS", "ok")
+                hasPermission = true
+            },
+            elseIfDenied = { Log.d("PERMS", "no") }
+        )
+        if (hasPermission) {
+            ScannerPreview(onScanResult)
+        } else {
+            Text(text = stringResource(id = R.string.err_perm_denied), color = Color.Gray)
+        }
+    }
+}
+
+@Composable
+private fun ScannerPreview(onScanResult: (String) -> Unit = {}) {
     val context = LocalContext.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
