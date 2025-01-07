@@ -318,7 +318,8 @@ private fun NavigationGraph(
                 userViewModel = userViewModel,
                 onEventMarkerClicked = {
                     navController.navigate(AppScreen.Event.name)
-                }
+                },
+                settingsViewModel = settingsViewModel
             )
         }
         composable(route = AppScreen.Loading.name){

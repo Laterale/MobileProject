@@ -29,11 +29,10 @@ import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.viewModel.SettingsViewModel
-import java.time.ZoneId
 import java.util.Calendar
+import com.example.partyapp.services.EventUtilities
 import kotlin.math.roundToInt
-
-
+val utilities = EventUtilities()
 @Composable
 fun ExploreScreen(
     onEventClicked: ()->Unit,
@@ -41,7 +40,12 @@ fun ExploreScreen(
     eventViewModel: EventViewModel,
     settingsViewModel: SettingsViewModel,
 ){
-    val events = eventViewModel.events.collectAsState(initial = listOf()).value
+
+    val filters = settingsViewModel.settings.collectAsState(initial = userSettings)
+    val events = eventViewModel.events.collectAsState(initial = mutableListOf()).value
+        .filter { e ->
+            utilities.dayToString(e.day) == filters.value!!.dateFilter
+        }
     Column(
         Modifier
             .fillMaxSize()
@@ -67,13 +71,6 @@ fun ExploreScreen(
     }
 }
 
-private fun dateToStr(date: Calendar): String {
-    return date.time.toInstant()
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
-        .toString()
-}
-
 @Composable
 fun FiltersBar(
     settingsViewModel: SettingsViewModel
@@ -93,9 +90,9 @@ fun FiltersBar(
                 date,
                 onDatePicked = { year, month, day ->
                     cal.apply { set(year, month, day) }
-                    userSettings = userSettings.copy(dateFilter = dateToStr(cal))
+                    userSettings = userSettings.copy(dateFilter = utilities.dateToStr(cal))
                     settingsViewModel.saveSettings(userSettings)
-                    date = dateToStr(cal)
+                    date = utilities.dateToStr(cal)
                 }
             )
         }

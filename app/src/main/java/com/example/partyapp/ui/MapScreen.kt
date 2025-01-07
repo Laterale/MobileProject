@@ -35,6 +35,7 @@ import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.ui.components.PartyDialog
 import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.viewModel.EventViewModel
+import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -53,7 +54,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 fun MapScreen(
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onEventMarkerClicked: () -> Unit
+    onEventMarkerClicked: () -> Unit,
+    settingsViewModel: SettingsViewModel
 ) {
     val singapore = LatLng(1.35, 103.87)
     val context = LocalContext.current
@@ -73,7 +75,8 @@ fun MapScreen(
         },
         eventViewModel = eventViewModel,
         userViewModel = userViewModel,
-        onEventMarkerClicked = onEventMarkerClicked
+        onEventMarkerClicked = onEventMarkerClicked,
+        settingsViewModel = settingsViewModel
     )
 }
 
@@ -83,7 +86,8 @@ fun ShowMapCenteredOn(
     location: LatLng,
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onEventMarkerClicked: () -> Unit = {}
+    onEventMarkerClicked: () -> Unit = {},
+    settingsViewModel: SettingsViewModel
 ) {
     val context = LocalContext.current
     val cameraPositionState = rememberCameraPositionState {
@@ -105,7 +109,8 @@ fun ShowMapCenteredOn(
         EventsMarkers(
             eventViewModel = eventViewModel,
             onInfoWindowClick = { showDialog = true },
-            onInfoWindowClose = { showDialog = false }
+            onInfoWindowClose = { showDialog = false },
+            settingsViewModel = settingsViewModel
         )
     }
     if (showDialog) {
@@ -127,10 +132,15 @@ fun ShowMapCenteredOn(
 private fun EventsMarkers(
     eventViewModel: EventViewModel,
     onInfoWindowClick: () -> Unit = {},
-    onInfoWindowClose: () -> Unit = {}
+    onInfoWindowClose: () -> Unit = {},
+    settingsViewModel: SettingsViewModel
 ) {
-    val events = eventViewModel.events.collectAsState(initial = listOf())
-    events.value.forEach { event ->
+    val filters = settingsViewModel.settings.collectAsState(initial = userSettings)
+    val events = eventViewModel.events.collectAsState(initial = mutableListOf()).value
+        .filter { e ->
+            utilities.dayToString(e.day) == filters.value!!.dateFilter
+        }
+    events.forEach { event ->
         if (event.location.latitude == 0.0 && event.location.longitude == 0.0) return@forEach
         Marker(
             state = MarkerState(position = LatLng(event.location.latitude, event.location.longitude)),
