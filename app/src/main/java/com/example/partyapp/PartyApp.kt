@@ -59,6 +59,7 @@ import com.example.partyapp.ui.LoginScreen
 import com.example.partyapp.ui.ManageScreen
 import com.example.partyapp.ui.MapScreen
 import com.example.partyapp.ui.ProfileScreen
+import com.example.partyapp.ui.ScanScreen
 import com.example.partyapp.ui.SettingsScreen
 import com.example.partyapp.ui.theme.UpdateStatusBarColor
 import com.example.partyapp.ui.theme.getColorScheme
@@ -95,6 +96,7 @@ sealed class AppScreen(val name: String){
     object Profile : AppScreen("Profile")
     object Register : AppScreen("Register")
     object Loading : AppScreen("Loading")
+    object Scan : AppScreen("Scan")
 }
 
 const val ROOT_ROUTE = "root"
@@ -366,6 +368,16 @@ private fun NavigationGraph(
                 userViewModel = userViewModel,
                 onBackToPrevPage = {
                     navController.navigate(homeScreens[homeTabIndex]) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(route = AppScreen.Scan.name){
+            ScanScreen(
+                eventViewModel = eventViewModel,
+                onBackToPrevPage = {
+                    navController.navigate(AppScreen.Profile.name) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
                 }
