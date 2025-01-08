@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CardDefaults
@@ -459,13 +461,15 @@ private fun SaveDiscardBtns(
 ) {
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
-    TextButton(
-        text = stringResource(id = R.string.discard),
+    IconButton(
+        icon = Icons.Default.Close, contentDescription = stringResource(id = R.string.discard),
+        textColor = Color.Red,
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
     )
-    TextButton(
-        text = stringResource(id = R.string.save),
+    IconButton(
+        icon = Icons.Default.Check, contentDescription = stringResource(id = R.string.save),
+        textColor = Color.Green,
         onClick = { saveNewEvent(context, eventViewModel, events, onBackToPrevPage) },
         modifier = Modifier.fillMaxWidth()
     )
