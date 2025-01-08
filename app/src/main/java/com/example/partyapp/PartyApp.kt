@@ -60,6 +60,7 @@ import com.example.partyapp.ui.ManageScreen
 import com.example.partyapp.ui.MapScreen
 import com.example.partyapp.ui.ProfileScreen
 import com.example.partyapp.ui.SettingsScreen
+import com.example.partyapp.ui.theme.UpdateStatusBarColor
 import com.example.partyapp.ui.theme.getColorScheme
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
@@ -219,6 +220,7 @@ fun NavigationApp(
 
     settings?.settings?.collectAsState(initial = null)?.also {
         colorScheme = getColorScheme(it.value)
+        UpdateStatusBarColor(it.value)
         bgGradient = arrayOf(
             0.1f to colorScheme.primary,
             0.5f to colorScheme.background,
