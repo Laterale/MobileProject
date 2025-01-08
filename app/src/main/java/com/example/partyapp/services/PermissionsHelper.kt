@@ -14,6 +14,35 @@ import androidx.compose.runtime.setValue
 class PermissionsHelper(context: Context) {
 
     @Composable
+    fun RequestCameraPermission(
+        doIfGranted: () -> Unit = {},
+        elseIfDenied: () -> Unit = {}
+    ) {
+        var hasPermission by remember { mutableStateOf(false) } // Track permission state
+        var permissionRequested by remember { mutableStateOf(false) }
+
+        val cameraPermissionRequest = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+            onResult = { isGranted: Boolean ->
+                hasPermission = isGranted
+                if (isGranted) {
+                    doIfGranted()
+                }
+                else {
+                    elseIfDenied()
+                }
+            }
+        )
+        // Trigger permission request only once
+        LaunchedEffect(permissionRequested) {
+            if (!permissionRequested) {
+                permissionRequested = true
+                cameraPermissionRequest.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    @Composable
     fun RequestLocationPermission(onPermissionGranted: () -> Unit) {
         var hasPermission by remember { mutableStateOf(false) } // Track permission state
         var permissionRequested by remember { mutableStateOf(false) }

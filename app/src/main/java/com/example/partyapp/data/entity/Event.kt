@@ -1,15 +1,13 @@
 package com.example.partyapp.data.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
-import androidx.room.Ignore
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.example.partyapp.data.LocationDetails
-import java.time.DayOfWeek
-import java.util.Calendar
-import java.util.Date
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "event")
 data class Event(
     @PrimaryKey(autoGenerate = true)

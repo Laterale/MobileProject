@@ -1,5 +1,8 @@
 package com.example.partyapp.data
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class LocationDetails(
     val latitude : Double,
     val longitude : Double,

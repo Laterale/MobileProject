@@ -24,6 +24,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -65,14 +68,18 @@ import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.LocationPickerDialogButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
+import com.example.partyapp.ui.components.PartyIconButton
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
+import com.example.partyapp.ui.components.QRDialogButton
 import com.example.partyapp.ui.components.TextButton
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.ZoneId
 import java.util.Calendar
@@ -454,13 +461,15 @@ private fun SaveDiscardBtns(
 ) {
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
-    TextButton(
-        text = stringResource(id = R.string.discard),
+    PartyIconButton(
+        icon = Icons.Default.Close, contentDescription = stringResource(id = R.string.discard),
+        textColor = Color.Red,
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
     )
-    TextButton(
-        text = stringResource(id = R.string.save),
+    PartyIconButton(
+        icon = Icons.Default.Check, contentDescription = stringResource(id = R.string.save),
+        textColor = Color.Green,
         onClick = { saveNewEvent(context, eventViewModel, events, onBackToPrevPage) },
         modifier = Modifier.fillMaxWidth()
     )
@@ -497,19 +506,26 @@ private fun DeleteEventButton(
 ) {
     val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
         .collectAsState(initial = listOf())
-    TextButton(
-        text = stringResource(id = R.string.delete),
+
+    PartyIconButton(
+        icon = Icons.Default.DeleteForever,
+        contentDescription = stringResource(id = R.string.delete),
         textColor = Color.Red,
         onClick = {
             participants.value.forEach { participant ->
-                eventViewModel.deleteParticipant(UserAddEventCrossRef(
-                    id = participant.id, eventId = event.eventId
-                ))
+                eventViewModel.deleteParticipant(
+                    UserAddEventCrossRef(
+                        id = participant.id, eventId = event.eventId
+                    )
+                )
             }
-            eventViewModel.deleteEvent(event.eventId)
-            onBackToPrevPage()
         },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(0.5f),
+    )
+    QRDialogButton(
+        text = stringResource(id = R.string.event_qr_code),
+        qrContent = Json.encodeToString(event),
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
