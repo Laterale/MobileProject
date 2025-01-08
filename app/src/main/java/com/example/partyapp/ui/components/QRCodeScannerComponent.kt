@@ -1,6 +1,5 @@
 package com.example.partyapp.ui.components
 
-import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -8,12 +7,14 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,18 +39,31 @@ import com.example.partyapp.ui.theme.Indigo
 
 @Composable
 fun QRCodeScanner(
-    onScanResult: (String) -> Unit = {}
+    modifier: Modifier = Modifier,
+    onScanResult: (String) -> Unit = {},
+    onlyIcon: Boolean = true,
 ) {
-    var showDialog by remember { mutableStateOf(false) }
-    IconButton(
-        icon = Icons.Default.QrCodeScanner,
-        contentDescription = stringResource(id = R.string.lbl_scan_qr),
-        text = if (!showDialog) stringResource(id = R.string.lbl_scan_qr)
-               else stringResource(id = R.string.lbl_scan_qr_hide),
-        onClick = { showDialog = !showDialog },
-        modifier = Modifier.fillMaxWidth()
-    )
-    if (showDialog) {
+    var showScanner by remember { mutableStateOf(false) }
+
+    if (onlyIcon) {
+        IconButton(onClick = { showScanner = !showScanner }, modifier = modifier) {
+            Icon(
+                imageVector = Icons.Default.QrCodeScanner,
+                contentDescription = stringResource(id = R.string.lbl_scan_qr),
+                tint = Color.White
+            )
+        }
+    } else {
+        PartyIconButton(
+            icon = Icons.Default.QrCodeScanner,
+            contentDescription = stringResource(id = R.string.lbl_scan_qr),
+            text = if (!showScanner) stringResource(id = R.string.lbl_scan_qr)
+            else stringResource(id = R.string.lbl_scan_qr_hide),
+            onClick = { showScanner = !showScanner },
+            modifier = modifier.fillMaxWidth()
+        )
+    }
+    if (showScanner) {
         Scanner(onScanResult = onScanResult, modifier = Modifier.padding(top = 10.dp))
     }
 }
@@ -72,15 +86,9 @@ private fun Scanner(
                     .compositeOver(Color.White.copy(alpha = 0.3f))
             )
     ) {
-        permissionsHelper.RequestCameraPermission(
-            doIfGranted = {
-                Log.d("PERMS", "ok")
-                hasPermission = true
-            },
-            elseIfDenied = { Log.d("PERMS", "no") }
-        )
+        permissionsHelper.RequestCameraPermission(doIfGranted = { hasPermission = true })
         if (hasPermission) {
-            ScannerPreview(onScanResult)
+            ScannerPreview(onScanResult = onScanResult, modifier = Modifier.size(300.dp))
         } else {
             Text(text = stringResource(id = R.string.err_perm_denied), color = Color.Gray)
         }
@@ -88,7 +96,10 @@ private fun Scanner(
 }
 
 @Composable
-private fun ScannerPreview(onScanResult: (String) -> Unit = {}) {
+private fun ScannerPreview(
+    modifier: Modifier = Modifier,
+    onScanResult: (String) -> Unit = {}
+) {
     val context = LocalContext.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
@@ -117,7 +128,7 @@ private fun ScannerPreview(onScanResult: (String) -> Unit = {}) {
                 preview.setSurfaceProvider(this.surfaceProvider)
             }
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     )
 }
 

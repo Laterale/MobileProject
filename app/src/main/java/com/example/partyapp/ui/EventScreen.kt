@@ -66,9 +66,9 @@ import com.example.partyapp.services.EventUtilities
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.NotificationScheduler
 import com.example.partyapp.ui.components.AddButton
-import com.example.partyapp.ui.components.IconButton
 import com.example.partyapp.ui.components.LocationPickerDialogButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
+import com.example.partyapp.ui.components.PartyIconButton
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
 import com.example.partyapp.ui.components.QRDialogButton
@@ -461,13 +461,13 @@ private fun SaveDiscardBtns(
 ) {
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
-    IconButton(
+    PartyIconButton(
         icon = Icons.Default.Close, contentDescription = stringResource(id = R.string.discard),
         textColor = Color.Red,
         onClick = onBackToPrevPage,
         modifier = Modifier.fillMaxWidth(0.5f),
     )
-    IconButton(
+    PartyIconButton(
         icon = Icons.Default.Check, contentDescription = stringResource(id = R.string.save),
         textColor = Color.Green,
         onClick = { saveNewEvent(context, eventViewModel, events, onBackToPrevPage) },
@@ -507,7 +507,7 @@ private fun DeleteEventButton(
     val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
         .collectAsState(initial = listOf())
 
-    IconButton(
+    PartyIconButton(
         icon = Icons.Default.DeleteForever,
         contentDescription = stringResource(id = R.string.delete),
         textColor = Color.Red,

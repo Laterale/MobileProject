@@ -6,11 +6,13 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -65,6 +67,7 @@ fun ProfileScreen(
     session: String,
 ) {
     SetCurrentUser(userViewModel, session)
+    HeaderButtons(onSettingsClicked, eventViewModel)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,22 +75,42 @@ fun ProfileScreen(
             .padding(30.dp, 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        IconButton(
-            modifier = Modifier.align(Alignment.Start),
-            onClick = { onSettingsClicked() }
-        ) {
-            Icon(
-                Icons.Filled.Settings,
-                contentDescription = stringResource(id = R.string.settings),
-                tint = Color.White
-            )
-        }
         UserProfilePic(userViewModel)
         Text(text = user?.username ?: stringResource(id = R.string.username), style = Typography.bodyMedium)
         CityNameDisplay()
         XpBar()
         HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp))
-        ScanEventQRButton(eventViewModel)
+    }
+}
+
+@Composable
+private fun HeaderButtons(
+    onSettingsClicked: () -> Unit,
+    eventViewModel: EventViewModel
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        settingsButton(onSettingsClicked = onSettingsClicked)
+        ScanEventQRButton(eventViewModel, modifier = Modifier.fillMaxWidth(0.8f))
+    }
+}
+
+@Composable
+private fun settingsButton(
+    onSettingsClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        modifier = modifier,
+        onClick = { onSettingsClicked() }
+    ) {
+        Icon(
+            Icons.Filled.Settings,
+            contentDescription = stringResource(id = R.string.settings),
+            tint = Color.White
+        )
     }
 }
 
@@ -256,20 +279,24 @@ private fun CityNameDisplay() {
 
 @Composable
 fun ScanEventQRButton(
-    eventViewModel: EventViewModel
+    eventViewModel: EventViewModel,
+    modifier: Modifier = Modifier
 ) {
     var scannedResult by remember { mutableStateOf("") }
-    // Show text as debug
-    Text(text = "scanned: (${scannedResult})")
-    QRCodeScanner(
-        onScanResult = {
-            scannedResult = it
-            try {
-                val event = Json.decodeFromString<Event>(it)
-                val crossRef = UserScansEventCrossRef(id = user!!.id, eventId = event.eventId)
-                eventViewModel.addScan(crossRef)
-            } catch (_: Exception) {}
-        }
-    )
+    Column(horizontalAlignment = Alignment.End, modifier = modifier) {
+        QRCodeScanner(
+            onlyIcon = true,
+            onScanResult = {
+                scannedResult = it
+                try {
+                    val event = Json.decodeFromString<Event>(it)
+                    val crossRef = UserScansEventCrossRef(id = user!!.id, eventId = event.eventId)
+                    eventViewModel.addScan(crossRef)
+                } catch (_: Exception) {}
+            }
+        )
+        // Show text as debug
+        Text(text = "scanned: (${scannedResult})")
+    }
 }
 

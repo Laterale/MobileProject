@@ -61,7 +61,7 @@ fun TextButton(
 }
 
 @Composable
-fun IconButton(
+fun PartyIconButton(
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,

@@ -32,7 +32,7 @@ fun QRDialogButton(
     val qrCodeBitmap = qrAnalyzer.generateQRCode(qrContent)
     var showDialog: Boolean by remember { mutableStateOf(false) }
 
-    IconButton(
+    PartyIconButton(
         icon = Icons.Filled.QrCode,
         contentDescription = stringResource(id = R.string.qr),
         onClick = { showDialog = true }, modifier = modifier
