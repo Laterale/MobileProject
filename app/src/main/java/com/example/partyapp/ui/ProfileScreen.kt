@@ -2,6 +2,7 @@ package com.example.partyapp.ui
 
 import LocationHelper
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
@@ -49,6 +51,7 @@ import com.example.partyapp.ui.components.QRCodeScanner
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.serialization.json.Json
 import java.io.File
 
 val labelGray: Color = Color(0x80FFFFFF)
@@ -256,11 +259,17 @@ private fun CityNameDisplay() {
 fun ScanEventQRButton() {
     val context = LocalContext.current
     var scannedResult by remember { mutableStateOf("") }
-
+    // Show text as debug
     Text(text = "scanned: (${scannedResult})")
-
     QRCodeScanner(
-        onScanResult = { scannedResult = it }
+        onScanResult = {
+            scannedResult = it
+            try {
+                val event = Json.decodeFromString<Event>(it)
+                Log.d("SCAN_EVENT_QR", "decoded event ${event.eventId}")
+                // TODO: save scan
+            } catch (_: Exception) {}
+        }
     )
 }
 
