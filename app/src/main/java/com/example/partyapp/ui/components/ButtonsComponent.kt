@@ -1,5 +1,6 @@
 package com.example.partyapp.ui.components
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.partyapp.ui.theme.Glass10
@@ -55,5 +57,30 @@ fun TextButton(
         enabled = enabled
     ) {
         Text(text = text, color = textColor)
+    }
+}
+
+@Composable
+fun PartyIconButton(
+    icon: ImageVector,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    text: String = "",
+    onClick: () -> Unit = {},
+    cornerRadius: Dp = 15.dp,
+    textColor: Color = Color.White,
+    enabled: Boolean = true
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(cornerRadius),
+        colors = getDefaultButtonColors(),
+        modifier = modifier
+    ) {
+        Icon(imageVector = icon, contentDescription = contentDescription, tint = textColor)
+        if (text != "") {
+            Text(text = text, color = textColor, modifier = Modifier.padding(start = 10.dp))
+        }
     }
 }

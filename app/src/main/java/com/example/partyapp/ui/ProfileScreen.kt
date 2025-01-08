@@ -6,17 +6,23 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BackdropScaffold
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
@@ -35,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -42,47 +49,113 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
+import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.data.relation.UserScansEventCrossRef
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
+import com.example.partyapp.ui.components.Scanner
 import com.example.partyapp.ui.theme.Typography
-import com.example.partyapp.viewModel.SettingsViewModel
+import com.example.partyapp.ui.theme.getColorScheme
+import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.serialization.json.Json
 import java.io.File
 
 val labelGray: Color = Color(0x80FFFFFF)
 var user: User? = null;
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
     onSettingsClicked: ()->Unit,
     userViewModel: UserViewModel,
+    eventViewModel: EventViewModel,
     session: String,
 ) {
+    var colorScheme = getColorScheme()
+    var bgGradient by remember { mutableStateOf(value = arrayOf(
+        0.1f to colorScheme.primary,
+        0.5f to colorScheme.background,
+        0.9f to colorScheme.tertiary
+    )) }
     SetCurrentUser(userViewModel, session)
-    Column(
+    BackdropScaffold(
+        appBar = { },
+        backLayerContent = { SettingsAndScan(onSettingsClicked, eventViewModel) },
+        frontLayerContent = {
+            Box (modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(colorStops = bgGradient))
+            ) {
+                UserProfile(userViewModel = userViewModel, session = session)
+            }
+        },
+        frontLayerBackgroundColor = Color.Transparent,
+        frontLayerScrimColor = Color.Black.copy(alpha = 0.4f),
+        backLayerBackgroundColor = colorScheme.secondary.copy(alpha = 0.1f), //colorScheme.tertiary,
+        frontLayerElevation = 20.dp
+    )
+}
+
+@Composable
+private fun UserProfile(
+    userViewModel: UserViewModel,
+    session: String,
+) {
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent)
             .padding(30.dp, 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        IconButton(
-            modifier = Modifier.align(Alignment.Start),
-            onClick = { onSettingsClicked() }
+        item { UserProfilePic(userViewModel) }
+        item { Text(text = user?.username ?: stringResource(id = R.string.username), style = Typography.bodyMedium) }
+        item { CityNameDisplay() }
+        item { XpBar() }
+        item { HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp)) }
+    }
+}
+
+@Composable
+private fun SettingsAndScan(
+    onSettingsClicked: () -> Unit,
+    eventViewModel: EventViewModel
+) {
+    Column (Modifier.padding(5.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Icon(
-                Icons.Filled.Settings,
-                contentDescription = stringResource(id = R.string.settings),
-                tint = Color.White
-            )
+            settingsButton(onSettingsClicked = onSettingsClicked)
+            Row () {
+                Text(text = stringResource(id = R.string.swipe_to_scan), color = Color.White)
+                Icon(
+                    imageVector = Icons.Default.KeyboardDoubleArrowDown,
+                    contentDescription = stringResource(id = R.string.swipe_down),
+                    tint = Color.White
+                )
+            }
         }
-        UserProfilePic(userViewModel)
-        Text(text = user?.username ?: stringResource(id = R.string.username), style = Typography.bodyMedium)
-        CityNameDisplay()
-        XpBar()
-        HorizontalDivider(
-            color = Color.White
+        ScanEventQR(eventViewModel, modifier = Modifier.fillMaxWidth())
+    }
+}
+
+@Composable
+private fun settingsButton(
+    onSettingsClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        modifier = modifier,
+        onClick = { onSettingsClicked() }
+    ) {
+        Icon(
+            Icons.Filled.Settings,
+            contentDescription = stringResource(id = R.string.settings),
+            tint = Color.White
         )
     }
 }
@@ -108,7 +181,7 @@ private fun isLoggedUser(userViewModel: UserViewModel, session: String): Boolean
 @Composable
 private fun XpBar() {
     Row(
-        modifier = Modifier.padding(0.dp,15.dp,0.dp,30.dp)
+        modifier = Modifier.padding(top = 15.dp)
     ) {
         LinearProgressIndicator(
             progress = { 0.5f },
@@ -246,6 +319,41 @@ private fun CityNameDisplay() {
             text = if (cityName != null) cityName.toString()
                    else stringResource(id = R.string.no_location),
             style = Typography.labelMedium
+        )
+    }
+}
+
+@Composable
+fun ScanEventQR(
+    eventViewModel: EventViewModel,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val added = stringResource(id = R.string.added)
+    var scannedResult by remember { mutableStateOf("") }
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(id = R.string.lbl_scan_qr_hint),
+            color = Color.White,
+            style = Typography.labelMedium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 10.dp),
+        )
+        // Show text as debug
+//        Text(text = "scanned: (${scannedResult})", color = Color.White)
+        Scanner(
+            onScanResult = {
+                scannedResult = it
+                try {
+                    val event = Json.decodeFromString<Event>(it)
+                    val crossRef = UserScansEventCrossRef(id = user!!.id, eventId = event.eventId)
+                    eventViewModel.addScan(crossRef)
+                    Toast.makeText(context, "${event.name} $added", Toast.LENGTH_SHORT).show()
+                } catch (_: Exception) {}
+            },
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
