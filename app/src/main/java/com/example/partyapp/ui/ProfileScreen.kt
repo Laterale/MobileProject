@@ -340,7 +340,7 @@ fun ScanEventQR(
                 .padding(vertical = 10.dp),
         )
         // Show text as debug
-        Text(text = "scanned: (${scannedResult})", color = Color.White)
+//        Text(text = "scanned: (${scannedResult})", color = Color.White)
         Scanner(
             onScanResult = {
                 scannedResult = it
