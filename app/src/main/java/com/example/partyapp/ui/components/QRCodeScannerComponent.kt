@@ -97,11 +97,7 @@ private fun ScannerPreview(onScanResult: (String) -> Unit = {}) {
             PreviewView(ctx).apply {
                 val cameraProvider = cameraProviderFuture.get()
                 val preview = Preview.Builder().build()
-                val analyzer = QRCodeAnalyzer(context,
-                    onResult = { result ->
-                        Log.d("QRCodeAnalyzer", "Scanned QR Code: $result")
-                    }
-                )
+                val analyzer = QRCodeAnalyzer(context, onResult = { onScanResult(it) })
 
                 val imageAnalysis = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)

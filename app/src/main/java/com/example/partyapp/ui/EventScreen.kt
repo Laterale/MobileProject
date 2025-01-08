@@ -76,6 +76,8 @@ import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.ZoneId
 import java.util.Calendar
@@ -518,7 +520,7 @@ private fun DeleteEventButton(
     )
     QRDialogButton(
         text = stringResource(id = R.string.event_qr_code),
-        qrContent = event.eventId.toString(),
+        qrContent = Json.encodeToString(event),
         modifier = Modifier.fillMaxWidth()
     )
 }

@@ -255,10 +255,12 @@ private fun CityNameDisplay() {
 @Composable
 fun ScanEventQRButton() {
     val context = LocalContext.current
+    var scannedResult by remember { mutableStateOf("") }
+
+    Text(text = "scanned: (${scannedResult})")
+
     QRCodeScanner(
-        onScanResult = {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-        }
+        onScanResult = { scannedResult = it }
     )
 }
 

@@ -32,12 +32,14 @@ class EventUtilities {
     }
 
     fun getEventLocationString(context: Context, event: Event): String {
-        val geocoder = Geocoder(context)
-        val addresses: MutableList<Address>? = geocoder.getFromLocation(event.location.latitude, event.location.longitude, 1)
-        if (event.location.city != "" && !addresses.isNullOrEmpty()) {
-            return addresses[0].getAddressLine(0)
-        }
-        return ""
+        try {
+            val geocoder = Geocoder(context)
+            val addresses: MutableList<Address>? = geocoder.getFromLocation(event.location.latitude, event.location.longitude, 1)
+            if (event.location.city != "" && !addresses.isNullOrEmpty()) {
+                return addresses[0].getAddressLine(0)
+            }
+        } catch (_: Exception) { } // Throws exception if offline
+        return event.location.city
     }
     
     fun isEventCreatedBy(event: Event, user: User): Boolean {
