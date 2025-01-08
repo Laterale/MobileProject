@@ -15,10 +15,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BackdropScaffold
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowDown
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
@@ -37,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -49,8 +54,9 @@ import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.relation.UserScansEventCrossRef
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
-import com.example.partyapp.ui.components.QRCodeScanner
+import com.example.partyapp.ui.components.Scanner
 import com.example.partyapp.ui.theme.Typography
+import com.example.partyapp.ui.theme.getColorScheme
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.serialization.json.Json
@@ -59,6 +65,7 @@ import java.io.File
 val labelGray: Color = Color(0x80FFFFFF)
 var user: User? = null;
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
     onSettingsClicked: ()->Unit,
@@ -66,34 +73,73 @@ fun ProfileScreen(
     eventViewModel: EventViewModel,
     session: String,
 ) {
+    var colorScheme = getColorScheme()
+    var bgGradient by remember { mutableStateOf(value = arrayOf(
+        0.1f to colorScheme.primary,
+        0.5f to colorScheme.background,
+        0.9f to colorScheme.tertiary
+    )) }
     SetCurrentUser(userViewModel, session)
-    HeaderButtons(onSettingsClicked, eventViewModel)
-    Column(
+    BackdropScaffold(
+        appBar = { },
+        backLayerContent = { SettingsAndScan(onSettingsClicked, eventViewModel) },
+        frontLayerContent = {
+            Box (modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(colorStops = bgGradient))
+            ) {
+                UserProfile(userViewModel = userViewModel, session = session)
+            }
+        },
+        frontLayerBackgroundColor = Color.Transparent,
+        frontLayerScrimColor = Color.Black.copy(alpha = 0.4f),
+        backLayerBackgroundColor = colorScheme.secondary.copy(alpha = 0.1f), //colorScheme.tertiary,
+        frontLayerElevation = 20.dp
+    )
+}
+
+@Composable
+private fun UserProfile(
+    userViewModel: UserViewModel,
+    session: String,
+) {
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent)
             .padding(30.dp, 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        UserProfilePic(userViewModel)
-        Text(text = user?.username ?: stringResource(id = R.string.username), style = Typography.bodyMedium)
-        CityNameDisplay()
-        XpBar()
-        HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp))
+        item { UserProfilePic(userViewModel) }
+        item { Text(text = user?.username ?: stringResource(id = R.string.username), style = Typography.bodyMedium) }
+        item { CityNameDisplay() }
+        item { XpBar() }
+        item { HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp)) }
     }
 }
 
 @Composable
-private fun HeaderButtons(
+private fun SettingsAndScan(
     onSettingsClicked: () -> Unit,
     eventViewModel: EventViewModel
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        settingsButton(onSettingsClicked = onSettingsClicked)
-        ScanEventQRButton(eventViewModel, modifier = Modifier.fillMaxWidth(0.8f))
+    Column (Modifier.padding(5.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            settingsButton(onSettingsClicked = onSettingsClicked)
+            Row () {
+                Text(text = stringResource(id = R.string.swipe_to_scan), color = Color.White)
+                Icon(
+                    imageVector = Icons.Default.KeyboardDoubleArrowDown,
+                    contentDescription = stringResource(id = R.string.swipe_down),
+                    tint = Color.White
+                )
+            }
+        }
+        ScanEventQR(eventViewModel, modifier = Modifier.fillMaxWidth())
     }
 }
 
@@ -278,14 +324,24 @@ private fun CityNameDisplay() {
 }
 
 @Composable
-fun ScanEventQRButton(
+fun ScanEventQR(
     eventViewModel: EventViewModel,
     modifier: Modifier = Modifier
 ) {
     var scannedResult by remember { mutableStateOf("") }
-    Column(horizontalAlignment = Alignment.End, modifier = modifier) {
-        QRCodeScanner(
-            onlyIcon = true,
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(id = R.string.lbl_scan_qr_hint),
+            color = Color.White,
+            style = Typography.labelMedium,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 10.dp),
+        )
+        // Show text as debug
+        Text(text = "scanned: (${scannedResult})", color = Color.White)
+        Scanner(
             onScanResult = {
                 scannedResult = it
                 try {
@@ -293,10 +349,9 @@ fun ScanEventQRButton(
                     val crossRef = UserScansEventCrossRef(id = user!!.id, eventId = event.eventId)
                     eventViewModel.addScan(crossRef)
                 } catch (_: Exception) {}
-            }
+            },
+            modifier = Modifier.fillMaxSize()
         )
-        // Show text as debug
-        Text(text = "scanned: (${scannedResult})")
     }
 }
 

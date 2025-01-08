@@ -41,6 +41,7 @@
     <string name="lbl_no_added_events">No added events.</string>
     <string name="lbl_scan_qr">Scan QR code</string>
     <string name="lbl_scan_qr_hide">Hide QR code scanner</string>
+    <string name="lbl_scan_qr_hint">Scan an event\'s QR code to confirm your participation.</string>
     <string name="lbl_set_sys_theme">Use system theme</string>
     <string name="lbl_set_dark_theme">Use dark theme</string>
     <string name="lbl_user_pfp">User profile picture</string>
@@ -57,6 +58,8 @@
     <string name="search">Search</string>
     <string name="settings">Settings</string>
     <string name="show_qr">Show QR code</string>
+    <string name="swipe_down">Swipe down</string>
+    <string name="swipe_to_scan">Swipe to scan</string>
     <string name="take_pic">Take a picture</string>
     <string name="username">Username</string>
     <string name="user_location">User location</string>

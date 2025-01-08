@@ -7,9 +7,9 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCodeScanner
@@ -69,7 +69,7 @@ fun QRCodeScanner(
 }
 
 @Composable
-private fun Scanner(
+fun Scanner(
     modifier: Modifier = Modifier,
     onScanResult: (String) -> Unit = {},
 ) {
@@ -88,7 +88,7 @@ private fun Scanner(
     ) {
         permissionsHelper.RequestCameraPermission(doIfGranted = { hasPermission = true })
         if (hasPermission) {
-            ScannerPreview(onScanResult = onScanResult, modifier = Modifier.size(300.dp))
+            ScannerPreview(onScanResult = onScanResult, modifier = Modifier.fillMaxSize())
         } else {
             Text(text = stringResource(id = R.string.err_perm_denied), color = Color.Gray)
         }
