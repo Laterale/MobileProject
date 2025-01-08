@@ -2,7 +2,6 @@ package com.example.partyapp.ui
 
 import LocationHelper
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -45,11 +44,12 @@ import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.data.entity.Event
 import com.example.partyapp.data.entity.User
+import com.example.partyapp.data.relation.UserScansEventCrossRef
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.components.QRCodeScanner
 import com.example.partyapp.ui.theme.Typography
-import com.example.partyapp.viewModel.SettingsViewModel
+import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -61,6 +61,7 @@ var user: User? = null;
 fun ProfileScreen(
     onSettingsClicked: ()->Unit,
     userViewModel: UserViewModel,
+    eventViewModel: EventViewModel,
     session: String,
 ) {
     SetCurrentUser(userViewModel, session)
@@ -86,7 +87,7 @@ fun ProfileScreen(
         CityNameDisplay()
         XpBar()
         HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp))
-        ScanEventQRButton()
+        ScanEventQRButton(eventViewModel)
     }
 }
 
@@ -254,8 +255,9 @@ private fun CityNameDisplay() {
 }
 
 @Composable
-fun ScanEventQRButton() {
-    val context = LocalContext.current
+fun ScanEventQRButton(
+    eventViewModel: EventViewModel
+) {
     var scannedResult by remember { mutableStateOf("") }
     // Show text as debug
     Text(text = "scanned: (${scannedResult})")
@@ -264,8 +266,8 @@ fun ScanEventQRButton() {
             scannedResult = it
             try {
                 val event = Json.decodeFromString<Event>(it)
-                Log.d("SCAN_EVENT_QR", "decoded event ${event.eventId}")
-                // TODO: save scan
+                val crossRef = UserScansEventCrossRef(id = user!!.id, eventId = event.eventId)
+                eventViewModel.addScan(crossRef)
             } catch (_: Exception) {}
         }
     )
