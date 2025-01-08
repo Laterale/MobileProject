@@ -64,4 +64,27 @@ class EventUtilities {
             throw IllegalStateException("Event location not set")
         }
     }
+
+    fun dayToString(value: Int ): String {
+        var day = (value + 100).toString()
+        val stringDay = "" +
+                day.get(0) +
+                day.get(1) +
+                day.get(2) +
+                day.get(3) +
+                "-" +
+                day.get(4) +
+                day.get(5) +
+                "-" +
+                day.get(6) +
+                day.get(7)
+        return stringDay
+    }
+
+    fun dateToStr(date: Calendar): String {
+        return date.time.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .toString()
+    }
 }

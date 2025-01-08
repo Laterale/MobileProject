@@ -35,11 +35,22 @@ import com.example.partyapp.ui.theme.Indigo
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import java.time.ZoneId
+import java.util.Calendar
 
 var userSettings = UserSettings(
     useSystemTheme = false,
-    customTheme = LIGHT_THEME
+    customTheme = LIGHT_THEME,
+    rangeFilter = 5,
+    dateFilter = dateToStr(Calendar.getInstance())
 )
+
+private fun dateToStr(date: Calendar): String {
+    return date.time.toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        .toString()
+}
 
 @Composable
 fun SettingsScreen(
