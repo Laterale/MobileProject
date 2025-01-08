@@ -180,15 +180,18 @@ private fun isLoggedUser(userViewModel: UserViewModel, session: String): Boolean
 
 @Composable
 private fun XpBar() {
+    val userLv = LevelThreshold.getLevelForXp(user?.exp ?: 0).level
     Row(
         modifier = Modifier.padding(top = 15.dp)
     ) {
+        Text(text = "$userLv", color = Color.White)
         LinearProgressIndicator(
-            progress = { 0.5f },
+            progress = { LevelThreshold.getPercentageToNextLevel(user?.exp ?: 0) },
             modifier = Modifier.size(200.dp, 2.5.dp),
             color = Color.White,
             trackColor = Color.DarkGray,
         )
+        Text(text = "${userLv+1}", color = Color.White)
     }
 }
 
