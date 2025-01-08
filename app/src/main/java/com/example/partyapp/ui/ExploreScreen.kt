@@ -23,15 +23,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.partyapp.services.EventUtilities
 import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.ui.components.IconDatePickerComponent
-import com.example.partyapp.viewModel.EventViewModel
-import com.example.partyapp.viewModel.UserViewModel
 import com.example.partyapp.ui.theme.Glass20
+import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
+import com.example.partyapp.viewModel.UserViewModel
 import java.util.Calendar
-import com.example.partyapp.services.EventUtilities
 import kotlin.math.roundToInt
+
 val utilities = EventUtilities()
 @Composable
 fun ExploreScreen(
@@ -116,7 +117,7 @@ fun FiltersBar(
             modifier = Modifier.weight(0.15f),
             horizontalArrangement = Arrangement.Center
         ) {
-            Text(text = sliderPosition.roundToInt().toString() + "km")
+            Text(text = sliderPosition.roundToInt().toString() + "km", color = Color.White)
         }
     }
 }
