@@ -17,11 +17,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,6 +50,7 @@ import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.theme.Typography
+import com.example.partyapp.ui.theme.getColorScheme
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.UserViewModel
 import java.io.File
@@ -56,10 +58,10 @@ import java.io.File
 val labelGray: Color = Color(0x80FFFFFF)
 var user: User? = null;
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
-    onSettingsClicked: ()->Unit,
+    onSettingsClicked: () -> Unit,
+    onQRScanFABClicked: () -> Unit,
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
     session: String,
@@ -74,6 +76,21 @@ fun ProfileScreen(
     ) {
         item { settingsButton(onSettingsClicked = onSettingsClicked) }
         item { UserProfile(userViewModel = userViewModel) }
+    }
+
+    Box (modifier = Modifier.fillMaxSize()) {
+        val colorScheme = getColorScheme(userSettings)
+        FloatingActionButton(
+            onClick = onQRScanFABClicked,
+            backgroundColor = colorScheme.surface,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.QrCodeScanner,
+                contentDescription = stringResource(id = R.string.lbl_scan_qr),
+                tint = colorScheme.onSurface
+            )
+        }
     }
 }
 

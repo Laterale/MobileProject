@@ -20,14 +20,18 @@ private val DarkColorScheme = darkColorScheme(
     primary = DarkTeal,
     secondary = Indigo,
     tertiary = Color.Black,
-    background = Indigo
+    background = Indigo,
+    surface = DarkTeal,
+    onSurface = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Salmon,
     secondary = Violet,
     tertiary = Indigo,
-    background = Violet
+    background = Violet,
+    surface = Salmon,
+    onSurface = Violet
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

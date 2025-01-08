@@ -63,6 +63,7 @@ import com.example.partyapp.ui.ScanScreen
 import com.example.partyapp.ui.SettingsScreen
 import com.example.partyapp.ui.theme.UpdateStatusBarColor
 import com.example.partyapp.ui.theme.getColorScheme
+import com.example.partyapp.ui.userSettings
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.LocationViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
@@ -221,6 +222,9 @@ fun NavigationApp(
     )) }
 
     settings?.settings?.collectAsState(initial = null)?.also {
+        if (it.value != null) {
+            userSettings = it.value!!
+        }
         colorScheme = getColorScheme(it.value)
         UpdateStatusBarColor(it.value)
         bgGradient = arrayOf(
@@ -302,9 +306,8 @@ private fun NavigationGraph(
         }
         composable(route = AppScreen.Profile.name) {
             ProfileScreen(
-                onSettingsClicked = {
-                    navController.navigate(AppScreen.Settings.name)
-                },
+                onSettingsClicked = { navController.navigate(AppScreen.Settings.name) },
+                onQRScanFABClicked = { navController.navigate(AppScreen.Scan.name) },
                 userViewModel = userViewModel,
                 eventViewModel = eventViewModel,
                 session = session
