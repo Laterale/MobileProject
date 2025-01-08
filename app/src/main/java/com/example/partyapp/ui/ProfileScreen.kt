@@ -328,6 +328,8 @@ fun ScanEventQR(
     eventViewModel: EventViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val added = stringResource(id = R.string.added)
     var scannedResult by remember { mutableStateOf("") }
     Column(modifier = modifier) {
         Text(
@@ -348,6 +350,7 @@ fun ScanEventQR(
                     val event = Json.decodeFromString<Event>(it)
                     val crossRef = UserScansEventCrossRef(id = user!!.id, eventId = event.eventId)
                     eventViewModel.addScan(crossRef)
+                    Toast.makeText(context, "${event.name} $added", Toast.LENGTH_SHORT).show()
                 } catch (_: Exception) {}
             },
             modifier = Modifier.fillMaxSize()
