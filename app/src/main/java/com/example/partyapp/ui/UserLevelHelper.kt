@@ -30,7 +30,7 @@ enum class LevelThreshold(private val requiredXp: Int, val level: Int) {
             val deltaXp = (nextLevel.requiredXp - currentLevel.requiredXp).toFloat()
             val reducedXp = (xp - currentLevel.requiredXp).toFloat()
             // d : 100 = r : x
-            return reducedXp * 100.0f / deltaXp
+            return reducedXp / deltaXp
         }
     }
 }
