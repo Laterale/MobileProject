@@ -16,15 +16,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.partyapp.ui.theme.Glass10
 import java.util.Calendar
 
 @Composable
 fun PartyDatePickerComponent(
     text: String = "",
-    onDatePicked: (Int, Int, Int) -> Unit = {y, m, d -> },
+    onDatePicked: (Int, Int, Int) -> Unit = { y, m, d -> },
+    fontSize: TextUnit? = null
 ) {
     val context = LocalContext.current
     val tp = DatePickerDialog(
@@ -37,22 +38,18 @@ fun PartyDatePickerComponent(
     Button(
         onClick = { tp.show() },
         colors = buttonColors(Glass10),
-        contentPadding = PaddingValues(0.dp),
-//            .border(
-//                width = 1.dp,
-//                shape = RoundedCornerShape(size = 5.dp),
-//                color = Color.hsl(0f, 0f, 1f, 0.20f),
-//            )
+        contentPadding = PaddingValues(0.dp)
     ) {
-        Text(text = text, color = Color.White, fontSize = 11.sp)
+        Text(text = text, color = Color.White, fontSize = fontSize ?: TextUnit.Unspecified)
     }
 }
 
 @Composable
 fun IconDatePickerComponent(
     text: String = "",
-    onDatePicked: (Int, Int, Int) -> Unit = {y, m, d -> }
-){
+    onDatePicked: (Int, Int, Int) -> Unit = { y, m, d -> },
+    fontSize: TextUnit? = null
+) {
     val context = LocalContext.current
     val tp = DatePickerDialog(
         context,
@@ -72,6 +69,11 @@ fun IconDatePickerComponent(
                 modifier = Modifier.fillMaxSize()
             )
         }
-        Text(modifier = Modifier.align(Alignment.Bottom),text = text, color = Color.White,  fontSize = 13.sp)
+        Text(
+            modifier = Modifier.align(Alignment.Bottom),
+            text = text,
+            color = Color.White,
+            fontSize = fontSize ?: TextUnit.Unspecified
+        )
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.partyapp.services.EventUtilities
 import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.ui.components.IconDatePickerComponent
@@ -88,7 +89,7 @@ fun FiltersBar(
     ) {
         Row(modifier = Modifier.weight(0.4f)) {
             IconDatePickerComponent(
-                date,
+                date, fontSize = 13.sp,
                 onDatePicked = { year, month, day ->
                     cal.apply { set(year, month, day) }
                     userSettings = userSettings.copy(dateFilter = utilities.dateToStr(cal))
