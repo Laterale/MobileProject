@@ -391,7 +391,8 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
                 text = starts,
                 onTimePicked = { h, m ->
                     starts = "%02d:%02d".format(h, m)
-                    updateEvent(event.copy(starts = starts))
+                    ends = "%02d:%02d".format(h + 2, m)
+                    updateEvent(event.copy(starts = starts, ends = ends))
                 }
             )
             Text(text = "-", color = Color.White)

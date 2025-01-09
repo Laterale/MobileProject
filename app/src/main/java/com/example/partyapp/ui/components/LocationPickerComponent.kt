@@ -110,7 +110,8 @@ fun LocationPicker(
                 if (!addresses.isNullOrEmpty()) {
                     onLocationPicked(addresses[0])
                 }
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
