@@ -53,6 +53,13 @@ class UserViewModel @Inject constructor(
         repository.updateExpFromId(user.id, (user.exp + newExp).toString())
     }
 
+    fun addExpToLoggedUser(exp: Int) = viewModelScope.launch {
+        _loggedUser?.let {
+            repository.updateExpFromId(it.id, (it.exp + exp).toString())
+            it.exp += exp
+        }
+    }
+
     suspend fun insertNewUser(user: User) = repository.insertNewUser(user)
     //viewModelScope.launch {
     //    repository.insertNewUser(user)

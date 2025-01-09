@@ -175,8 +175,8 @@ private fun UserProfilePic(userViewModel: UserViewModel) {
         user!!.pfp = path
         userViewModel.changePfpFromId(user?.id!!, path)
         if (isFirstTime) {
-            userViewModel.addExpToUser(user!!, 10)
-            user!!.exp += 10
+            userViewModel.addExpToLoggedUser(10)
+            user = userViewModel.loggedUser
         }
     }
 
