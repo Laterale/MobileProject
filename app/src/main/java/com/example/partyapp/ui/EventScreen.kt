@@ -519,6 +519,8 @@ private fun DeleteEventButton(
                     )
                 )
             }
+            eventViewModel.deleteEvent(event.eventId)
+            onBackToPrevPage()
         },
         modifier = Modifier.fillMaxWidth(0.5f),
     )
