@@ -170,9 +170,14 @@ private fun XpBar() {
 private fun UserProfilePic(userViewModel: UserViewModel) {
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     val setImg: (Uri, String) -> Unit = { uri, path ->
+        val isFirstTime = user?.pfp == null || user?.pfp == ""
         photoUri = uri
         user!!.pfp = path
         userViewModel.changePfpFromId(user?.id!!, path)
+        if (isFirstTime) {
+            userViewModel.addExpToUser(user!!, 10)
+            user!!.exp += 10
+        }
     }
 
     Box(
