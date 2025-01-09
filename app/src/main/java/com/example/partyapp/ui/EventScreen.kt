@@ -52,6 +52,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -205,28 +206,32 @@ private fun AddEventImageBtn(
 @Preview
 @Composable
 private fun EventDetails(modifier: Modifier = Modifier) {
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-        horizontalArrangement = Arrangement.spacedBy(5.dp),
-        modifier = modifier,
-    ) {
-        item { EventDateDetail() }
-        item { EventLocationDetail() }
-        item { EventTimeDetail() }
-        item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(top = if (isEditingMode()) 0.dp else 5.dp, bottom = if (isEditingMode()) 15.dp else 0.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = stringResource(id = R.string.lbl_event_participants),
-                    tint = Color.White
-                )
-                Text(text = event.participants.toString(), color = Color.White)
+    Row (modifier = modifier) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            item { EventDateDetail() }
+            item { EventLocationDetail() }
+            item { EventTimeDetail() }
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(
+                        top = if (isEditingMode()) 0.dp else 5.dp,
+                        bottom = if (isEditingMode()) 15.dp else 0.dp
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = stringResource(id = R.string.lbl_event_participants),
+                        tint = Color.White
+                    )
+                    Text(text = event.participants.toString(), color = Color.White)
+                }
             }
         }
     }
@@ -299,7 +304,8 @@ private fun EventDescription(modifier: Modifier = Modifier) {
                     updateEvent(event.copy(description = it))
                 },
                 placeholder = stringResource(id = R.string.description),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                singleLine = false
             )
         } else {
             OutlinedCard(
@@ -312,7 +318,8 @@ private fun EventDescription(modifier: Modifier = Modifier) {
                     style = Typography.bodyMedium,
                     modifier = Modifier
                         .align(alignment = Alignment.Start)
-                        .padding(10.dp)
+                        .padding(10.dp),
+                    textAlign = TextAlign.Justify
                 )
             }
         }
@@ -519,6 +526,8 @@ private fun DeleteEventButton(
                     )
                 )
             }
+            eventViewModel.deleteEvent(event.eventId)
+            onBackToPrevPage()
         },
         modifier = Modifier.fillMaxWidth(0.5f),
     )
