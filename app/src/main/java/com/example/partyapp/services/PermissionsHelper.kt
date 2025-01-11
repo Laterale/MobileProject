@@ -13,10 +13,14 @@ import androidx.compose.runtime.setValue
 
 class PermissionsHelper(context: Context) {
 
+    /**
+     * @param permission The permission to request. Ex. `Manifest.permission.CAMERA`
+     */
     @Composable
-    fun RequestCameraPermission(
-        doIfGranted: () -> Unit = {},
-        elseIfDenied: () -> Unit = {}
+    fun RequestPermission(
+        permission: String,
+        onPermissionGranted: () -> Unit = {},
+        onPermissionDenied: () -> Unit = {}
     ) {
         var hasPermission by remember { mutableStateOf(false) } // Track permission state
         var permissionRequested by remember { mutableStateOf(false) }
@@ -26,10 +30,10 @@ class PermissionsHelper(context: Context) {
             onResult = { isGranted: Boolean ->
                 hasPermission = isGranted
                 if (isGranted) {
-                    doIfGranted()
+                    onPermissionGranted()
                 }
                 else {
-                    elseIfDenied()
+                    onPermissionDenied()
                 }
             }
         )
@@ -37,32 +41,22 @@ class PermissionsHelper(context: Context) {
         LaunchedEffect(permissionRequested) {
             if (!permissionRequested) {
                 permissionRequested = true
-                cameraPermissionRequest.launch(Manifest.permission.CAMERA)
+                cameraPermissionRequest.launch(permission)
             }
         }
     }
 
     @Composable
-    fun RequestLocationPermission(onPermissionGranted: () -> Unit) {
-        var hasPermission by remember { mutableStateOf(false) } // Track permission state
-        var permissionRequested by remember { mutableStateOf(false) }
+    fun RequestCameraPermission(
+        doIfGranted: () -> Unit = {},
+        elseIfDenied: () -> Unit = {}
+    ) {
+        RequestPermission(Manifest.permission.CAMERA, doIfGranted, elseIfDenied)
+    }
 
-        val permissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission(),
-            onResult = { isGranted ->
-                hasPermission = isGranted
-                if (isGranted) {
-                    onPermissionGranted()
-                }
-            }
-        )
-        // Trigger permission request only once
-        LaunchedEffect(permissionRequested) {
-            if (!permissionRequested) {
-                permissionRequested = true
-                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-        }
+    @Composable
+    fun RequestLocationPermission(onPermissionGranted: () -> Unit) {
+        RequestPermission(Manifest.permission.ACCESS_FINE_LOCATION, onPermissionGranted)
     }
 
 }
