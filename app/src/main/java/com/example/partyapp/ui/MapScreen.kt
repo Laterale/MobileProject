@@ -2,7 +2,6 @@ package com.example.partyapp.ui
 
 import LocationHelper
 import android.content.Context
-import android.graphics.Bitmap
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -11,13 +10,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Adb
 import androidx.compose.material.icons.filled.AddLocation
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,12 +32,11 @@ import com.example.partyapp.services.EventUtilities
 import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.ui.components.PartyDialog
-import com.example.partyapp.ui.theme.Salmon
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -50,6 +48,10 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
+private val SINGAPORE_LAT = 1.35
+private val SINGAPORE_LONG = 103.87
+
+
 @Composable
 fun MapScreen(
     eventViewModel: EventViewModel,
@@ -57,7 +59,7 @@ fun MapScreen(
     onEventMarkerClicked: () -> Unit,
     settingsViewModel: SettingsViewModel
 ) {
-    val singapore = LatLng(1.35, 103.87)
+    val singapore = LatLng(SINGAPORE_LAT, SINGAPORE_LONG)
     val context = LocalContext.current
     var location: Location? by remember { mutableStateOf(null) }
 
@@ -95,6 +97,16 @@ fun ShowMapCenteredOn(
     }
     var showDialog by remember { mutableStateOf(false) }
     MapUiSettings(zoomControlsEnabled = true)
+    if (location.latitude != SINGAPORE_LAT && location.longitude != SINGAPORE_LONG) {
+        LaunchedEffect(key1 = true) {
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newCameraPosition(
+                    CameraPosition(location, 15f, 0f, 0f)
+                ),
+                durationMs = 1000
+            )
+        }
+    }
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
