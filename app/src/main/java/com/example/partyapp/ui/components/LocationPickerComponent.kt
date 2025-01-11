@@ -1,5 +1,6 @@
 package com.example.partyapp.ui.components
 
+import LocationHelper
 import android.content.Context
 import android.location.Address
 import android.location.Geocoder
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +33,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.partyapp.R
+import com.example.partyapp.services.PermissionsHelper
+import com.example.partyapp.ui.SINGAPORE_LAT
+import com.example.partyapp.ui.SINGAPORE_LONG
 import com.example.partyapp.ui.theme.Glass10
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -70,19 +76,44 @@ fun LocationPickerDialogButton(
         )
     }
 }
+@Composable
+private fun AnimateCamera(cameraPositionState: CameraPositionState, latLng: LatLng) {
+    LaunchedEffect(key1 = true) {
+        cameraPositionState.animate(
+            update = CameraUpdateFactory.newCameraPosition(
+                CameraPosition(latLng, 15f, 0f, 0f)
+            ),
+            durationMs = 1000
+        )
+    }
+}
 
 @Composable
 fun LocationPicker(
     onLocationPicked: (Address) -> Unit
 ) {
     val context = LocalContext.current
+    val helper = LocationHelper(context)
+    var latLng: LatLng? by remember { mutableStateOf(null) }
     val geocoder = Geocoder(context)
     val zoom = 10f
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
-            LatLng(37.7749, -122.4194), zoom
+            LatLng(SINGAPORE_LAT, SINGAPORE_LONG), zoom
         )
     }
+
+    PermissionsHelper(context).RequestLocationPermission {
+        helper.getCurrentLocation { loc ->
+            if (loc != null) {
+                latLng = LatLng(loc.latitude, loc.longitude)
+            }
+        }
+    }
+    if (latLng != null) {
+        AnimateCamera(cameraPositionState, latLng!!)
+    }
+
     Column (verticalArrangement = Arrangement.spacedBy(10.dp)) {
         AddressSearch(
             modifier = Modifier.height(60.dp),

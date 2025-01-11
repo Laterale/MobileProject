@@ -48,8 +48,8 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
-private val SINGAPORE_LAT = 1.35
-private val SINGAPORE_LONG = 103.87
+const val SINGAPORE_LAT = 1.35
+const val SINGAPORE_LONG = 103.87
 
 
 @Composable
