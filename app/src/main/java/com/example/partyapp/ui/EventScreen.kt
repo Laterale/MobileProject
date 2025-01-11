@@ -472,6 +472,8 @@ private fun SaveDiscardBtns(
 ) {
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
+    val newEventXp = 10
+    val xpGainedMsg = stringResource(id = R.string.msg_gained_xp, newEventXp)
     PartyIconButton(
         icon = Icons.Default.Close, contentDescription = stringResource(id = R.string.discard),
         textColor = Color.Red,
@@ -481,7 +483,24 @@ private fun SaveDiscardBtns(
     PartyIconButton(
         icon = Icons.Default.Check, contentDescription = stringResource(id = R.string.save),
         textColor = Color.Green,
-        onClick = { saveNewEvent(context, eventViewModel, userViewModel, events, onBackToPrevPage) },
+        onClick = {
+            try {
+                EventUtilities().checkEventValid(event)
+                val newID = events.map { it.eventId }
+                    .ifEmpty { listOf(0) }
+                    .max()
+                    .plus(1)
+                updateEvent(event.copy(eventId = newID))
+                eventViewModel.createNewEvent(event)
+                userViewModel.addExpToLoggedUser(newEventXp)
+                addParticipation(eventViewModel)
+                addNotification(context = context)
+                Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
+                onBackToPrevPage()
+            } catch (ex: Exception) {
+                Toast.makeText(context, ex.message, Toast.LENGTH_SHORT).show()
+            }
+        },
         modifier = Modifier.fillMaxWidth()
     )
 }
@@ -559,30 +578,6 @@ private fun addNotification(context: Context) {
         title = "${event.name} is starting!",
         content = "Hurry! ${event.name} is starting soon!"
     )
-}
-
-private fun saveNewEvent(
-    context: Context,
-    eventViewModel: EventViewModel,
-    userViewModel: UserViewModel,
-    events: List<Event>,
-    onBackToPrevPage: () -> Unit = {}
-) {
-    try {
-        EventUtilities().checkEventValid(event)
-        val newID = events.map { it.eventId }
-            .ifEmpty { listOf(0) }
-            .max()
-            .plus(1)
-        updateEvent(event.copy(eventId = newID))
-        eventViewModel.createNewEvent(event)
-        userViewModel.addExpToLoggedUser(10)
-        addParticipation(eventViewModel)
-        addNotification(context = context)
-        onBackToPrevPage()
-    } catch (ex: Exception) {
-        Toast.makeText(context, ex.message, Toast.LENGTH_SHORT).show()
-    }
 }
 
 private fun isEditingMode(): Boolean {

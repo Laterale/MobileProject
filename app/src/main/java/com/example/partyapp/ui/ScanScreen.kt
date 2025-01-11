@@ -31,7 +31,9 @@ fun ScanScreen(
     onBackToPrevPage: () -> Unit,
 ) {
     val context = LocalContext.current
+    val newScanXp = 15
     val added = stringResource(id = R.string.added)
+    val xpGainedMsg = stringResource(id = R.string.msg_gained_xp, newScanXp)
     var scannedResult by remember { mutableStateOf("") }
     Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
         Text(
@@ -53,6 +55,7 @@ fun ScanScreen(
                     val crossRef = UserScansEventCrossRef(id = user!!.id, eventId = event.eventId)
                     eventViewModel.addScan(crossRef)
                     Toast.makeText(context, "${event.name} $added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
                 } catch (_: Exception) {}
             },
             modifier = Modifier.fillMaxSize()

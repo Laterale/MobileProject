@@ -49,6 +49,7 @@
     <string name="login">Login</string>
     <string name="logo">Logo</string>
     <string name="logout">Logout</string>
+    <string name="msg_gained_xp">You gained %d XP</string>
     <string name="no_description">No description</string>
     <string name="no_location">No location</string>
     <string name="password">Password</string>

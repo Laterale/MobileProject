@@ -168,6 +168,9 @@ private fun XpBar() {
 
 @Composable
 private fun UserProfilePic(userViewModel: UserViewModel) {
+    val newPicXp = 10
+    val xpGainedMsg = stringResource(id = R.string.msg_gained_xp, newPicXp)
+    val context = LocalContext.current
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     val setImg: (Uri, String) -> Unit = { uri, path ->
         val isFirstTime = user?.pfp == null || user?.pfp == ""
@@ -175,7 +178,8 @@ private fun UserProfilePic(userViewModel: UserViewModel) {
         user!!.pfp = path
         userViewModel.changePfpFromId(user?.id!!, path)
         if (isFirstTime) {
-            userViewModel.addExpToLoggedUser(10)
+            userViewModel.addExpToLoggedUser(newPicXp)
+            Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
             user = userViewModel.loggedUser
         }
     }
