@@ -23,15 +23,20 @@ import com.example.partyapp.data.relation.UserScansEventCrossRef
 import com.example.partyapp.ui.components.Scanner
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.viewModel.EventViewModel
+import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.serialization.json.Json
 
 @Composable
 fun ScanScreen(
     eventViewModel: EventViewModel,
+    userViewModel: UserViewModel,
     onBackToPrevPage: () -> Unit,
 ) {
     val context = LocalContext.current
+    val creatorXp = 20
+    val participantXp = 15
     val added = stringResource(id = R.string.added)
+    val xpGainedMsg = stringResource(id = R.string.msg_gained_xp, participantXp)
     var scannedResult by remember { mutableStateOf("") }
     Column(modifier = Modifier.fillMaxSize().padding(20.dp)) {
         Text(
@@ -53,6 +58,9 @@ fun ScanScreen(
                     val crossRef = UserScansEventCrossRef(id = user!!.id, eventId = event.eventId)
                     eventViewModel.addScan(crossRef)
                     Toast.makeText(context, "${event.name} $added", Toast.LENGTH_SHORT).show()
+                    userViewModel.addExpToLoggedUser(participantXp)
+                    Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
+                    userViewModel.addExpToUser(event.creator, creatorXp)
                 } catch (_: Exception) {}
             },
             modifier = Modifier.fillMaxSize()

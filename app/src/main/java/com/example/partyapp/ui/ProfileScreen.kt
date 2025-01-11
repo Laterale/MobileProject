@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,14 +43,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
-import com.example.partyapp.ui.components.StatisticComponent
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.ui.theme.getColorScheme
 import com.example.partyapp.viewModel.EventViewModel
@@ -77,7 +74,7 @@ fun ProfileScreen(
             .padding(30.dp, 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item { SettingsButton(onSettingsClicked = onSettingsClicked) }
+        item { settingsButton(onSettingsClicked = onSettingsClicked) }
         item { UserProfile(userViewModel = userViewModel) }
     }
 
@@ -86,9 +83,7 @@ fun ProfileScreen(
         FloatingActionButton(
             onClick = onQRScanFABClicked,
             backgroundColor = colorScheme.surface,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(20.dp)
+            modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.QrCodeScanner,
@@ -108,11 +103,10 @@ private fun UserProfile(
     CityNameDisplay()
     XpBar()
     HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp))
-    StatisticsDisplay()
 }
 
 @Composable
-private fun SettingsButton(
+private fun settingsButton(
     onSettingsClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -257,26 +251,6 @@ private fun AddImageBtn(
         )
     }
 }
-
-@Composable
-private fun StatisticsDisplay(){
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start
-    ) {
-        StatisticComponent(stat = "Title", value = "PartyLover")
-        StatisticComponent(stat = "Exp", value = "0" + " / " + "100")
-        StatisticComponent(stat = "Events joined", value = "23")
-        StatisticComponent(stat = "Events created", value = "3")
-        StatisticComponent(stat = "Badges", value = "5")
-    }
-}
-
-@Composable
-private fun BadgeDisplay(){
-
-}
-
 
 @Composable
 private fun CityNameDisplay() {
