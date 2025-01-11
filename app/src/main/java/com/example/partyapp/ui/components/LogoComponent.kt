@@ -17,14 +17,14 @@ import com.example.partyapp.R
 @Composable
 fun PartyAppLogo(color: Color) {
     Icon(
-        painter = painterResource(id = R.drawable.logo_icon),
+        painter = painterResource(id = R.drawable.ic_launcher_foreground),
         contentDescription = stringResource(id = R.string.logo),
         tint = color,
         modifier = Modifier.size(80.dp)
     )
     Text(
         text = stringResource(id = R.string.app_name),
-        style = TextStyle(fontSize = 40.sp, fontFamily = FontFamily.Cursive),
+        style = TextStyle(fontSize = 40.sp, fontFamily = FontFamily.Serif),
         color = color
     )
 }
