@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
@@ -59,8 +60,10 @@ fun EventCard(
                     AsyncImage(
                         model = user?.pfp ?: event.creator.pfp,
                         contentDescription = stringResource(id = R.string.lbl_creator_pfp),
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .padding(10.dp, 9.dp)
+                            .size(60.dp)
                             .clip(CircleShape)
                             .background(Color.Black)
                     )

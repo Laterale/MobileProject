@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.partyapp.R
@@ -83,7 +84,9 @@ fun ProfileScreen(
         FloatingActionButton(
             onClick = onQRScanFABClicked,
             backgroundColor = colorScheme.surface,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(20.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.QrCodeScanner,
@@ -142,27 +145,43 @@ private fun isLoggedUser(userViewModel: UserViewModel, session: String): Boolean
     else user?.username == session
 }
 
+@Preview
 @Composable
 private fun XpBar() {
+    val userLv = LevelThreshold.getLevelForXp(user?.exp ?: 0).level
+    val lblLevel = stringResource(id = R.string.lbl_level)
     Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.padding(top = 15.dp)
     ) {
+        Text(text = "$lblLevel $userLv", color = Color.White)
         LinearProgressIndicator(
-            progress = { 0.5f },
+            progress = { LevelThreshold.getPercentageToNextLevel(user?.exp ?: 0) },
             modifier = Modifier.size(200.dp, 2.5.dp),
             color = Color.White,
             trackColor = Color.DarkGray,
         )
+        Text(text = "${userLv+1}", color = Color.White)
     }
 }
 
 @Composable
 private fun UserProfilePic(userViewModel: UserViewModel) {
+    val newPicXp = 10
+    val xpGainedMsg = stringResource(id = R.string.msg_gained_xp, newPicXp)
+    val context = LocalContext.current
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     val setImg: (Uri, String) -> Unit = { uri, path ->
+        val isFirstTime = user?.pfp == null || user?.pfp == ""
         photoUri = uri
         user!!.pfp = path
         userViewModel.changePfpFromId(user?.id!!, path)
+        if (isFirstTime) {
+            userViewModel.addExpToLoggedUser(newPicXp)
+            Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
+            user = userViewModel.loggedUser
+        }
     }
 
     Box(

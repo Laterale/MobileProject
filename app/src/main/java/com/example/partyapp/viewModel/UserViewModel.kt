@@ -5,10 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,6 +47,17 @@ class UserViewModel @Inject constructor(
 
     fun updateExpFromId(userId: Int, newExp: String) = viewModelScope.launch {
         repository.updateExpFromId(userId, newExp)
+    }
+
+    fun addExpToUser(user: User, newExp: Int) = viewModelScope.launch {
+        repository.updateExpFromId(user.id, (user.exp + newExp).toString())
+    }
+
+    fun addExpToLoggedUser(exp: Int) = viewModelScope.launch {
+        _loggedUser?.let {
+            repository.updateExpFromId(it.id, (it.exp + exp).toString())
+            it.exp += exp
+        }
     }
 
     suspend fun insertNewUser(user: User) = repository.insertNewUser(user)
