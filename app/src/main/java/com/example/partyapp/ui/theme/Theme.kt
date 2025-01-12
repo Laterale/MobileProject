@@ -47,8 +47,10 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun getDefaultButtonColors(): ButtonColors {
     return buttonColors(
-        backgroundColor = Glass10,
-        disabledBackgroundColor = Glass10
+        backgroundColor = Color.White.copy(alpha = 0.1f),
+        contentColor = Color.White,
+        disabledBackgroundColor = Color.White.copy(alpha = 0.05f),
+        disabledContentColor = Color.Gray
     )
 }
 

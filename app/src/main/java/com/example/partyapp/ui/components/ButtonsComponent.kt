@@ -1,9 +1,13 @@
 package com.example.partyapp.ui.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults.elevation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -13,9 +17,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.example.partyapp.ui.theme.Glass10
 import com.example.partyapp.ui.theme.getDefaultButtonColors
@@ -46,17 +52,29 @@ fun TextButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     cornerRadius: Dp = 15.dp,
+    padding: PaddingValues = PaddingValues(10.dp),
     textColor: Color = Color.White,
+    fontSize: TextUnit? = TextUnit.Unspecified,
     enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(cornerRadius),
         colors = getDefaultButtonColors(),
-        enabled = enabled
+        contentPadding = padding,
+        enabled = enabled,
+        shape = RoundedCornerShape(cornerRadius),
+        border = BorderStroke(
+            width = 1.dp,
+            brush = Brush.verticalGradient(
+                colors = listOf(Color.White.copy(alpha = 0.2f), Color.Transparent)
+            )
+        ),
+        modifier = modifier,
+        elevation = elevation(0.dp)
     ) {
-        Text(text = text, color = textColor)
+        Text(
+            text = text, color = textColor, fontSize = fontSize ?: TextUnit.Unspecified,
+        )
     }
 }
 
@@ -74,9 +92,15 @@ fun PartyIconButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        shape = RoundedCornerShape(cornerRadius),
         colors = getDefaultButtonColors(),
-        modifier = modifier
+        modifier = modifier.clip(RoundedCornerShape(cornerRadius))
+            .border(
+                width = 1.dp,
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.White.copy(alpha = 0.2f), Color.Transparent)
+                ),
+                shape = RoundedCornerShape(cornerRadius)
+            )
     ) {
         Icon(imageVector = icon, contentDescription = contentDescription, tint = textColor)
         if (text != "") {
