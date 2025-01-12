@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -127,15 +125,15 @@ private fun EventView(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         item { EventImage(modifier = Modifier
-            .height(200.dp)) }
+            .height(150.dp)) }
         item { EventTitle() }
         item { EventAuthor() }
         item { HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = Color.White) }
         item { EventDetails(modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
+//            .height(120.dp)
         ) }
-        item { EventDescription(modifier = Modifier.height(250.dp)) }
+        item { EventDescription(modifier = Modifier.height(200.dp)) }
     }
 }
 
@@ -222,36 +220,36 @@ private fun AddEventImageBtn(
 @Preview
 @Composable
 private fun EventDetails(modifier: Modifier = Modifier) {
-    Row (modifier = modifier) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            item { EventDateDetail() }
-            item { EventLocationDetail() }
-            item { EventTimeDetail() }
-            item { EventParticipants() }
-        }
-    }
+//    Row (modifier = modifier) {
+//        LazyVerticalGrid(
+//            columns = GridCells.Fixed(2),
+//            verticalArrangement = Arrangement.spacedBy(5.dp),
+//            horizontalArrangement = Arrangement.spacedBy(5.dp),
+//            modifier = Modifier.fillMaxWidth(),
+//        ) {
+//            item { EventDateDetail() }
+//            item { EventLocationDetail() }
+//            item { EventTimeDetail() }
+//            item { EventParticipants() }
+//        }
+//    }
     /* Eventually put everything in column. I think it looks better but
      * we've already submitted the prototype so I don't know if we can change it.
      */
 
-    /*
-     * Row (modifier = modifier) {
-     *     Column(
-     *         verticalArrangement = Arrangement.spacedBy(2.dp),
-     *         modifier = Modifier.fillMaxWidth(),
-     *     ) {
-     *         EventDateDetail()
-     *         EventLocationDetail()
-     *         EventTimeDetail()
-     *         EventParticipants()
-     *     }
-     * }
-     */
+
+    Row (modifier = modifier) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            EventDateDetail()
+            EventLocationDetail()
+            EventTimeDetail()
+            EventParticipants()
+        }
+    }
+
 }
 
 @Composable
@@ -463,10 +461,10 @@ private fun EventParticipants() {
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(
-            top = if (isEditingMode()) 0.dp else 5.dp,
-            bottom = if (isEditingMode()) 15.dp else 0.dp
-        )
+//        modifier = Modifier.padding(
+//            top = if (isEditingMode()) 0.dp else 5.dp,
+//            bottom = if (isEditingMode()) 15.dp else 0.dp
+//        )
     ) {
         Icon(
             imageVector = Icons.Filled.Person,

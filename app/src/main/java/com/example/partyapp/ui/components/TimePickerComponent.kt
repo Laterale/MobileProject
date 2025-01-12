@@ -1,11 +1,9 @@
 package com.example.partyapp.ui.components
 
 import android.app.TimePickerDialog
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import java.util.Calendar
 
 @Composable
@@ -25,7 +23,7 @@ fun PartyTimePickerComponent(
     )
     TextButton(
         text = text, onClick = { tp.show() },
-        padding = PaddingValues(0.dp),
+//        padding = PaddingValues(0.dp),
         modifier = modifier
     )
 }
