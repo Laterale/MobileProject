@@ -1,5 +1,6 @@
 package com.example.partyapp.ui
 
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -96,19 +97,31 @@ private fun LoginForm(
     PartyTextField(
         value = username, onValueChange = { username = it },
         placeholder = stringResource(id = R.string.username),
-        leadingIcon = { Icon(imageVector = Icons.Default.Person, stringResource(id = R.string.icon_user), tint = Color.White) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = stringResource(id = R.string.icon_user),
+                tint = Color.White
+            )
+        },
         keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
+        keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
         modifier = Modifier.fillMaxWidth()
     )
 
     PartyTextField(
         value = password, onValueChange = { password = it },
         textType = TextFieldType.PASSWORD,
-        leadingIcon = { Icon(imageVector = Icons.Default.Lock, stringResource(id = R.string.icon_pwd), tint = Color.White) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = stringResource(id = R.string.icon_pwd),
+                tint = Color.White
+            )
+        },
         placeholder = stringResource(id = R.string.password),
         keyboardImeAction = ImeAction.Done,
-        keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()}),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(passwordFocusRequester)
@@ -120,13 +133,12 @@ private fun LoginForm(
             userViewModel.viewModelScope.launch(Dispatchers.IO) {
                 userFound = userViewModel.checkLoginCredentials(username, password)
             }.invokeOnCompletion {
-                if(userFound != null) {
-                    Log.d("LOGIN_TAG " + "LoginScreen.kt","Successful Login ")
+                if (userFound != null) {
+                    Log.d("LOGIN_TAG " + "LoginScreen.kt", "Successful Login ")
                     userViewModel.startSession(userFound!!)
                     userViewModel.selectUser(userFound!!)
                     userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
-                }
-                else {
+                } else {
                     Toast.makeText(context, errMsg, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -162,18 +174,30 @@ private fun RegistrationForm(
     PartyTextField(
         value = username, onValueChange = { username = it },
         placeholder = stringResource(id = R.string.username),
-        leadingIcon = { Icon(imageVector = Icons.Default.Person, stringResource(id = R.string.icon_user), tint = Color.White) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription =stringResource(id = R.string.icon_user),
+                tint = Color.White
+            )
+        },
         keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {emailFocusRequester.requestFocus()}),
+        keyboardActions = KeyboardActions(onNext = { emailFocusRequester.requestFocus() }),
         modifier = Modifier.fillMaxWidth()
     )
     PartyTextField(
         textType = TextFieldType.EMAIL,
         value = email, onValueChange = { email = it },
         placeholder = stringResource(id = R.string.email),
-        leadingIcon = { Icon(imageVector = Icons.Default.Email, stringResource(id = R.string.icon_email), tint = Color.White) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription =stringResource(id = R.string.icon_email),
+                tint = Color.White
+            )
+        },
         keyboardImeAction = ImeAction.Next,
-        keyboardActions = KeyboardActions(onNext = {passwordFocusRequester.requestFocus()}),
+        keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(emailFocusRequester)
@@ -181,10 +205,16 @@ private fun RegistrationForm(
     PartyTextField(
         textType = TextFieldType.PASSWORD,
         value = password, onValueChange = { password = it },
-        leadingIcon = { Icon(imageVector = Icons.Default.Lock, stringResource(id = R.string.icon_pwd), tint = Color.White) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Lock,
+                stringResource(id = R.string.icon_pwd),
+                tint = Color.White
+            )
+        },
         placeholder = stringResource(id = R.string.password),
         keyboardImeAction = ImeAction.Done,
-        keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()}),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(passwordFocusRequester)
@@ -200,36 +230,24 @@ private fun RegistrationForm(
             userViewModel.viewModelScope.launch(Dispatchers.IO) {
                 try {
                     userFound = userViewModel.getUserFromUsername(username)
-                        .onEmpty {
-                            Log.d("FETCH_USER", "No user found with username: $username")
-                        }.firstOrNull() // Collects the first value or returns null if empty
+                        .onEmpty { Log.d("FETCH_USER", "No user found with username: $username")}
+                        .firstOrNull() // Collects the first value or returns null if empty
 
                     if (userFound == null) {
-                        userViewModel.viewModelScope.launch(Dispatchers.Main) {
-                            userViewModel.insertNewUser(user)
-                        }
                         Log.d("FETCH_USER", "Inserting new user")
+                        createNewUserAndLogin(user, userViewModel, onSuccessfulLogin)
                     } else {
-                        Log.d("FETCH_USER", "User already exists: $userFound")
-                        userViewModel.viewModelScope.launch(Dispatchers.Main) {
-                            Toast.makeText(context, errUsernameTaken, Toast.LENGTH_SHORT).show()
-                        }
+                        toastError(context, userViewModel, errUsernameTaken)
                     }
                 } catch (e: Exception) {
-                    Log.e("FETCH_USER", "Error fetching user: ${e.message}", e)
-                    userViewModel.viewModelScope.launch(Dispatchers.Main) {
-                        Toast.makeText(context, errTryAgain, Toast.LENGTH_SHORT).show()
-                    }
+                    toastError(
+                        context, userViewModel,
+                        errTryAgain, "Error fetching user: ${e.message}"
+                    )
                 }
             }.invokeOnCompletion {
-                if (userFound == null) {
-                    userViewModel.startSession(user)
-                    userViewModel.selectUser(user)
-                    userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
-                } else {
-                    userViewModel.viewModelScope.launch(Dispatchers.Main) {
-                        Toast.makeText(context, errUsernameTaken, Toast.LENGTH_SHORT).show()
-                    }
+                if (userFound != null) {
+                    toastError(context, userViewModel, errUsernameTaken)
                 }
             }
         },
@@ -237,7 +255,45 @@ private fun RegistrationForm(
         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(text = stringResource(id = R.string.register).uppercase(), Modifier.padding(vertical = 8.dp), color = Indigo)
+        Text(
+            text = stringResource(id = R.string.register).uppercase(),
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = Indigo
+        )
+    }
+}
+
+private fun toastError(
+    context: Context,
+    userViewModel: UserViewModel,
+    error: String, log: String? = null
+) {
+    userViewModel.viewModelScope.launch(Dispatchers.Main) {
+        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+    }
+    if (log != null) Log.e("FETCH_USER", log)
+}
+
+private fun createNewUserAndLogin(
+    user: User,
+    userViewModel: UserViewModel,
+    onSuccessfulLogin: () -> Unit,
+) {
+    var created: User? = null
+    user?.let {
+        userViewModel.viewModelScope.launch(Dispatchers.Main) {
+            userViewModel.insertNewUser(it)
+            created = userViewModel.getUserFromUsername(it.username)
+                .onEmpty {
+                    Log.d("FETCH_USER", "No user found with username: ${it.username}")
+                }.firstOrNull()
+        }.invokeOnCompletion {
+            if (created != null) {
+                userViewModel.startSession(created!!)
+                userViewModel.selectUser(created!!)
+                userViewModel.viewModelScope.launch(Dispatchers.Main) { onSuccessfulLogin() }
+            }
+        }
     }
 }
 
@@ -251,13 +307,13 @@ private fun SwitchMode(
     ) {
         Text(
             text = if (isLogin) stringResource(id = R.string.lbl_need_register)
-                   else stringResource(id = R.string.lbl_need_login),
+            else stringResource(id = R.string.lbl_need_login),
             color = Color.Gray
         )
         TextButton(onClick = onSwitch) {
             Text(
                 text = if (isLogin) stringResource(id = R.string.register).uppercase()
-                       else stringResource(id = R.string.login).uppercase(),
+                else stringResource(id = R.string.login).uppercase(),
                 color = getColorScheme(userSettings).primary, fontWeight = FontWeight.Bold
             )
         }
