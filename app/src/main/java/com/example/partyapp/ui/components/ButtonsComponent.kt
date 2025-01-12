@@ -1,7 +1,6 @@
 package com.example.partyapp.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -92,15 +91,16 @@ fun PartyIconButton(
     Button(
         onClick = onClick,
         enabled = enabled,
+        shape = RoundedCornerShape(cornerRadius),
         colors = getDefaultButtonColors(),
-        modifier = modifier.clip(RoundedCornerShape(cornerRadius))
-            .border(
-                width = 1.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color.White.copy(alpha = 0.2f), Color.Transparent)
-                ),
-                shape = RoundedCornerShape(cornerRadius)
+        border = BorderStroke(
+            width = 1.dp,
+            brush = Brush.verticalGradient(
+                colors = listOf(Color.White.copy(alpha = 0.2f), Color.Transparent)
             )
+        ),
+        elevation = elevation(0.dp),
+        modifier = modifier,
     ) {
         Icon(imageVector = icon, contentDescription = contentDescription, tint = textColor)
         if (text != "") {
