@@ -11,11 +11,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -107,20 +108,34 @@ fun EventScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent)
-            .padding(30.dp, 10.dp, 30.dp, 0.dp),
+            .padding(vertical = 10.dp, horizontal = 30.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        EventImage(modifier = Modifier.fillMaxHeight(0.25f))
-        EventTitle()
-        EventAuthor()
-        HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = Color.White)
-        EventDetails(modifier = Modifier.fillMaxWidth())
-        EventDescription(modifier = Modifier.fillMaxHeight(0.8f))
+        EventView(modifier = Modifier.weight(0.9f))
         Actions(
             eventViewModel = eventViewModel,
             userViewModel = userViewModel,
-            onBackToPrevPage = onBackToPrevPage
+            onBackToPrevPage = onBackToPrevPage,
         )
+    }
+}
+
+@Composable
+private fun EventView(modifier: Modifier = Modifier) {
+    LazyColumn (
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = modifier
+    ) {
+        item { EventImage(modifier = Modifier
+            .height(200.dp)) }
+        item { EventTitle() }
+        item { EventAuthor() }
+        item { HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = Color.White) }
+        item { EventDetails(modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+        ) }
+        item { EventDescription(modifier = Modifier.height(250.dp)) }
     }
 }
 
@@ -217,25 +232,26 @@ private fun EventDetails(modifier: Modifier = Modifier) {
             item { EventDateDetail() }
             item { EventLocationDetail() }
             item { EventTimeDetail() }
-            item {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(
-                        top = if (isEditingMode()) 0.dp else 5.dp,
-                        bottom = if (isEditingMode()) 15.dp else 0.dp
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = stringResource(id = R.string.lbl_event_participants),
-                        tint = Color.White
-                    )
-                    Text(text = event.participants.toString(), color = Color.White)
-                }
-            }
+            item { EventParticipants() }
         }
     }
+    /* Eventually put everything in column. I think it looks better but
+     * we've already submitted the prototype so I don't know if we can change it.
+     */
+
+    /*
+     * Row (modifier = modifier) {
+     *     Column(
+     *         verticalArrangement = Arrangement.spacedBy(2.dp),
+     *         modifier = Modifier.fillMaxWidth(),
+     *     ) {
+     *         EventDateDetail()
+     *         EventLocationDetail()
+     *         EventTimeDetail()
+     *         EventParticipants()
+     *     }
+     * }
+     */
 }
 
 @Composable
@@ -293,9 +309,7 @@ private fun EventAuthor(modifier: Modifier = Modifier) {
 
 @Composable
 private fun EventDescription(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier = modifier) {
         if (isEditingMode()) {
             var des: String by remember { mutableStateOf(event.description) }
             PartyTextField(
@@ -445,13 +459,33 @@ private fun EventLocationDetail() {
 }
 
 @Composable
+private fun EventParticipants() {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(
+            top = if (isEditingMode()) 0.dp else 5.dp,
+            bottom = if (isEditingMode()) 15.dp else 0.dp
+        )
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Person,
+            contentDescription = stringResource(id = R.string.lbl_event_participants),
+            tint = Color.White
+        )
+        Text(text = event.participants.toString(), color = Color.White)
+    }
+}
+
+@Composable
 private fun Actions(
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
+    modifier: Modifier = Modifier,
     onBackToPrevPage: () -> Unit = {}
 ) {
     Row (
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (!EventUtilities().isEventCreatedBy(event, loggedUser)) {
