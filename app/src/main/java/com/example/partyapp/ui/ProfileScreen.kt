@@ -77,7 +77,7 @@ fun ProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item { SettingsButton(onSettingsClicked = onSettingsClicked) }
-        item { UserProfile(userViewModel = userViewModel) }
+        item { UserProfile(userViewModel = userViewModel, eventViewModel = eventViewModel) }
     }
 
     Box (modifier = Modifier.fillMaxSize()) {
@@ -85,7 +85,9 @@ fun ProfileScreen(
         FloatingActionButton(
             onClick = onQRScanFABClicked,
             backgroundColor = colorScheme.surface,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(20.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.QrCodeScanner,
@@ -99,13 +101,14 @@ fun ProfileScreen(
 @Composable
 private fun UserProfile(
     userViewModel: UserViewModel,
+    eventViewModel: EventViewModel
 ) {
     UserProfilePic(userViewModel)
     Text(text = user?.username ?: stringResource(id = R.string.username), style = Typography.bodyMedium)
     CityNameDisplay()
     XpBar()
     HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp))
-    StatisticsDisplay()
+    StatisticsDisplay(eventViewModel)
 }
 
 @Composable
@@ -306,10 +309,20 @@ private fun CityNameDisplay() {
 }
 
 @Composable
-private fun StatisticsDisplay(){
+private fun StatisticsDisplay(
+    eventViewModel: EventViewModel
+){
     val userLv = LevelThreshold.getLevelForXp(user?.exp ?: 0).ordinal
     val xpToNext = LevelThreshold.values()[userLv+1].requiredXp
     val name = LevelThreshold.values()[userLv].name
+
+    val scansCount = eventViewModel.getScansFromUserId(user!!.id)
+        .collectAsState(initial = listOf())
+        .value.size
+
+    val createdCount = eventViewModel.events.collectAsState(initial = listOf()).value
+        .filter { it.creator.id == user!!.id }
+        .size
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -317,8 +330,8 @@ private fun StatisticsDisplay(){
     ) {
         StatisticComponent(stat = "Title", value = name)
         StatisticComponent(stat = "Exp", value = "${user?.exp ?: 0}" + " / " + "$xpToNext")
-//        StatisticComponent(stat = "Events joined", value = "23")
-//        StatisticComponent(stat = "Events created", value = "3")
+        StatisticComponent(stat = "Events joined", value = "$scansCount")
+        StatisticComponent(stat = "Events created", value = "$createdCount")
 //        StatisticComponent(stat = "Badges", value = "5")
     }
 }
