@@ -105,6 +105,7 @@ private fun UserProfile(
     CityNameDisplay()
     XpBar()
     HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp))
+    StatisticsDisplay()
 }
 
 @Composable
@@ -306,15 +307,19 @@ private fun CityNameDisplay() {
 
 @Composable
 private fun StatisticsDisplay(){
+    val userLv = LevelThreshold.getLevelForXp(user?.exp ?: 0).ordinal
+    val xpToNext = LevelThreshold.values()[userLv+1].requiredXp
+    val name = LevelThreshold.values()[userLv].name
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start
     ) {
-        StatisticComponent(stat = "Title", value = "PartyLover")
-        StatisticComponent(stat = "Exp", value = "0" + " / " + "100")
-        StatisticComponent(stat = "Events joined", value = "23")
-        StatisticComponent(stat = "Events created", value = "3")
-        StatisticComponent(stat = "Badges", value = "5")
+        StatisticComponent(stat = "Title", value = name)
+        StatisticComponent(stat = "Exp", value = "${user?.exp ?: 0}" + " / " + "$xpToNext")
+//        StatisticComponent(stat = "Events joined", value = "23")
+//        StatisticComponent(stat = "Events created", value = "3")
+//        StatisticComponent(stat = "Badges", value = "5")
     }
 }
 @Composable
