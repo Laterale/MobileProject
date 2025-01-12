@@ -22,6 +22,9 @@
     <string name="err_username_taken">Username already taken</string>
     <string name="err_wrong_credentials">Wrong credentials</string>
     <string name="event_qr_code">Event QR code</string>
+    <string name="events_attended">Events attended</string>
+    <string name="events_created">Events created</string>
+    <string name="experience_points">Experience points</string>
     <string name="filters">Filters</string>
     <string name="icon_add">Add icon</string>
     <string name="icon_email">Email icon</string>
@@ -63,6 +66,7 @@
     <string name="swipe_down">Swipe down</string>
     <string name="swipe_to_scan">Swipe to scan</string>
     <string name="take_pic">Take a picture</string>
+    <string name="title">Title</string>
     <string name="username">Username</string>
     <string name="user_location">User location</string>
     <string name="when">When</string>

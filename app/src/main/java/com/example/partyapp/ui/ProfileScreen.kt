@@ -319,7 +319,6 @@ private fun StatisticsDisplay(
     val scansCount = eventViewModel.getScansFromUserId(user!!.id)
         .collectAsState(initial = listOf())
         .value.size
-
     val createdCount = eventViewModel.events.collectAsState(initial = listOf()).value
         .filter { it.creator.id == user!!.id }
         .size
@@ -328,10 +327,10 @@ private fun StatisticsDisplay(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start
     ) {
-        StatisticComponent(stat = "Title", value = name)
-        StatisticComponent(stat = "Exp", value = "${user?.exp ?: 0}" + " / " + "$xpToNext")
-        StatisticComponent(stat = "Events joined", value = "$scansCount")
-        StatisticComponent(stat = "Events created", value = "$createdCount")
+        StatisticComponent(stat = stringResource(id = R.string.title), value = name)
+        StatisticComponent(stat = stringResource(id = R.string.experience_points), value = "${user?.exp ?: 0}" + " / " + "$xpToNext")
+        StatisticComponent(stat = stringResource(id = R.string.events_attended), value = "$scansCount")
+        StatisticComponent(stat = stringResource(id = R.string.events_created), value = "$createdCount")
 //        StatisticComponent(stat = "Badges", value = "5")
     }
 }
