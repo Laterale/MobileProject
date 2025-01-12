@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,6 +50,7 @@ import com.example.partyapp.R
 import com.example.partyapp.data.entity.User
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.PermissionsHelper
+import com.example.partyapp.ui.components.StatisticComponent
 import com.example.partyapp.ui.theme.Typography
 import com.example.partyapp.ui.theme.getColorScheme
 import com.example.partyapp.viewModel.EventViewModel
@@ -74,7 +76,7 @@ fun ProfileScreen(
             .padding(30.dp, 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item { settingsButton(onSettingsClicked = onSettingsClicked) }
+        item { SettingsButton(onSettingsClicked = onSettingsClicked) }
         item { UserProfile(userViewModel = userViewModel) }
     }
 
@@ -106,7 +108,7 @@ private fun UserProfile(
 }
 
 @Composable
-private fun settingsButton(
+private fun SettingsButton(
     onSettingsClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -144,25 +146,40 @@ private fun isLoggedUser(userViewModel: UserViewModel, session: String): Boolean
 
 @Composable
 private fun XpBar() {
+    val userLv = LevelThreshold.getLevelForXp(user?.exp ?: 0).level
+    val lblLevel = stringResource(id = R.string.lbl_level)
     Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.padding(top = 15.dp)
     ) {
+        Text(text = "$lblLevel $userLv", color = Color.White)
         LinearProgressIndicator(
-            progress = { 0.5f },
+            progress = { LevelThreshold.getPercentageToNextLevel(user?.exp ?: 0) },
             modifier = Modifier.size(200.dp, 2.5.dp),
             color = Color.White,
             trackColor = Color.DarkGray,
         )
+        Text(text = "${userLv+1}", color = Color.White)
     }
 }
 
 @Composable
 private fun UserProfilePic(userViewModel: UserViewModel) {
+    val newPicXp = 10
+    val xpGainedMsg = stringResource(id = R.string.msg_gained_xp, newPicXp)
+    val context = LocalContext.current
     var photoUri: Uri by remember { mutableStateOf(value = Uri.EMPTY) }
     val setImg: (Uri, String) -> Unit = { uri, path ->
+        val isFirstTime = user?.pfp == null || user?.pfp == ""
         photoUri = uri
         user!!.pfp = path
         userViewModel.changePfpFromId(user?.id!!, path)
+        if (isFirstTime) {
+            userViewModel.addExpToLoggedUser(newPicXp)
+            Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
+            user = userViewModel.loggedUser
+        }
     }
 
     Box(
@@ -285,4 +302,21 @@ private fun CityNameDisplay() {
             style = Typography.labelMedium
         )
     }
+}
+
+@Composable
+private fun StatisticsDisplay(){
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start
+    ) {
+        StatisticComponent(stat = "Title", value = "PartyLover")
+        StatisticComponent(stat = "Exp", value = "0" + " / " + "100")
+        StatisticComponent(stat = "Events joined", value = "23")
+        StatisticComponent(stat = "Events created", value = "3")
+        StatisticComponent(stat = "Badges", value = "5")
+    }
+}
+@Composable
+private fun BadgeDisplay(){
 }

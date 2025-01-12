@@ -1,6 +1,6 @@
 package com.example.partyapp.ui
 
-enum class LevelThreshold(private val requiredXp: Int, val level: Int) {
+enum class LevelThreshold(val requiredXp: Int, val level: Int) {
     LV_0(0, 0),
     LV_1(100, 1),
     LV_2(250, 2),
