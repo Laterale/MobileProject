@@ -379,6 +379,7 @@ private fun NavigationGraph(
         composable(route = AppScreen.Scan.name){
             ScanScreen(
                 eventViewModel = eventViewModel,
+                userViewModel = userViewModel,
                 onBackToPrevPage = {
                     navController.navigate(AppScreen.Profile.name) {
                         popUpTo(navController.graph.id) { inclusive = true }

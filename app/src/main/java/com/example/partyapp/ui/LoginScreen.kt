@@ -132,7 +132,7 @@ private fun LoginForm(
             }
         },
         shape = RoundedCornerShape(50.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
@@ -234,7 +234,7 @@ private fun RegistrationForm(
             }
         },
         shape = RoundedCornerShape(50.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = stringResource(id = R.string.register).uppercase(), Modifier.padding(vertical = 8.dp), color = Indigo)

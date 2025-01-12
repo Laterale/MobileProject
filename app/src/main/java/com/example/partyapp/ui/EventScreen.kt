@@ -118,6 +118,7 @@ fun EventScreen(
         EventDescription(modifier = Modifier.fillMaxHeight(0.8f))
         Actions(
             eventViewModel = eventViewModel,
+            userViewModel = userViewModel,
             onBackToPrevPage = onBackToPrevPage
         )
     }
@@ -390,7 +391,8 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
                 text = starts,
                 onTimePicked = { h, m ->
                     starts = "%02d:%02d".format(h, m)
-                    updateEvent(event.copy(starts = starts))
+                    ends = "%02d:%02d".format(h + 2, m)
+                    updateEvent(event.copy(starts = starts, ends = ends))
                 }
             )
             Text(text = "-", color = Color.White)
@@ -429,8 +431,8 @@ private fun EventLocationDetail() {
                         latitude = address.latitude,
                         longitude = address.longitude,
                         state = address.countryName,
-                        city = address.locality,
-                        street = "${address.thoroughfare}, ${address.subThoroughfare}"
+                        city = address.locality ?: "",
+                        street = "${address.thoroughfare ?: "---"}, ${address.subThoroughfare ?: "---"}"
                     )))
                     displayedText = EventUtilities().getEventLocationString(context, event)
                 }
@@ -445,6 +447,7 @@ private fun EventLocationDetail() {
 @Composable
 private fun Actions(
     eventViewModel: EventViewModel,
+    userViewModel: UserViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
     Row (
@@ -454,7 +457,7 @@ private fun Actions(
         if (!EventUtilities().isEventCreatedBy(event, loggedUser)) {
             AddEventButton(eventViewModel)
         } else if (EventUtilities().isNewEvent(event)) {
-            SaveDiscardBtns(eventViewModel, onBackToPrevPage)
+            SaveDiscardBtns(eventViewModel, userViewModel, onBackToPrevPage)
         } else {
             DeleteEventButton(eventViewModel, onBackToPrevPage)
         }
@@ -464,10 +467,13 @@ private fun Actions(
 @Composable
 private fun SaveDiscardBtns(
     eventViewModel: EventViewModel,
+    userViewModel: UserViewModel,
     onBackToPrevPage: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
+    val newEventXp = 10
+    val xpGainedMsg = stringResource(id = R.string.msg_gained_xp, newEventXp)
     PartyIconButton(
         icon = Icons.Default.Close, contentDescription = stringResource(id = R.string.discard),
         textColor = Color.Red,
@@ -477,7 +483,24 @@ private fun SaveDiscardBtns(
     PartyIconButton(
         icon = Icons.Default.Check, contentDescription = stringResource(id = R.string.save),
         textColor = Color.Green,
-        onClick = { saveNewEvent(context, eventViewModel, events, onBackToPrevPage) },
+        onClick = {
+            try {
+                EventUtilities().checkEventValid(event)
+                val newID = events.map { it.eventId }
+                    .ifEmpty { listOf(0) }
+                    .max()
+                    .plus(1)
+                updateEvent(event.copy(eventId = newID))
+                eventViewModel.createNewEvent(event)
+                userViewModel.addExpToLoggedUser(newEventXp)
+                addParticipation(eventViewModel)
+                addNotification(context = context)
+                Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
+                onBackToPrevPage()
+            } catch (ex: Exception) {
+                Toast.makeText(context, ex.message, Toast.LENGTH_SHORT).show()
+            }
+        },
         modifier = Modifier.fillMaxWidth()
     )
 }
@@ -494,7 +517,7 @@ private fun AddEventButton(
         .map { it.id }
         .contains(loggedUser.id)
     TextButton(
-        text = if (wasAddedByCurrentUser) stringResource(id = R.string.add)
+        text = if (wasAddedByCurrentUser) stringResource(id = R.string.added)
                else stringResource(id = R.string.add),
         textColor = if (wasAddedByCurrentUser) Color.Gray else Color.White,
         onClick = {
@@ -555,28 +578,6 @@ private fun addNotification(context: Context) {
         title = "${event.name} is starting!",
         content = "Hurry! ${event.name} is starting soon!"
     )
-}
-
-private fun saveNewEvent(
-    context: Context,
-    eventViewModel: EventViewModel,
-    events: List<Event>,
-    onBackToPrevPage: () -> Unit = {}
-) {
-    try {
-        EventUtilities().checkEventValid(event)
-        val newID = events.map { it.eventId }
-            .ifEmpty { listOf(0) }
-            .max()
-            .plus(1)
-        updateEvent(event.copy(eventId = newID))
-        eventViewModel.createNewEvent(event)
-        addParticipation(eventViewModel)
-        addNotification(context = context)
-        onBackToPrevPage()
-    } catch (ex: Exception) {
-        Toast.makeText(context, ex.message, Toast.LENGTH_SHORT).show()
-    }
 }
 
 private fun isEditingMode(): Boolean {

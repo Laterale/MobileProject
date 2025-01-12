@@ -36,6 +36,7 @@
     <string name="lbl_event_name">Event name</string>
     <string name="lbl_event_participants">Number of participants</string>
     <string name="lbl_event_time">Event time</string>
+    <string name="lbl_level">LV.</string>
     <string name="lbl_need_login">Already have an account?</string>
     <string name="lbl_need_register">Don\'t have an account yet?</string>
     <string name="lbl_no_added_events">No added events.</string>
@@ -48,6 +49,7 @@
     <string name="login">Login</string>
     <string name="logo">Logo</string>
     <string name="logout">Logout</string>
+    <string name="msg_gained_xp">You gained %d XP</string>
     <string name="no_description">No description</string>
     <string name="no_location">No location</string>
     <string name="password">Password</string>
