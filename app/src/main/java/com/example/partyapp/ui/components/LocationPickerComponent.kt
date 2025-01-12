@@ -122,7 +122,7 @@ fun LocationPicker(
             modifier = Modifier.height(60.dp),
             onSearch = { address ->
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(
-                    LatLng(address.latitude, address.longitude), zoom
+                    LatLng(address.latitude, address.longitude), 15f
                 )
             }
         )
