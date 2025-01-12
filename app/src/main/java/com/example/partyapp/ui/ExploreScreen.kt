@@ -43,11 +43,18 @@ fun ExploreScreen(
     settingsViewModel: SettingsViewModel,
 ){
 
-    val filters = settingsViewModel.settings.collectAsState(initial = userSettings)
+    var filters = userSettings
+    settingsViewModel.settings.collectAsState(initial = userSettings)
+        .also {
+            if (it.value != null) {
+                filters = it.value!!
+            }
+        }
     val events = eventViewModel.events.collectAsState(initial = mutableListOf()).value
         .filter { e ->
-            utilities.dayToString(e.day) == filters.value!!.dateFilter
+            utilities.dayToString(e.day) == filters.dateFilter
         }
+
     Column(
         Modifier
             .fillMaxSize()
