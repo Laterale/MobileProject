@@ -44,7 +44,7 @@ import com.example.partyapp.ui.components.PartyAppLogo
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.TextFieldType
 import com.example.partyapp.ui.theme.Indigo
-import com.example.partyapp.ui.theme.Salmon
+import com.example.partyapp.ui.theme.getColorScheme
 import com.example.partyapp.viewModel.UserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -258,7 +258,7 @@ private fun SwitchMode(
             Text(
                 text = if (isLogin) stringResource(id = R.string.register).uppercase()
                        else stringResource(id = R.string.login).uppercase(),
-                color = Salmon, fontWeight = FontWeight.Bold
+                color = getColorScheme(userSettings).primary, fontWeight = FontWeight.Bold
             )
         }
     }
