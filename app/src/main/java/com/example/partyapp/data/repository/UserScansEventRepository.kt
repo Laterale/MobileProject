@@ -24,4 +24,9 @@ class UserScansEventRepository (private val userScansEventDAO: UserScansEventDAO
     suspend fun addScan(userScansEventCrossRef: UserScansEventCrossRef){
         userScansEventDAO.addScan(userScansEventCrossRef)
     }
+
+    @WorkerThread
+    fun getNumberOfScansObtained(creatorId: Int): Flow<Int> {
+        return userScansEventDAO.getNumberOfScansObtained(creatorId)
+    }
 }

@@ -6,6 +6,7 @@
     <string name="added">Added</string>
     <string name="added_events">Added events</string>
     <string name="at">At</string>
+    <string name="badges_obtained">Badges</string>
     <string name="choose_image">Choose from gallery</string>
     <string name="choose_location">Choose location</string>
     <string name="choose_pfp">Choose new profile picture</string>
@@ -23,8 +24,8 @@
     <string name="err_wrong_credentials">Wrong credentials</string>
     <string name="event_qr_code">Event QR code</string>
     <string name="events_attended">Events attended</string>
-    <string name="events_created">Events created</string>
-    <string name="experience_points">Experience points</string>
+    <string name="scans_received">Scans received</string>
+    <string name="experience_points">Exp</string>
     <string name="filters">Filters</string>
     <string name="icon_add">Add icon</string>
     <string name="icon_email">Email icon</string>
@@ -52,7 +53,7 @@
     <string name="login">Login</string>
     <string name="logo">Logo</string>
     <string name="logout">Logout</string>
-    <string name="msg_gained_xp">You gained %d XP</string>
+    <string name="msg_gained_xp">You gained %d EXP</string>
     <string name="no_description">No description</string>
     <string name="no_location">No location</string>
     <string name="password">Password</string>

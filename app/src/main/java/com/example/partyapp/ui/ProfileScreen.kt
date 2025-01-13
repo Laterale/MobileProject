@@ -319,10 +319,9 @@ private fun StatisticsDisplay(
     val scansCount = eventViewModel.getScansFromUserId(user!!.id)
         .collectAsState(initial = listOf())
         .value.size
-    val createdCount = eventViewModel.events.collectAsState(initial = listOf()).value
-        .filter { it.creator.id == user!!.id }
-        .size
-
+    val scansReceived = eventViewModel.getScansReceived(user!!.id)
+        .collectAsState(initial = Int)
+        .value
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start
@@ -330,8 +329,8 @@ private fun StatisticsDisplay(
         StatisticComponent(stat = stringResource(id = R.string.title), value = name)
         StatisticComponent(stat = stringResource(id = R.string.experience_points), value = "${user?.exp ?: 0}" + " / " + "$xpToNext")
         StatisticComponent(stat = stringResource(id = R.string.events_attended), value = "$scansCount")
-        StatisticComponent(stat = stringResource(id = R.string.events_created), value = "$createdCount")
-//        StatisticComponent(stat = "Badges", value = "5")
+        StatisticComponent(stat = stringResource(id = R.string.scans_received), value = "$scansReceived")
+        StatisticComponent(stat = stringResource(id = R.string.badges_obtained), value = "0")
     }
 }
 @Composable

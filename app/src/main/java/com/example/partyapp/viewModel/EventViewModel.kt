@@ -64,9 +64,13 @@ class EventViewModel @Inject constructor(
 
     fun getScansFromUserId(userId: Int) = useRepository.getScansFromUserId(userId)
 
+    fun getScansReceived(creatorId:Int) = useRepository.getNumberOfScansObtained(creatorId)
+
     fun getScansFromEventId(eventId: Int) = useRepository.getScansFromEventId(eventId)
 
     fun addScan(userScansEventCrossRef: UserScansEventCrossRef) = viewModelScope.launch {
         useRepository.addScan(userScansEventCrossRef)
     }
+
+
 }
