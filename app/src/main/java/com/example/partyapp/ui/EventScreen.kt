@@ -1,13 +1,16 @@
 package com.example.partyapp.ui
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.CalendarContract
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -72,6 +75,7 @@ import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.LocationPickerDialogButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
+import com.example.partyapp.ui.components.PartyDialog
 import com.example.partyapp.ui.components.PartyIconButton
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
@@ -488,19 +492,28 @@ private fun Actions(
     modifier: Modifier = Modifier,
     onBackToPrevPage: () -> Unit = {}
 ) {
-
-
+    var showDialog by remember { mutableStateOf(false) }
     Row (
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (!EventUtilities().isEventCreatedBy(event, loggedUser)) {
-            AddEventButton(eventViewModel)
+            AddEventButton(eventViewModel, onEventAdd = { showDialog = true })
         } else if (EventUtilities().isNewEvent(event)) {
-            SaveDiscardBtns(eventViewModel, userViewModel, onBackToPrevPage)
+            SaveDiscardBtns(
+                eventViewModel, userViewModel,
+                onEventSave = { showDialog = true }
+            )
         } else {
             DeleteEventButton(eventViewModel, onBackToPrevPage)
         }
+    }
+    if (showDialog) {
+        AddToCalendarDialog(
+            onHideDialog = { showDialog = false },
+            onBackToPrevPage = onBackToPrevPage,
+            onEventAdded = onBackToPrevPage
+        )
     }
 }
 
@@ -508,7 +521,8 @@ private fun Actions(
 private fun SaveDiscardBtns(
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onBackToPrevPage: () -> Unit = {}
+    onBackToPrevPage: () -> Unit = {},
+    onEventSave: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
@@ -536,6 +550,7 @@ private fun SaveDiscardBtns(
                 addParticipation(context, eventViewModel)
                 addNotification(context = context)
                 Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
+                onEventSave()
                 onBackToPrevPage()
             } catch (ex: Exception) {
                 Toast.makeText(context, ex.message, Toast.LENGTH_SHORT).show()
@@ -548,7 +563,7 @@ private fun SaveDiscardBtns(
 @Composable
 private fun AddEventButton(
     eventViewModel: EventViewModel,
-    //onBackToPrevPage: () -> Unit = {}
+    onEventAdd: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
@@ -563,6 +578,7 @@ private fun AddEventButton(
         onClick = {
             addParticipation(context, eventViewModel)
             addNotification(context = context)
+            onEventAdd()
         },
         modifier = Modifier.fillMaxWidth(),
         enabled = !wasAddedByCurrentUser
@@ -606,10 +622,54 @@ private fun addParticipation(context: Context, eventViewModel: EventViewModel) {
     eventViewModel.addParticipant(crossRef)
     updateEvent(event.copy(participants = event.participants + 1))
     eventViewModel.updateParticipants(event.participants.toInt(), event.eventId)
-    addToCalendar(context, event)
 }
 
-private fun addToCalendar(context: Context, event: Event) {
+@Composable
+private fun AddToCalendarDialog(
+    onHideDialog: () -> Unit = {},
+    onBackToPrevPage: () -> Unit = {},
+    onEventAdded: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    // Launcher to handle the result of the calendar intent
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK || result.resultCode == Activity.RESULT_CANCELED) {
+            onEventAdded() // Call the function after returning from the calendar app
+        }
+    }
+
+    PartyDialog(title = stringResource(id = R.string.add_to_calendar) + "?",
+        onDismissRequest = onHideDialog,
+        content = {
+            Row (
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier.fillMaxWidth().padding(15.dp)
+            ) {
+                TextButton(
+                    text = stringResource(id = R.string.confirm),
+                    onClick = {
+                        addToCalendar(context = context, event, launcher)
+                    }
+                )
+                TextButton(
+                    text = stringResource(id = R.string.cancel),
+                    onClick = {
+                        onHideDialog()
+                        onBackToPrevPage()
+                    }
+                )
+            }
+        }
+    )
+}
+
+private fun addToCalendar(
+    context: Context,
+    event: Event,
+    launcher:  ManagedActivityResultLauncher<Intent, ActivityResult>?
+) {
     val intent = Intent(Intent.ACTION_INSERT).apply {
         data = CalendarContract.Events.CONTENT_URI
         putExtra(CalendarContract.Events.TITLE, event.name)
@@ -625,7 +685,11 @@ private fun addToCalendar(context: Context, event: Event) {
 
     // Verify that there is a calendar app to handle the intent
     if (intent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(intent)
+        if (launcher != null) {
+            launcher.launch(intent)
+        } else {
+            context.startActivity(intent)
+        }
     } else {
         Toast.makeText(context, "No calendar app found!", Toast.LENGTH_SHORT).show()
     }
