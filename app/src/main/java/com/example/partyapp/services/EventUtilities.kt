@@ -11,7 +11,7 @@ import java.util.Calendar
 class EventUtilities {
     val BASE_DATE_INT = 1000_00_00
 
-    fun getEventDateTime(event: Event): Calendar {
+    fun getEventStartDateTime(event: Event): Calendar {
         val calendar = Calendar.getInstance()
         val (h, m) = event.starts.split(":").map { it.toInt() }
         calendar.set(Calendar.HOUR_OF_DAY, h)
@@ -23,8 +23,29 @@ class EventUtilities {
         return calendar
     }
 
+    fun getEventEndDateTime(event: Event): Calendar {
+        val calendar = Calendar.getInstance()
+        val (h, m) = event.ends.split(":").map { it.toInt() }
+        calendar.set(Calendar.HOUR_OF_DAY, h)
+        calendar.set(Calendar.MINUTE, m)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.DAY_OF_MONTH, event.day.mod(100))
+        calendar.set(Calendar.MONTH, (event.day / 100).mod(100))
+        calendar.set(Calendar.YEAR, event.day / 10000)
+        if (!endsWithinDay(event)) {
+            calendar.add(Calendar.DATE, 1)
+        }
+        return calendar
+    }
+
+    fun endsWithinDay(event: Event): Boolean {
+        val (sh, sm) = event.starts.split(":").map { it.toInt() }
+        val (eh, em) = event.ends.split(":").map { it.toInt() }
+        return eh >= sh
+    }
+
     fun getEventDateString(event: Event): String {
-        val date = getEventDateTime(event)
+        val date = getEventStartDateTime(event)
         return date.time.toInstant()
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
@@ -57,7 +78,7 @@ class EventUtilities {
         if (event.day < BASE_DATE_INT) {
             throw IllegalStateException("Invalid event date")
         }
-        if (EventUtilities().getEventDateTime(event).before(Calendar.getInstance())) {
+        if (EventUtilities().getEventStartDateTime(event).before(Calendar.getInstance())) {
             throw IllegalStateException("Event date cannot be in the past")
         }
         if (event.location.city.isEmpty()) {
