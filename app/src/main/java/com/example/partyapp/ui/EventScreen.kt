@@ -512,7 +512,9 @@ private fun Actions(
         AddToCalendarDialog(
             onHideDialog = { showDialog = false },
             onBackToPrevPage = onBackToPrevPage,
-            onEventAdded = onBackToPrevPage
+            onEventAdded =  {
+                if (EventUtilities().isNewEvent(event)) onBackToPrevPage()
+            }
         )
     }
 }
@@ -645,7 +647,9 @@ private fun AddToCalendarDialog(
         content = {
             Row (
                 horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth().padding(15.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(15.dp)
             ) {
                 TextButton(
                     text = stringResource(id = R.string.confirm),
