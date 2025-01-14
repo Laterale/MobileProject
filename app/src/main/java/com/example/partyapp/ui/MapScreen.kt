@@ -40,6 +40,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapUiSettings
@@ -124,6 +125,11 @@ fun ShowMapCenteredOn(
             onInfoWindowClose = { showDialog = false },
             settingsViewModel = settingsViewModel,
             location = location
+        )
+        Circle(
+            center = location,
+            radius = (userSettings.rangeFilter * 1000).toDouble(),
+            strokeColor = Color.White
         )
     }
     if (showDialog) {
