@@ -19,6 +19,9 @@ interface UserScansEventDAO {
     @Query("SELECT e.* FROM Event e JOIN UserScansEventCrossRef use ON e.eventId = use.eventId WHERE use.id=:userId")
     fun getScansFromUserId(userId: Int) : Flow<List<Event>>
 
+    @Query("SELECT COUNT (*) FROM event e JOIN userscanseventcrossref use ON e.eventId = use.eventId WHERE e.id=:creatorId")
+    fun getNumberOfScansObtained(creatorId: Int) : Flow<Int>
+
     @Query("SELECT u.* FROM User u JOIN UserScansEventCrossRef use ON u.id = use.id WHERE use.eventId=:eventId")
     fun getScansFromEventId(eventId: Int) : Flow<List<User>>
 

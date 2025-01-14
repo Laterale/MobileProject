@@ -37,16 +37,8 @@ class UserViewModel @Inject constructor(
 
     fun checkLoginCredentials(username: String, password:String) = repository.checkLoginCredentials(username, password)
 
-    fun changeUsernameFromId(userId: Int, newUsername: String) = viewModelScope.launch {
-        repository.changeUsernameFromId(userId, newUsername)
-    }
-
     fun changePfpFromId(userId: Int, newPfp: String) = viewModelScope.launch {
         repository.changePfpFromId(userId, newPfp)
-    }
-
-    fun updateExpFromId(userId: Int, newExp: String) = viewModelScope.launch {
-        repository.updateExpFromId(userId, newExp)
     }
 
     fun addExpToUser(user: User, newExp: Int) = viewModelScope.launch {

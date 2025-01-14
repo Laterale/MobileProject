@@ -135,7 +135,7 @@ private fun EventView(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         item { EventImage(modifier = Modifier
-            .height(150.dp)) }
+            .height(200.dp)) }
         item { EventTitle() }
         item { EventAuthor() }
         item { HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = Color.White) }
@@ -143,7 +143,7 @@ private fun EventView(modifier: Modifier = Modifier) {
             .fillMaxWidth()
 //            .height(120.dp)
         ) }
-        item { EventDescription(modifier = Modifier.height(200.dp)) }
+        item { EventDescription(modifier = Modifier.height(300.dp)) }
     }
 }
 

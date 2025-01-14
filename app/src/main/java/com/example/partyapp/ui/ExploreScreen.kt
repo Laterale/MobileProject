@@ -1,5 +1,7 @@
 package com.example.partyapp.ui
 
+import LocationHelper
+import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,15 +24,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.partyapp.services.EventUtilities
+import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.components.EventCard
 import com.example.partyapp.ui.components.IconDatePickerComponent
 import com.example.partyapp.ui.theme.Glass20
 import com.example.partyapp.viewModel.EventViewModel
 import com.example.partyapp.viewModel.SettingsViewModel
 import com.example.partyapp.viewModel.UserViewModel
+import com.google.android.gms.maps.model.LatLng
 import java.util.Calendar
 import kotlin.math.roundToInt
 
@@ -42,6 +47,13 @@ fun ExploreScreen(
     eventViewModel: EventViewModel,
     settingsViewModel: SettingsViewModel,
 ){
+    val context = LocalContext.current
+    var location: Location? by remember { mutableStateOf(null) }
+    PermissionsHelper(context).RequestLocationPermission {
+        LocationHelper(context).getCurrentLocation { loc ->
+            location = loc
+        }
+    }
 
     var filters = userSettings
     settingsViewModel.settings.collectAsState(initial = userSettings)
@@ -50,11 +62,19 @@ fun ExploreScreen(
                 filters = it.value!!
             }
         }
+
     val events = eventViewModel.events.collectAsState(initial = mutableListOf()).value
         .filter { e ->
-            utilities.dayToString(e.day) == filters.dateFilter
+            val res = FloatArray(1)
+            val lat = location?.latitude
+            val lon = location?.longitude
+            if (lat != null) {
+                if (lon != null) {
+                    Location.distanceBetween(lat,lon,e.location.latitude,e.location.longitude,res)
+                }
+            }
+            utilities.dayToString(e.day) == filters.dateFilter && res[0]/1000 <= filters.rangeFilter
         }
-
     Column(
         Modifier
             .fillMaxSize()
