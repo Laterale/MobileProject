@@ -78,7 +78,7 @@ fun MapScreen(
         eventViewModel = eventViewModel,
         userViewModel = userViewModel,
         onEventMarkerClicked = onEventMarkerClicked,
-        settingsViewModel = settingsViewModel
+        settingsViewModel = settingsViewModel,
     )
 }
 
@@ -122,7 +122,8 @@ fun ShowMapCenteredOn(
             eventViewModel = eventViewModel,
             onInfoWindowClick = { showDialog = true },
             onInfoWindowClose = { showDialog = false },
-            settingsViewModel = settingsViewModel
+            settingsViewModel = settingsViewModel,
+            location = location
         )
     }
     if (showDialog) {
@@ -145,12 +146,23 @@ private fun EventsMarkers(
     eventViewModel: EventViewModel,
     onInfoWindowClick: () -> Unit = {},
     onInfoWindowClose: () -> Unit = {},
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    location: LatLng
 ) {
-    val filters = settingsViewModel.settings.collectAsState(initial = userSettings)
+    var filters = userSettings
+    settingsViewModel.settings.collectAsState(initial = userSettings)
+        .also {
+            if (it.value != null) {
+                filters = it.value!!
+            }
+        }
     val events = eventViewModel.events.collectAsState(initial = mutableListOf()).value
         .filter { e ->
-            utilities.dayToString(e.day) == filters.value!!.dateFilter
+            val res = FloatArray(1)
+            val lat = location.latitude
+            val lon = location.longitude
+            Location.distanceBetween(lat,lon,e.location.latitude,e.location.longitude,res)
+            utilities.dayToString(e.day) == filters.dateFilter && res[0]/1000 <= filters.rangeFilter
         }
     events.forEach { event ->
         if (event.location.latitude == 0.0 && event.location.longitude == 0.0) return@forEach
