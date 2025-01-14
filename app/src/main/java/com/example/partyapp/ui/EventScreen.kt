@@ -413,7 +413,7 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
                 text = starts,
                 onTimePicked = { h, m ->
                     starts = "%02d:%02d".format(h, m)
-                    ends = "%02d:%02d".format(h + 2, m)
+                    ends = "%02d:%02d".format((h + 2) % 24, m)
                     updateEvent(event.copy(starts = starts, ends = ends))
                 }
             )
