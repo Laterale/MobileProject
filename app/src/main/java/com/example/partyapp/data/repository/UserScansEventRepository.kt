@@ -26,7 +26,7 @@ class UserScansEventRepository (private val userScansEventDAO: UserScansEventDAO
     }
 
     @WorkerThread
-    fun getNumberOfScansObtained(creatorId: Int): Flow<Int> {
+    fun getNumberOfScansObtained(creatorId: Int): Flow<List<Event>> {
         return userScansEventDAO.getNumberOfScansObtained(creatorId)
     }
 }

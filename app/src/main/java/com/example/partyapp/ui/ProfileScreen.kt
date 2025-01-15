@@ -5,6 +5,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -109,6 +111,7 @@ private fun UserProfile(
     XpBar()
     HorizontalDivider(color = Color.White, modifier = Modifier.padding(vertical = 30.dp))
     StatisticsDisplay(eventViewModel)
+    BadgeDisplay(eventViewModel = eventViewModel)
 }
 
 @Composable
@@ -320,8 +323,8 @@ private fun StatisticsDisplay(
         .collectAsState(initial = listOf())
         .value.size
     val scansReceived = eventViewModel.getScansReceived(user!!.id)
-        .collectAsState(initial = Int)
-        .value
+        .collectAsState(initial = listOf())
+        .value.size
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start
@@ -330,9 +333,74 @@ private fun StatisticsDisplay(
         StatisticComponent(stat = stringResource(id = R.string.experience_points), value = "${user?.exp ?: 0}" + " / " + "$xpToNext")
         StatisticComponent(stat = stringResource(id = R.string.events_attended), value = "$scansCount")
         StatisticComponent(stat = stringResource(id = R.string.scans_received), value = "$scansReceived")
-        StatisticComponent(stat = stringResource(id = R.string.badges_obtained), value = "0")
+        StatisticComponent(stat = stringResource(id = R.string.badges_obtained), value = "")
     }
 }
 @Composable
-private fun BadgeDisplay(){
+private fun BadgeDisplay(
+    eventViewModel: EventViewModel
+){
+    val scansCount = eventViewModel.getScansFromUserId(user!!.id)
+        .collectAsState(initial = listOf())
+        .value.size
+    val scansReceived = eventViewModel.getScansReceived(user!!.id)
+        .collectAsState(initial = listOf())
+        .value.size
+    Row {
+        if(scansCount >= 1){
+            Column(
+                modifier = Modifier.weight(0.25f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.first_participation_badge),
+                    contentDescription = "first event organized",
+                    modifier = Modifier.size(120.dp)
+                )
+
+            }
+        }
+        if(scansCount >= 10){
+            Column(
+                modifier = Modifier.weight(0.25f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ten_partic),
+                    contentDescription = "first participation",
+                    modifier = Modifier.size(120.dp)
+                )
+            }
+        }
+        if(scansReceived >= 1){
+            Column(
+                modifier = Modifier.weight(0.25f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.first_event_badge),
+                    contentDescription = "first scan",
+                    modifier = Modifier.size(120.dp)
+                )
+
+            }
+        }
+        if(scansReceived >= 100){
+            Column(
+                modifier = Modifier.weight(0.25f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.hund_participants),
+                    contentDescription = "first scan",
+                    modifier = Modifier.size(120.dp)
+                )
+
+            }
+        }
+    }
 }
