@@ -1,10 +1,16 @@
 package com.example.partyapp.ui
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.provider.CalendarContract
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -65,9 +71,11 @@ import com.example.partyapp.services.EventFactory
 import com.example.partyapp.services.EventUtilities
 import com.example.partyapp.services.ImageChooserService
 import com.example.partyapp.services.NotificationScheduler
+import com.example.partyapp.services.PermissionsHelper
 import com.example.partyapp.ui.components.AddButton
 import com.example.partyapp.ui.components.LocationPickerDialogButton
 import com.example.partyapp.ui.components.PartyDatePickerComponent
+import com.example.partyapp.ui.components.PartyDialog
 import com.example.partyapp.ui.components.PartyIconButton
 import com.example.partyapp.ui.components.PartyTextField
 import com.example.partyapp.ui.components.PartyTimePickerComponent
@@ -101,6 +109,8 @@ fun EventScreen(
     event = eventViewModel.eventSelected ?: factory.createEmptyEvent(userViewModel.loggedUser!!)
     loggedUser = userViewModel.loggedUser!!
     viewModel = eventViewModel
+    val permissionsHelper = PermissionsHelper(LocalContext.current)
+    permissionsHelper.RequestPermission(permission = Manifest.permission.WRITE_CALENDAR)
 
     Column(
         modifier = Modifier
@@ -366,7 +376,7 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
                 updateEvent(event.copy(day = dayValue))
                 selectedDateNumber = event.day
             }
-            var date: String by remember { mutableStateOf(dateToStr(EventUtilities().getEventDateTime(event))) }
+            var date: String by remember { mutableStateOf(dateToStr(EventUtilities().getEventStartDateTime(event))) }
             PartyDatePickerComponent(
                 text = date,
                 onDatePicked = { year, month, day ->
@@ -377,7 +387,7 @@ private fun EventDateDetail(modifier: Modifier = Modifier) {
                 }
             )
         } else {
-            val calendar = EventUtilities().getEventDateTime(event)
+            val calendar = EventUtilities().getEventStartDateTime(event)
             Text(text = dateToStr(calendar),color = Color.White)
         }
     }
@@ -403,7 +413,7 @@ private fun EventTimeDetail(modifier: Modifier = Modifier) {
                 text = starts,
                 onTimePicked = { h, m ->
                     starts = "%02d:%02d".format(h, m)
-                    ends = "%02d:%02d".format(h + 2, m)
+                    ends = "%02d:%02d".format((h + 2) % 24, m)
                     updateEvent(event.copy(starts = starts, ends = ends))
                 }
             )
@@ -482,17 +492,30 @@ private fun Actions(
     modifier: Modifier = Modifier,
     onBackToPrevPage: () -> Unit = {}
 ) {
+    var showDialog by remember { mutableStateOf(false) }
     Row (
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (!EventUtilities().isEventCreatedBy(event, loggedUser)) {
-            AddEventButton(eventViewModel)
+            AddEventButton(eventViewModel, onEventAdd = { showDialog = true })
         } else if (EventUtilities().isNewEvent(event)) {
-            SaveDiscardBtns(eventViewModel, userViewModel, onBackToPrevPage)
+            SaveDiscardBtns(
+                eventViewModel, userViewModel,
+                onEventSave = { showDialog = true }
+            )
         } else {
             DeleteEventButton(eventViewModel, onBackToPrevPage)
         }
+    }
+    if (showDialog) {
+        AddToCalendarDialog(
+            onHideDialog = { showDialog = false },
+            onBackToPrevPage = onBackToPrevPage,
+            onEventAdded =  {
+                if (EventUtilities().isNewEvent(event)) onBackToPrevPage()
+            }
+        )
     }
 }
 
@@ -500,7 +523,8 @@ private fun Actions(
 private fun SaveDiscardBtns(
     eventViewModel: EventViewModel,
     userViewModel: UserViewModel,
-    onBackToPrevPage: () -> Unit = {}
+    onBackToPrevPage: () -> Unit = {},
+    onEventSave: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val events = eventViewModel.events.collectAsState(initial = listOf()).value
@@ -525,9 +549,10 @@ private fun SaveDiscardBtns(
                 updateEvent(event.copy(eventId = newID))
                 eventViewModel.createNewEvent(event)
                 userViewModel.addExpToLoggedUser(newEventXp)
-                addParticipation(eventViewModel)
+                addParticipation(context, eventViewModel)
                 addNotification(context = context)
                 Toast.makeText(context, xpGainedMsg, Toast.LENGTH_SHORT).show()
+                onEventSave()
                 onBackToPrevPage()
             } catch (ex: Exception) {
                 Toast.makeText(context, ex.message, Toast.LENGTH_SHORT).show()
@@ -540,7 +565,7 @@ private fun SaveDiscardBtns(
 @Composable
 private fun AddEventButton(
     eventViewModel: EventViewModel,
-    //onBackToPrevPage: () -> Unit = {}
+    onEventAdd: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val participants = eventViewModel.getParticipantsFromEventId(event.eventId)
@@ -553,8 +578,9 @@ private fun AddEventButton(
                else stringResource(id = R.string.add),
         textColor = if (wasAddedByCurrentUser) Color.Gray else Color.White,
         onClick = {
-            addParticipation(eventViewModel)
+            addParticipation(context, eventViewModel)
             addNotification(context = context)
+            onEventAdd()
         },
         modifier = Modifier.fillMaxWidth(),
         enabled = !wasAddedByCurrentUser
@@ -593,16 +619,89 @@ private fun DeleteEventButton(
     )
 }
 
-private fun addParticipation(eventViewModel: EventViewModel) {
+private fun addParticipation(context: Context, eventViewModel: EventViewModel) {
     val crossRef = UserAddEventCrossRef(id = loggedUser.id, eventId = event.eventId)
     eventViewModel.addParticipant(crossRef)
     updateEvent(event.copy(participants = event.participants + 1))
     eventViewModel.updateParticipants(event.participants.toInt(), event.eventId)
 }
 
+@Composable
+private fun AddToCalendarDialog(
+    onHideDialog: () -> Unit = {},
+    onBackToPrevPage: () -> Unit = {},
+    onEventAdded: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    // Launcher to handle the result of the calendar intent
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK || result.resultCode == Activity.RESULT_CANCELED) {
+            onEventAdded() // Call the function after returning from the calendar app
+        }
+    }
+
+    PartyDialog(title = stringResource(id = R.string.add_to_calendar) + "?",
+        onDismissRequest = onHideDialog,
+        content = {
+            Row (
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(15.dp)
+            ) {
+                TextButton(
+                    text = stringResource(id = R.string.confirm),
+                    onClick = {
+                        addToCalendar(context = context, event, launcher)
+                    }
+                )
+                TextButton(
+                    text = stringResource(id = R.string.cancel),
+                    onClick = {
+                        onHideDialog()
+                        onBackToPrevPage()
+                    }
+                )
+            }
+        }
+    )
+}
+
+private fun addToCalendar(
+    context: Context,
+    event: Event,
+    launcher:  ManagedActivityResultLauncher<Intent, ActivityResult>?
+) {
+    val intent = Intent(Intent.ACTION_INSERT).apply {
+        data = CalendarContract.Events.CONTENT_URI
+        putExtra(CalendarContract.Events.TITLE, event.name)
+        val location = EventUtilities().getEventLocationString(context, event)
+        putExtra(CalendarContract.Events.EVENT_LOCATION, location)
+        putExtra(CalendarContract.Events.DESCRIPTION, event.description)
+
+        val start = EventUtilities().getEventStartDateTime(event)
+        val end = EventUtilities().getEventEndDateTime(event)
+        putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, start.timeInMillis)
+        putExtra(CalendarContract.EXTRA_EVENT_END_TIME, end.timeInMillis)
+    }
+
+    // Verify that there is a calendar app to handle the intent
+    if (intent.resolveActivity(context.packageManager) != null) {
+        if (launcher != null) {
+            launcher.launch(intent)
+        } else {
+            context.startActivity(intent)
+        }
+    } else {
+        Toast.makeText(context, "No calendar app found!", Toast.LENGTH_SHORT).show()
+    }
+}
+
 private fun addNotification(context: Context) {
     val scheduler = NotificationScheduler()
-    val calendar = EventUtilities().getEventDateTime(event)
+    val calendar = EventUtilities().getEventStartDateTime(event)
     Log.d("DELAYED_NOTIF", "Set notification: ${calendar.time}, ${event.name} ")
     scheduler.scheduleNotification(
         context = context,
